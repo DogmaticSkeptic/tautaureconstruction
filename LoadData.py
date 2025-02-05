@@ -37,7 +37,7 @@ def compute_cos_theta(p_pion, r_hat, n_hat, k_hat):
 
 particle_data_dict = pickle.load(open('pi_pi_recon_particles.pkl', 'rb'))
 
-print(particle_data_dict.keys())
+#print(particle_data_dict.keys())
 
 
 # Truth Objects
@@ -60,7 +60,7 @@ def compute_four_momentum(vec):
         
     return np.array([E, px, py, pz])
     
-n_events = 100
+n_events = 1000
 
 truth_data = []
 reco_data = []
@@ -71,7 +71,6 @@ for i in range(n_events):
     truth_data.append((compute_four_momentum(truth_tau_p[i]), compute_four_momentum(truth_tau_m[i]), compute_four_momentum(truth_pion_p[i]), compute_four_momentum(truth_pion_m[i]), compute_four_momentum(truth_nu_p[i]), compute_four_momentum(truth_nu_m[i])))
     reco_data.append((compute_four_momentum(tau_p_pion[i]), compute_four_momentum(tau_m_pion[i])))
 
-#print(tau_p_pion[-1].mass)
 
 # Plot results
 true_energies = [p[2][0] for p in tqdm(truth_data)] + [p[3][0] for p in tqdm(truth_data)]
@@ -85,19 +84,19 @@ num_bins = 10
 bins = np.linspace(x_min, x_max, num_bins + 1)
 
 # Plot histograms using the defined bins
-plt.hist(true_energies, bins=bins, alpha=0.7, label="True Pion Energies")
-plt.hist(reco_energies, bins=bins, alpha=0.7, label="Reco Pion Energies")
+#plt.hist(true_energies, bins=bins, alpha=0.7, label="True Pion Energies")
+#plt.hist(reco_energies, bins=bins, alpha=0.7, label="Reco Pion Energies")
 
 # Labels and title
-plt.xlabel("Energy (GeV)")
-plt.ylabel("Count")
-plt.legend()
-plt.title("True vs. Reconstructed Pion Energies")
+#plt.xlabel("Energy (GeV)")
+#plt.ylabel("Count")
+#plt.legend()
+#plt.title("True vs. Reconstructed Pion Energies")
 
 # Set the x-axis range explicitly (though the bins already enforce it)
-plt.xlim(x_min, x_max)
+#plt.xlim(x_min, x_max)
 
-plt.show()
+#plt.show()
 
 # Extract neutrino data for plotting
 true_neutrino_energies = [p[4][0] for p in truth_data] + [p[5][0] for p in truth_data]
@@ -116,31 +115,31 @@ for event in truth_data:
         true_neutrino_phi.append(phi)
 
 # Plot neutrino energy distribution
-plt.figure(figsize=(10, 6))
-plt.hist(true_neutrino_energies, bins=50, alpha=0.7, color='blue', label='Neutrino Energies')
-plt.xlabel('Energy (GeV)')
-plt.ylabel('Count')
-plt.title('Neutrino Energy Distribution')
-plt.legend()
-plt.show()
+#plt.figure(figsize=(10, 6))
+#plt.hist(true_neutrino_energies, bins=50, alpha=0.7, color='blue', label='Neutrino Energies')
+#plt.xlabel('Energy (GeV)')
+#plt.ylabel('Count')
+#plt.title('Neutrino Energy Distribution')
+#plt.legend()
+#plt.show()
 
 # Plot neutrino pseudorapidity distribution
-plt.figure(figsize=(10, 6))
-plt.hist(true_neutrino_eta, bins=50, alpha=0.7, color='blue', label='Neutrino Pseudorapidity')
-plt.xlabel(r'$\eta$')
-plt.ylabel('Count')
-plt.title('Neutrino Pseudorapidity Distribution')
-plt.legend()
-plt.show()
+#plt.figure(figsize=(10, 6))
+#plt.hist(true_neutrino_eta, bins=50, alpha=0.7, color='blue', label='Neutrino Pseudorapidity')
+#plt.xlabel(r'$\eta$')
+#plt.ylabel('Count')
+#plt.title('Neutrino Pseudorapidity Distribution')
+#plt.legend()
+#plt.show()
 
 # Plot neutrino phi distribution
-plt.figure(figsize=(10, 6))
-plt.hist(true_neutrino_phi, bins=50, alpha=0.7, color='blue', label='Neutrino Phi')
-plt.xlabel(r'$\phi$ (radians)')
-plt.ylabel('Count')
-plt.title('Neutrino Phi Distribution')
-plt.legend()
-plt.show()
+#plt.figure(figsize=(10, 6))
+#plt.hist(true_neutrino_phi, bins=50, alpha=0.7, color='blue', label='Neutrino Phi')
+#plt.xlabel(r'$\phi$ (radians)')
+#plt.ylabel('Count')
+#plt.title('Neutrino Phi Distribution')
+#plt.legend()
+#plt.show()
 
 
 # Constants
@@ -406,7 +405,7 @@ for i in range(n_events):
     # Reco cos theta for tau-
     cos_theta_r_m, cos_theta_n_m, cos_theta_k_m = compute_cos_theta(reco_data[i][1], r_hat_reco, n_hat_reco, k_hat_reco)
     reco_cos_theta_r_m.append(cos_theta_r_m)
-    reco_cos_theta_n_m.append(cos_theta_n_m)
+
     reco_cos_theta_k_m.append(cos_theta_k_m)
 
 # Plot cos theta for tau+
