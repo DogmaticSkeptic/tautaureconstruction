@@ -379,29 +379,32 @@ reco_cos_theta_r_p, reco_cos_theta_n_p, reco_cos_theta_k_p = [], [], []
 reco_cos_theta_r_m, reco_cos_theta_n_m, reco_cos_theta_k_m = [], [], []
 
 for i in range(n_events):
-    # Define coordinate system in the tau tau rest frame
-    r_hat, n_hat, k_hat = define_coordinate_system(truth_data[i][0], truth_data[i][1])
+    # Define coordinate system for truth data
+    r_hat_truth, n_hat_truth, k_hat_truth = define_coordinate_system(truth_data[i][0], truth_data[i][1])
     
     # Truth cos theta for tau+
-    cos_theta_r_p, cos_theta_n_p, cos_theta_k_p = compute_cos_theta(truth_data[i][2], r_hat, n_hat, k_hat)
+    cos_theta_r_p, cos_theta_n_p, cos_theta_k_p = compute_cos_theta(truth_data[i][2], r_hat_truth, n_hat_truth, k_hat_truth)
     truth_cos_theta_r_p.append(cos_theta_r_p)
     truth_cos_theta_n_p.append(cos_theta_n_p)
     truth_cos_theta_k_p.append(cos_theta_k_p)
     
     # Truth cos theta for tau-
-    cos_theta_r_m, cos_theta_n_m, cos_theta_k_m = compute_cos_theta(truth_data[i][3], r_hat, n_hat, k_hat)
+    cos_theta_r_m, cos_theta_n_m, cos_theta_k_m = compute_cos_theta(truth_data[i][3], r_hat_truth, n_hat_truth, k_hat_truth)
     truth_cos_theta_r_m.append(cos_theta_r_m)
     truth_cos_theta_n_m.append(cos_theta_n_m)
     truth_cos_theta_k_m.append(cos_theta_k_m)
     
+    # Define coordinate system for reco data
+    r_hat_reco, n_hat_reco, k_hat_reco = define_coordinate_system(reco_tau_momenta[i][0], reco_tau_momenta[i][1])
+    
     # Reco cos theta for tau+
-    cos_theta_r_p, cos_theta_n_p, cos_theta_k_p = compute_cos_theta(reco_data[i][0], r_hat, n_hat, k_hat)
+    cos_theta_r_p, cos_theta_n_p, cos_theta_k_p = compute_cos_theta(reco_data[i][0], r_hat_reco, n_hat_reco, k_hat_reco)
     reco_cos_theta_r_p.append(cos_theta_r_p)
     reco_cos_theta_n_p.append(cos_theta_n_p)
     reco_cos_theta_k_p.append(cos_theta_k_p)
     
     # Reco cos theta for tau-
-    cos_theta_r_m, cos_theta_n_m, cos_theta_k_m = compute_cos_theta(reco_data[i][1], r_hat, n_hat, k_hat)
+    cos_theta_r_m, cos_theta_n_m, cos_theta_k_m = compute_cos_theta(reco_data[i][1], r_hat_reco, n_hat_reco, k_hat_reco)
     reco_cos_theta_r_m.append(cos_theta_r_m)
     reco_cos_theta_n_m.append(cos_theta_n_m)
     reco_cos_theta_k_m.append(cos_theta_k_m)
