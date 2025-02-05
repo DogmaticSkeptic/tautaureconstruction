@@ -29,7 +29,7 @@ def compute_four_momentum(vec):
         
     return np.array([E, px, py, pz])
     
-n_events = 400
+n_events = 100
 
 truth_data = []
 reco_data = []
@@ -186,30 +186,39 @@ def compute_pT(p):
     px, py = p[1], p[2]
     return np.sqrt(px**2 + py**2)
 
-# Collect truth and reconstructed values
-truth_eta = []
-truth_phi = []
-truth_pT = []
-reco_eta = []
-reco_phi = []
-reco_pT = []
+# Collect truth and reconstructed values separated by charge
+truth_eta_p = []
+truth_phi_p = []
+truth_pT_p = []
+reco_eta_p = []
+reco_phi_p = []
+reco_pT_p = []
+
+truth_eta_m = []
+truth_phi_m = []
+truth_pT_m = []
+reco_eta_m = []
+reco_phi_m = []
+reco_pT_m = []
 
 for i in range(n_events):
     # Truth neutrinos
-    truth_eta.append(compute_eta(truth_data[i][4]))
-    truth_eta.append(compute_eta(truth_data[i][5]))
-    truth_phi.append(compute_phi(truth_data[i][4]))
-    truth_phi.append(compute_phi(truth_data[i][5]))
-    truth_pT.append(compute_pT(truth_data[i][4]))
-    truth_pT.append(compute_pT(truth_data[i][5]))
+    truth_eta_p.append(compute_eta(truth_data[i][4]))  # nu_p
+    truth_phi_p.append(compute_phi(truth_data[i][4]))
+    truth_pT_p.append(compute_pT(truth_data[i][4]))
+    
+    truth_eta_m.append(compute_eta(truth_data[i][5]))  # nu_m
+    truth_phi_m.append(compute_phi(truth_data[i][5]))
+    truth_pT_m.append(compute_pT(truth_data[i][5]))
 
     # Reconstructed neutrinos
-    reco_eta.append(compute_eta(reco_neutrino_momenta[i][0]))
-    reco_eta.append(compute_eta(reco_neutrino_momenta[i][1]))
-    reco_phi.append(compute_phi(reco_neutrino_momenta[i][0]))
-    reco_phi.append(compute_phi(reco_neutrino_momenta[i][1]))
-    reco_pT.append(compute_pT(reco_neutrino_momenta[i][0]))
-    reco_pT.append(compute_pT(reco_neutrino_momenta[i][1]))
+    reco_eta_p.append(compute_eta(reco_neutrino_momenta[i][0]))  # nu_p
+    reco_phi_p.append(compute_phi(reco_neutrino_momenta[i][0]))
+    reco_pT_p.append(compute_pT(reco_neutrino_momenta[i][0]))
+    
+    reco_eta_m.append(compute_eta(reco_neutrino_momenta[i][1]))  # nu_m
+    reco_phi_m.append(compute_phi(reco_neutrino_momenta[i][1]))
+    reco_pT_m.append(compute_pT(reco_neutrino_momenta[i][1]))
 
 # Function to plot histograms with ratio (without normalization on the top)
 def plot_comparison_with_ratio(truth_values, reco_values, xlabel, title, bins=50, xlim=None):
@@ -243,15 +252,24 @@ def plot_comparison_with_ratio(truth_values, reco_values, xlabel, title, bins=50
     plt.tight_layout()
     plt.show()
 
-# Plot pseudorapidity (eta)
-plot_comparison_with_ratio(truth_eta, reco_eta, xlabel=r'Pseudorapidity $\eta$', title='Truth vs. Reconstructed Neutrino Pseudorapidity')
+# Plot pseudorapidity (eta) for positive and negative neutrinos
+plot_comparison_with_ratio(truth_eta_p, reco_eta_p, xlabel=r'Pseudorapidity $\eta$', 
+                          title='Truth vs. Reconstructed Neutrino+ Pseudorapidity')
+plot_comparison_with_ratio(truth_eta_m, reco_eta_m, xlabel=r'Pseudorapidity $\eta$', 
+                          title='Truth vs. Reconstructed Neutrino- Pseudorapidity')
 
-# Plot phi
-plot_comparison_with_ratio(truth_phi, reco_phi, xlabel=r'Azimuthal Angle $\phi$ (radians)', title='Truth vs. Reconstructed Neutrino $\phi$')
+# Plot phi for positive and negative neutrinos
+plot_comparison_with_ratio(truth_phi_p, reco_phi_p, xlabel=r'Azimuthal Angle $\phi$ (radians)', 
+                          title='Truth vs. Reconstructed Neutrino+ $\phi$')
+plot_comparison_with_ratio(truth_phi_m, reco_phi_m, xlabel=r'Azimuthal Angle $\phi$ (radians)', 
+                          title='Truth vs. Reconstructed Neutrino- $\phi$')
 
-# Plot transverse momentum (pT) with xlim for neutrinos
-plot_comparison_with_ratio(truth_pT, reco_pT, xlabel=r'Transverse Momentum $p_T$ (GeV)', 
-                          title='Truth vs. Reconstructed Neutrino Transverse Momentum',
+# Plot transverse momentum (pT) for positive and negative neutrinos
+plot_comparison_with_ratio(truth_pT_p, reco_pT_p, xlabel=r'Transverse Momentum $p_T$ (GeV)', 
+                          title='Truth vs. Reconstructed Neutrino+ Transverse Momentum',
+                          bins=50, xlim=(0, 100))
+plot_comparison_with_ratio(truth_pT_m, reco_pT_m, xlabel=r'Transverse Momentum $p_T$ (GeV)', 
+                          title='Truth vs. Reconstructed Neutrino- Transverse Momentum',
                           bins=50, xlim=(0, 100))
 
 
@@ -269,38 +287,56 @@ for i in range(n_events):
 
     reco_tau_momenta.append((p_tau_p_reco, p_tau_m_reco))
 
-# Collect truth and reconstructed tau properties
-truth_tau_eta = []
-truth_tau_phi = []
-truth_tau_pT = []
-reco_tau_eta = []
-reco_tau_phi = []
-reco_tau_pT = []
+# Collect truth and reconstructed tau properties separated by charge
+truth_tau_eta_p = []
+truth_tau_phi_p = []
+truth_tau_pT_p = []
+reco_tau_eta_p = []
+reco_tau_phi_p = []
+reco_tau_pT_p = []
+
+truth_tau_eta_m = []
+truth_tau_phi_m = []
+truth_tau_pT_m = []
+reco_tau_eta_m = []
+reco_tau_phi_m = []
+reco_tau_pT_m = []
 
 for i in range(n_events):
     # Truth taus
-    truth_tau_eta.append(compute_eta(truth_data[i][0]))
-    truth_tau_eta.append(compute_eta(truth_data[i][1]))
-    truth_tau_phi.append(compute_phi(truth_data[i][0]))
-    truth_tau_phi.append(compute_phi(truth_data[i][1]))
-    truth_tau_pT.append(compute_pT(truth_data[i][0]))
-    truth_tau_pT.append(compute_pT(truth_data[i][1]))
+    truth_tau_eta_p.append(compute_eta(truth_data[i][0]))  # tau+
+    truth_tau_phi_p.append(compute_phi(truth_data[i][0]))
+    truth_tau_pT_p.append(compute_pT(truth_data[i][0]))
+    
+    truth_tau_eta_m.append(compute_eta(truth_data[i][1]))  # tau-
+    truth_tau_phi_m.append(compute_phi(truth_data[i][1]))
+    truth_tau_pT_m.append(compute_pT(truth_data[i][1]))
 
     # Reconstructed taus
-    reco_tau_eta.append(compute_eta(reco_tau_momenta[i][0]))
-    reco_tau_eta.append(compute_eta(reco_tau_momenta[i][1]))
-    reco_tau_phi.append(compute_phi(reco_tau_momenta[i][0]))
-    reco_tau_phi.append(compute_phi(reco_tau_momenta[i][1]))
-    reco_tau_pT.append(compute_pT(reco_tau_momenta[i][0]))
-    reco_tau_pT.append(compute_pT(reco_tau_momenta[i][1]))
+    reco_tau_eta_p.append(compute_eta(reco_tau_momenta[i][0]))  # tau+
+    reco_tau_phi_p.append(compute_phi(reco_tau_momenta[i][0]))
+    reco_tau_pT_p.append(compute_pT(reco_tau_momenta[i][0]))
+    
+    reco_tau_eta_m.append(compute_eta(reco_tau_momenta[i][1]))  # tau-
+    reco_tau_phi_m.append(compute_phi(reco_tau_momenta[i][1]))
+    reco_tau_pT_m.append(compute_pT(reco_tau_momenta[i][1]))
 
-# Plot pseudorapidity (eta) for taus
-plot_comparison_with_ratio(truth_tau_eta, reco_tau_eta, xlabel=r'Pseudorapidity $\eta$', title='Truth vs. Reconstructed Tau Pseudorapidity')
+# Plot pseudorapidity (eta) for positive and negative taus
+plot_comparison_with_ratio(truth_tau_eta_p, reco_tau_eta_p, xlabel=r'Pseudorapidity $\eta$', 
+                          title='Truth vs. Reconstructed Tau+ Pseudorapidity')
+plot_comparison_with_ratio(truth_tau_eta_m, reco_tau_eta_m, xlabel=r'Pseudorapidity $\eta$', 
+                          title='Truth vs. Reconstructed Tau- Pseudorapidity')
 
-# Plot phi for taus
-plot_comparison_with_ratio(truth_tau_phi, reco_tau_phi, xlabel=r'Azimuthal Angle $\phi$ (radians)', title='Truth vs. Reconstructed Tau $\phi$')
+# Plot phi for positive and negative taus
+plot_comparison_with_ratio(truth_tau_phi_p, reco_tau_phi_p, xlabel=r'Azimuthal Angle $\phi$ (radians)', 
+                          title='Truth vs. Reconstructed Tau+ $\phi$')
+plot_comparison_with_ratio(truth_tau_phi_m, reco_tau_phi_m, xlabel=r'Azimuthal Angle $\phi$ (radians)', 
+                          title='Truth vs. Reconstructed Tau- $\phi$')
 
-# Plot transverse momentum (pT) for taus with xlim
-plot_comparison_with_ratio(truth_tau_pT, reco_tau_pT, xlabel=r'Transverse Momentum $p_T$ (GeV)', 
-                          title='Truth vs. Reconstructed Tau Transverse Momentum',
+# Plot transverse momentum (pT) for positive and negative taus
+plot_comparison_with_ratio(truth_tau_pT_p, reco_tau_pT_p, xlabel=r'Transverse Momentum $p_T$ (GeV)', 
+                          title='Truth vs. Reconstructed Tau+ Transverse Momentum',
+                          bins=50, xlim=(0, 150))
+plot_comparison_with_ratio(truth_tau_pT_m, reco_tau_pT_m, xlabel=r'Transverse Momentum $p_T$ (GeV)', 
+                          title='Truth vs. Reconstructed Tau- Transverse Momentum',
                           bins=50, xlim=(0, 150))
