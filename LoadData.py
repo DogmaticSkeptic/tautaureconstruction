@@ -34,6 +34,7 @@ def compute_cos_theta(p_pion, r_hat, n_hat, k_hat):
     cos_theta_k = np.dot(p_pion_norm, k_hat)
     
     return cos_theta_r, cos_theta_n, cos_theta_k
+
 particle_data_dict = pickle.load(open('pi_pi_recon_particles.pkl', 'rb'))
 
 print(particle_data_dict.keys())
