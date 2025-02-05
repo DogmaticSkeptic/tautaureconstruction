@@ -1,3 +1,23 @@
+# Aider related
 .aider*
+.aider_cache/
+.aider_history
+conversation_log.md
+
+# Environment
 .env
+.venv/
+env/
+venv/
+ENV/
+env.bak/
+venv.bak/
+
+# Data files
 *.pkl
+*.pickle
+*.csv
+*.h5
+*.hdf5
+*.parquet
+*.feather
