@@ -4,6 +4,36 @@ import pandas as pd
 import matplotlib.pyplot as plt
 from tqdm import tqdm
 import scipy.optimize as opt
+
+def define_coordinate_system(p_tau_p, p_tau_m):
+    """Define the {r^, n^, k^} coordinate system in the tau tau rest frame"""
+    # k^ is the flight direction of tau- in the tau tau rest frame
+    k_hat = p_tau_m[1:] / np.linalg.norm(p_tau_m[1:])
+    
+    # p^ is the direction of one of the e± beams (assume z-axis)
+    p_hat = np.array([0, 0, 1])
+    
+    # r^ = (p^ - k^ * cosΘ) / sinΘ
+    cos_theta = np.dot(k_hat, p_hat)
+    sin_theta = np.sqrt(1 - cos_theta**2)
+    r_hat = (p_hat - k_hat * cos_theta) / sin_theta
+    
+    # n^ = k^ × r^
+    n_hat = np.cross(k_hat, r_hat)
+    
+    return r_hat, n_hat, k_hat
+
+def compute_cos_theta(p_pion, r_hat, n_hat, k_hat):
+    """Calculate cos theta for each axis"""
+    # Normalize the pion momentum vector
+    p_pion_norm = p_pion[1:] / np.linalg.norm(p_pion[1:])
+    
+    # Calculate cos theta for each axis
+    cos_theta_r = np.dot(p_pion_norm, r_hat)
+    cos_theta_n = np.dot(p_pion_norm, n_hat)
+    cos_theta_k = np.dot(p_pion_norm, k_hat)
+    
+    return cos_theta_r, cos_theta_n, cos_theta_k
 particle_data_dict = pickle.load(open('pi_pi_recon_particles.pkl', 'rb'))
 
 print(particle_data_dict.keys())
@@ -340,6 +370,56 @@ plot_comparison_with_ratio(truth_tau_pT_p, reco_tau_pT_p, xlabel=r'Transverse Mo
 plot_comparison_with_ratio(truth_tau_pT_m, reco_tau_pT_m, xlabel=r'Transverse Momentum $p_T$ (GeV)', 
                           title='Truth vs. Reconstructed Tau- Transverse Momentum',
                           bins=50, xlim=(0, 150))
+
+# Initialize lists to store cos theta values
+truth_cos_theta_r_p, truth_cos_theta_n_p, truth_cos_theta_k_p = [], [], []
+truth_cos_theta_r_m, truth_cos_theta_n_m, truth_cos_theta_k_m = [], [], []
+reco_cos_theta_r_p, reco_cos_theta_n_p, reco_cos_theta_k_p = [], [], []
+reco_cos_theta_r_m, reco_cos_theta_n_m, reco_cos_theta_k_m = [], [], []
+
+for i in range(n_events):
+    # Define coordinate system in the tau tau rest frame
+    r_hat, n_hat, k_hat = define_coordinate_system(truth_data[i][0], truth_data[i][1])
+    
+    # Truth cos theta for tau+
+    cos_theta_r_p, cos_theta_n_p, cos_theta_k_p = compute_cos_theta(truth_data[i][2], r_hat, n_hat, k_hat)
+    truth_cos_theta_r_p.append(cos_theta_r_p)
+    truth_cos_theta_n_p.append(cos_theta_n_p)
+    truth_cos_theta_k_p.append(cos_theta_k_p)
+    
+    # Truth cos theta for tau-
+    cos_theta_r_m, cos_theta_n_m, cos_theta_k_m = compute_cos_theta(truth_data[i][3], r_hat, n_hat, k_hat)
+    truth_cos_theta_r_m.append(cos_theta_r_m)
+    truth_cos_theta_n_m.append(cos_theta_n_m)
+    truth_cos_theta_k_m.append(cos_theta_k_m)
+    
+    # Reco cos theta for tau+
+    cos_theta_r_p, cos_theta_n_p, cos_theta_k_p = compute_cos_theta(reco_data[i][0], r_hat, n_hat, k_hat)
+    reco_cos_theta_r_p.append(cos_theta_r_p)
+    reco_cos_theta_n_p.append(cos_theta_n_p)
+    reco_cos_theta_k_p.append(cos_theta_k_p)
+    
+    # Reco cos theta for tau-
+    cos_theta_r_m, cos_theta_n_m, cos_theta_k_m = compute_cos_theta(reco_data[i][1], r_hat, n_hat, k_hat)
+    reco_cos_theta_r_m.append(cos_theta_r_m)
+    reco_cos_theta_n_m.append(cos_theta_n_m)
+    reco_cos_theta_k_m.append(cos_theta_k_m)
+
+# Plot cos theta for tau+
+plot_comparison_with_ratio(truth_cos_theta_r_p, reco_cos_theta_r_p, xlabel=r'$\cos \theta_r$', 
+                          title='Truth vs. Reconstructed $\cos \theta_r$ for Tau+')
+plot_comparison_with_ratio(truth_cos_theta_n_p, reco_cos_theta_n_p, xlabel=r'$\cos \theta_n$', 
+                          title='Truth vs. Reconstructed $\cos \theta_n$ for Tau+')
+plot_comparison_with_ratio(truth_cos_theta_k_p, reco_cos_theta_k_p, xlabel=r'$\cos \theta_k$', 
+                          title='Truth vs. Reconstructed $\cos \theta_k$ for Tau+')
+
+# Plot cos theta for tau-
+plot_comparison_with_ratio(truth_cos_theta_r_m, reco_cos_theta_r_m, xlabel=r'$\cos \theta_r$', 
+                          title='Truth vs. Reconstructed $\cos \theta_r$ for Tau-')
+plot_comparison_with_ratio(truth_cos_theta_n_m, reco_cos_theta_n_m, xlabel=r'$\cos \theta_n$', 
+                          title='Truth vs. Reconstructed $\cos \theta_n$ for Tau-')
+plot_comparison_with_ratio(truth_cos_theta_k_m, reco_cos_theta_k_m, xlabel=r'$\cos \theta_k$', 
+                          title='Truth vs. Reconstructed $\cos \theta_k$ for Tau-')
 
 # Function to plot relative uncertainties
 def plot_relative_uncertainty(truth_values, reco_values, component, particle_type, charge, bins=50, xlim=(-1, 1)):
