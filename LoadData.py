@@ -212,7 +212,7 @@ for i in range(n_events):
     reco_pT.append(compute_pT(reco_neutrino_momenta[i][1]))
 
 # Function to plot histograms with ratio (without normalization on the top)
-def plot_comparison_with_ratio(truth_values, reco_values, xlabel, title, bins=50):
+def plot_comparison_with_ratio(truth_values, reco_values, xlabel, title, bins=50, xlim=None):
     fig, ax = plt.subplots(2, 1, figsize=(10, 8), gridspec_kw={'height_ratios': [3, 1]}, sharex=True)
 
     # Top Plot - Truth (filled) vs Reco (outline)
@@ -237,6 +237,9 @@ def plot_comparison_with_ratio(truth_values, reco_values, xlabel, title, bins=50
     ax[1].set_xlabel(xlabel)
     ax[1].set_ylabel('Reco / Truth')
 
+    if xlim is not None:
+        ax[0].set_xlim(xlim)
+        ax[1].set_xlim(xlim)
     plt.tight_layout()
     plt.show()
 
@@ -246,8 +249,10 @@ plot_comparison_with_ratio(truth_eta, reco_eta, xlabel=r'Pseudorapidity $\eta$',
 # Plot phi
 plot_comparison_with_ratio(truth_phi, reco_phi, xlabel=r'Azimuthal Angle $\phi$ (radians)', title='Truth vs. Reconstructed Neutrino $\phi$')
 
-# Plot transverse momentum (pT)
-plot_comparison_with_ratio(truth_pT, reco_pT, xlabel=r'Transverse Momentum $p_T$ (GeV)', title='Truth vs. Reconstructed Neutrino Transverse Momentum')
+# Plot transverse momentum (pT) with xlim for neutrinos
+plot_comparison_with_ratio(truth_pT, reco_pT, xlabel=r'Transverse Momentum $p_T$ (GeV)', 
+                          title='Truth vs. Reconstructed Neutrino Transverse Momentum',
+                          bins=50, xlim=(0, 100))
 
 
 # Compute reconstructed tau momenta from reconstructed neutrinos and pions
@@ -295,5 +300,7 @@ plot_comparison_with_ratio(truth_tau_eta, reco_tau_eta, xlabel=r'Pseudorapidity 
 # Plot phi for taus
 plot_comparison_with_ratio(truth_tau_phi, reco_tau_phi, xlabel=r'Azimuthal Angle $\phi$ (radians)', title='Truth vs. Reconstructed Tau $\phi$')
 
-# Plot transverse momentum (pT) for taus
-plot_comparison_with_ratio(truth_tau_pT, reco_tau_pT, xlabel=r'Transverse Momentum $p_T$ (GeV)', title='Truth vs. Reconstructed Tau Transverse Momentum')
+# Plot transverse momentum (pT) for taus with xlim
+plot_comparison_with_ratio(truth_tau_pT, reco_tau_pT, xlabel=r'Transverse Momentum $p_T$ (GeV)', 
+                          title='Truth vs. Reconstructed Tau Transverse Momentum',
+                          bins=50, xlim=(0, 150))
