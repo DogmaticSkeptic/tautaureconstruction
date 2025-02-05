@@ -340,3 +340,43 @@ plot_comparison_with_ratio(truth_tau_pT_p, reco_tau_pT_p, xlabel=r'Transverse Mo
 plot_comparison_with_ratio(truth_tau_pT_m, reco_tau_pT_m, xlabel=r'Transverse Momentum $p_T$ (GeV)', 
                           title='Truth vs. Reconstructed Tau- Transverse Momentum',
                           bins=50, xlim=(0, 150))
+
+# Function to plot relative uncertainties
+def plot_relative_uncertainty(truth_values, reco_values, component, particle_type, charge, bins=50, xlim=(-1, 1)):
+    # Calculate relative uncertainties
+    rel_unc = [(reco - truth)/truth if truth != 0 else 0 
+               for truth, reco in zip(truth_values, reco_values)]
+    
+    # Plot histogram
+    plt.figure(figsize=(10, 6))
+    plt.hist(rel_unc, bins=bins, alpha=0.7)
+    plt.xlabel(f'Relative Uncertainty in {component}')
+    plt.ylabel('Count')
+    plt.title(f'Relative Uncertainty in {component} for {particle_type}{charge}')
+    plt.xlim(xlim)
+    plt.grid(True)
+    plt.show()
+
+# Plot relative uncertainties for tau components
+for component, idx in [('px', 1), ('py', 2), ('pz', 3)]:
+    # Tau+
+    truth_p = [truth_data[i][0][idx] for i in range(n_events)]
+    reco_p = [reco_tau_momenta[i][0][idx] for i in range(n_events)]
+    plot_relative_uncertainty(truth_p, reco_p, component, 'Tau', '+')
+    
+    # Tau-
+    truth_m = [truth_data[i][1][idx] for i in range(n_events)]
+    reco_m = [reco_tau_momenta[i][1][idx] for i in range(n_events)]
+    plot_relative_uncertainty(truth_m, reco_m, component, 'Tau', '-')
+
+# Plot relative uncertainties for neutrino components
+for component, idx in [('px', 1), ('py', 2), ('pz', 3)]:
+    # Neutrino+
+    truth_p = [truth_data[i][4][idx] for i in range(n_events)]
+    reco_p = [reco_neutrino_momenta[i][0][idx] for i in range(n_events)]
+    plot_relative_uncertainty(truth_p, reco_p, component, 'Neutrino', '+')
+    
+    # Neutrino-
+    truth_m = [truth_data[i][5][idx] for i in range(n_events)]
+    reco_m = [reco_neutrino_momenta[i][1][idx] for i in range(n_events)]
+    plot_relative_uncertainty(truth_m, reco_m, component, 'Neutrino', '-')
