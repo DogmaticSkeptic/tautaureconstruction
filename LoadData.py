@@ -416,7 +416,7 @@ reco_cos_theta_r_p, reco_cos_theta_n_p, reco_cos_theta_k_p = [], [], []
 reco_cos_theta_r_m, reco_cos_theta_n_m, reco_cos_theta_k_m = [], [], []
 
 # Debug flags
-DEBUG_BOOST = False  # Set to True to print boost debug info
+DEBUG_BOOST = True  # Set to True to print boost debug info
 
 for i in range(n_events):
     # Get tau-tau system momentum for truth and reco
