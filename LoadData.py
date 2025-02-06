@@ -24,13 +24,13 @@ def define_coordinate_system(p_tau_p, p_tau_m):
     return r_hat, n_hat, k_hat
 
 def boost_to_rest_frame(p, p_boost, debug=False):
-    """Boost a 4-momentum p into the rest frame of p_boost using matrix transformation"""
+    """Boost a 4-momentum p into the rest frame of p_boost"""
     # Check for invalid inputs
     if np.any(np.isnan(p)) or np.any(np.isnan(p_boost)):
         return np.array([np.nan, np.nan, np.nan, np.nan])
     
-    # Calculate boost parameters
-    beta = -p_boost[1:] / p_boost[0]  # Negative sign to go to rest frame
+    # Calculate boost vector (direction and magnitude)
+    beta = p_boost[1:] / p_boost[0]  # β = p/E
     beta_sq = np.dot(beta, beta)
     
     # Check for invalid beta_sq
@@ -39,23 +39,20 @@ def boost_to_rest_frame(p, p_boost, debug=False):
     
     gamma = 1.0 / np.sqrt(1.0 - beta_sq)
     
-    # Construct Lorentz transformation matrix
-    beta_outer = np.outer(beta, beta)
-    I = np.eye(3)
-    Lambda = np.zeros((4,4))
+    # Calculate components parallel and perpendicular to boost
+    beta_dot_p = np.dot(beta, p[1:])
+    p_parallel = (beta_dot_p / beta_sq) * beta
+    p_perp = p[1:] - p_parallel
     
-    Lambda[0,0] = gamma
-    Lambda[0,1:] = -gamma * beta
-    Lambda[1:,0] = -gamma * beta
-    Lambda[1:,1:] = I + (gamma - 1.0) * beta_outer / beta_sq
-    
-    # Apply transformation
-    p_prime = np.dot(Lambda, p)
+    # Apply Lorentz transformation
+    E_prime = gamma * (p[0] - beta_dot_p)
+    p_prime_parallel = gamma * (p_parallel - beta * p[0])
+    p_prime = np.array([E_prime, *(p_prime_parallel + p_perp)])
     
     # Debug checks
     if debug:
         # Verify p_boost is at rest after boost
-        p_boost_rest = np.dot(Lambda, p_boost)
+        p_boost_rest = np.array([p_boost[0]/gamma, *(p_boost[1:] - gamma*beta*p_boost[0] + (gamma-1)*p_parallel)])
         print(f"Boosted p_boost to rest frame: {p_boost_rest}")
         
         # Check total 3-momentum
@@ -74,15 +71,28 @@ def boost_three_vector(vec3, p_boost):
     if np.any(np.isnan(vec3)) or np.any(np.isnan(p_boost)):
         return np.array([np.nan, np.nan, np.nan])
     
-    # Treat as 4-vector with E=0
-    four_vec = np.array([0.0, *vec3])
-    boosted = boost_to_rest_frame(four_vec, p_boost)
+    # Calculate boost parameters
+    beta = p_boost[1:] / p_boost[0]
+    beta_sq = np.dot(beta, beta)
     
-    # Verify the boost preserved the vector's magnitude
-    if not np.isclose(np.linalg.norm(boosted[1:]), np.linalg.norm(vec3), rtol=1e-3):
+    if beta_sq >= 1.0 or beta_sq < 0:
         return np.array([np.nan, np.nan, np.nan])
     
-    return boosted[1:]  # Return spatial components
+    gamma = 1.0 / np.sqrt(1.0 - beta_sq)
+    
+    # Boost components
+    beta_dot_v = np.dot(beta, vec3)
+    v_parallel = (beta_dot_v / beta_sq) * beta
+    v_perp = vec3 - v_parallel
+    
+    # Apply Lorentz transformation to spatial components
+    v_prime = v_perp + gamma * (v_parallel - beta * 0)  # E=0 for pure 3-vector
+    
+    # Verify the boost preserved the vector's magnitude
+    if not np.isclose(np.linalg.norm(v_prime), np.linalg.norm(vec3), rtol=1e-3):
+        return np.array([np.nan, np.nan, np.nan])
+    
+    return v_prime
 
 def compute_cos_theta(p_pion, r_hat, n_hat, k_hat):
     """Calculate cos theta for each axis in the rest frame"""
