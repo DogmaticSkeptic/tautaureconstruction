@@ -39,10 +39,10 @@ def boost_to_rest_frame(p, p_boost, debug=False):
     
     gamma = 1.0 / np.sqrt(1.0 - beta_sq)
     
-    # Boost components
-    p_parallel = np.dot(p[1:], beta) / beta_sq
-    E_prime = gamma * (p[0] - np.dot(beta, p[1:]))
-    p_prime = p[1:] + (gamma - 1.0) * p_parallel * beta / beta_sq - gamma * p[0] * beta
+    # Boost components using Lorentz transformation
+    beta_dot_p = np.dot(beta, p[1:])
+    E_prime = gamma * (p[0] - beta_dot_p)
+    p_prime = p[1:] + (gamma - 1.0) * (beta_dot_p / beta_sq) * beta - gamma * p[0] * beta
     
     # Debug checks
     if debug:
@@ -53,6 +53,10 @@ def boost_to_rest_frame(p, p_boost, debug=False):
         # Check total 3-momentum
         total_p = np.linalg.norm(p_prime)
         print(f"Total 3-momentum after boost: {total_p:.4f} GeV")
+        
+        # Verify we're in the rest frame
+        if np.allclose(p, p_boost):
+            print(f"Rest frame check: E={E_prime:.4f}, p={total_p:.4f}")
     
     return np.array([E_prime, *p_prime])
 
@@ -431,6 +435,11 @@ for i in range(n_events):
     # Boost truth particles to tau-tau rest frame
     p_tau_p_truth_rest = boost_to_rest_frame(truth_data[i][0], p_tau_tau_truth, debug=DEBUG_BOOST)
     p_tau_m_truth_rest = boost_to_rest_frame(truth_data[i][1], p_tau_tau_truth)
+    
+    # Verify we're in the tau-tau rest frame
+    if DEBUG_BOOST:
+        p_tau_tau_rest = p_tau_p_truth_rest + p_tau_m_truth_rest
+        print(f"Total momentum in tau-tau rest frame: {np.linalg.norm(p_tau_tau_rest[1:]):.4f} GeV")
     p_pion_p_truth_rest = boost_to_rest_frame(truth_data[i][2], p_tau_tau_truth)
     p_pion_m_truth_rest = boost_to_rest_frame(truth_data[i][3], p_tau_tau_truth)
     
