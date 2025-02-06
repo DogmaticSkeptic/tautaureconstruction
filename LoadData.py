@@ -395,9 +395,9 @@ plot_comparison_with_ratio(truth_cos_theta_k_m, reco_cos_theta_k_m, xlabel=r'$\c
 # Function to plot relative uncertainties
 def plot_relative_uncertainty(truth_values, reco_values, component, particle_type, charge, bins=50, xlim=(-1, 1)):
     # Calculate relative uncertainties
-    rel_unc = [(reco - truth)/truth if truth != 0 else 0 
+    rel_unc = [(reco - truth)/truth if truth != 0 else 0
                for truth, reco in zip(truth_values, reco_values)]
-    
+
     # Plot histogram
     plt.figure(figsize=(10, 6))
     plt.hist(rel_unc, bins=bins, alpha=0.7)
