@@ -23,14 +23,14 @@ def define_coordinate_system(p_tau_p, p_tau_m):
     
     return r_hat, n_hat, k_hat
 
-def boost_to_rest_frame(p, p_boost):
+def boost_to_rest_frame(p, p_boost, debug=False):
     """Boost a 4-momentum p into the rest frame of p_boost"""
     # Check for invalid inputs
     if np.any(np.isnan(p)) or np.any(np.isnan(p_boost)):
         return np.array([np.nan, np.nan, np.nan, np.nan])
     
     # Calculate boost vector (use -β to go to the rest frame)
-    beta = p_boost[1:] / p_boost[0]
+    beta = -p_boost[1:] / p_boost[0]  # Added negative sign
     beta_sq = np.dot(beta, beta)
     
     # Check for invalid beta_sq
@@ -43,6 +43,16 @@ def boost_to_rest_frame(p, p_boost):
     p_parallel = np.dot(p[1:], beta) / beta_sq
     E_prime = gamma * (p[0] - np.dot(beta, p[1:]))
     p_prime = p[1:] + (gamma - 1.0) * p_parallel * beta / beta_sq - gamma * p[0] * beta
+    
+    # Debug checks
+    if debug:
+        # Verify p_boost is at rest after boost
+        p_boost_rest = np.array([E_prime, *p_prime])
+        print(f"Boosted p_boost to rest frame: {p_boost_rest}")
+        
+        # Check total 3-momentum
+        total_p = np.linalg.norm(p_prime)
+        print(f"Total 3-momentum after boost: {total_p:.4f} GeV")
     
     return np.array([E_prime, *p_prime])
 
@@ -405,13 +415,21 @@ truth_cos_theta_r_m, truth_cos_theta_n_m, truth_cos_theta_k_m = [], [], []
 reco_cos_theta_r_p, reco_cos_theta_n_p, reco_cos_theta_k_p = [], [], []
 reco_cos_theta_r_m, reco_cos_theta_n_m, reco_cos_theta_k_m = [], [], []
 
+# Debug flags
+DEBUG_BOOST = False  # Set to True to print boost debug info
+
 for i in range(n_events):
     # Get tau-tau system momentum for truth and reco
     p_tau_tau_truth = truth_data[i][0] + truth_data[i][1]
     p_tau_tau_reco = reco_tau_momenta[i][0] + reco_tau_momenta[i][1]
     
+    if DEBUG_BOOST:
+        print(f"\nEvent {i}:")
+        print(f"Initial tau+ momentum: {truth_data[i][0]}")
+        print(f"Initial tau- momentum: {truth_data[i][1]}")
+    
     # Boost truth particles to tau-tau rest frame
-    p_tau_p_truth_rest = boost_to_rest_frame(truth_data[i][0], p_tau_tau_truth)
+    p_tau_p_truth_rest = boost_to_rest_frame(truth_data[i][0], p_tau_tau_truth, debug=DEBUG_BOOST)
     p_tau_m_truth_rest = boost_to_rest_frame(truth_data[i][1], p_tau_tau_truth)
     p_pion_p_truth_rest = boost_to_rest_frame(truth_data[i][2], p_tau_tau_truth)
     p_pion_m_truth_rest = boost_to_rest_frame(truth_data[i][3], p_tau_tau_truth)
