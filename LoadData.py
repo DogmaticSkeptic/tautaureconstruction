@@ -60,7 +60,7 @@ def compute_four_momentum(vec):
         
     return np.array([E, px, py, pz])
     
-n_events = 1000
+n_events = 100
 
 truth_data = []
 reco_data = []
@@ -113,34 +113,6 @@ for event in truth_data:
 
         true_neutrino_eta.append(eta)
         true_neutrino_phi.append(phi)
-
-# Plot neutrino energy distribution
-#plt.figure(figsize=(10, 6))
-#plt.hist(true_neutrino_energies, bins=50, alpha=0.7, color='blue', label='Neutrino Energies')
-#plt.xlabel('Energy (GeV)')
-#plt.ylabel('Count')
-#plt.title('Neutrino Energy Distribution')
-#plt.legend()
-#plt.show()
-
-# Plot neutrino pseudorapidity distribution
-#plt.figure(figsize=(10, 6))
-#plt.hist(true_neutrino_eta, bins=50, alpha=0.7, color='blue', label='Neutrino Pseudorapidity')
-#plt.xlabel(r'$\eta$')
-#plt.ylabel('Count')
-#plt.title('Neutrino Pseudorapidity Distribution')
-#plt.legend()
-#plt.show()
-
-# Plot neutrino phi distribution
-#plt.figure(figsize=(10, 6))
-#plt.hist(true_neutrino_phi, bins=50, alpha=0.7, color='blue', label='Neutrino Phi')
-#plt.xlabel(r'$\phi$ (radians)')
-#plt.ylabel('Count')
-#plt.title('Neutrino Phi Distribution')
-#plt.legend()
-#plt.show()
-
 
 # Constants
 m_tau = 1.776  # Tau mass in GeV
@@ -405,7 +377,7 @@ for i in range(n_events):
     # Reco cos theta for tau-
     cos_theta_r_m, cos_theta_n_m, cos_theta_k_m = compute_cos_theta(reco_data[i][1], r_hat_reco, n_hat_reco, k_hat_reco)
     reco_cos_theta_r_m.append(cos_theta_r_m)
-
+    reco_cos_theta_n_m.append(cos_theta_n_m)
     reco_cos_theta_k_m.append(cos_theta_k_m)
 
 # Plot cos theta for tau+
@@ -451,6 +423,7 @@ for component, idx in [('px', 1), ('py', 2), ('pz', 3)]:
     truth_m = [truth_data[i][1][idx] for i in range(n_events)]
     reco_m = [reco_tau_momenta[i][1][idx] for i in range(n_events)]
     plot_relative_uncertainty(truth_m, reco_m, component, 'Tau', '-')
+
 
 # Plot relative uncertainties for neutrino components
 for component, idx in [('px', 1), ('py', 2), ('pz', 3)]:
