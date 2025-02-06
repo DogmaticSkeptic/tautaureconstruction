@@ -24,13 +24,13 @@ def define_coordinate_system(p_tau_p, p_tau_m):
     return r_hat, n_hat, k_hat
 
 def boost_to_rest_frame(p, p_boost, debug=False):
-    """Boost a 4-momentum p into the rest frame of p_boost"""
+    """Boost a 4-momentum p into the rest frame of p_boost using matrix transformation"""
     # Check for invalid inputs
     if np.any(np.isnan(p)) or np.any(np.isnan(p_boost)):
         return np.array([np.nan, np.nan, np.nan, np.nan])
     
-    # Calculate boost vector (use -β to go to the rest frame)
-    beta = -p_boost[1:] / p_boost[0]  # Added negative sign
+    # Calculate boost parameters
+    beta = -p_boost[1:] / p_boost[0]  # Negative sign to go to rest frame
     beta_sq = np.dot(beta, beta)
     
     # Check for invalid beta_sq
@@ -39,32 +39,49 @@ def boost_to_rest_frame(p, p_boost, debug=False):
     
     gamma = 1.0 / np.sqrt(1.0 - beta_sq)
     
-    # Boost components using Lorentz transformation
-    beta_dot_p = np.dot(beta, p[1:])
-    E_prime = gamma * (p[0] - beta_dot_p)
-    p_prime = p[1:] + (gamma - 1.0) * (beta_dot_p / beta_sq) * beta - gamma * p[0] * beta
+    # Construct Lorentz transformation matrix
+    beta_outer = np.outer(beta, beta)
+    I = np.eye(3)
+    Lambda = np.zeros((4,4))
+    
+    Lambda[0,0] = gamma
+    Lambda[0,1:] = -gamma * beta
+    Lambda[1:,0] = -gamma * beta
+    Lambda[1:,1:] = I + (gamma - 1.0) * beta_outer / beta_sq
+    
+    # Apply transformation
+    p_prime = np.dot(Lambda, p)
     
     # Debug checks
     if debug:
         # Verify p_boost is at rest after boost
-        p_boost_rest = np.array([E_prime, *p_prime])
+        p_boost_rest = np.dot(Lambda, p_boost)
         print(f"Boosted p_boost to rest frame: {p_boost_rest}")
         
         # Check total 3-momentum
-        total_p = np.linalg.norm(p_prime)
+        total_p = np.linalg.norm(p_prime[1:])
         print(f"Total 3-momentum after boost: {total_p:.4f} GeV")
         
         # Verify we're in the rest frame
         if np.allclose(p, p_boost):
-            print(f"Rest frame check: E={E_prime:.4f}, p={total_p:.4f}")
+            print(f"Rest frame check: E={p_prime[0]:.4f}, p={total_p:.4f}")
     
-    return np.array([E_prime, *p_prime])
+    return p_prime
 
 def boost_three_vector(vec3, p_boost):
     """Boost a 3-vector using the same boost as for 4-momenta"""
+    # Check for invalid inputs
+    if np.any(np.isnan(vec3)) or np.any(np.isnan(p_boost)):
+        return np.array([np.nan, np.nan, np.nan])
+    
     # Treat as 4-vector with E=0
     four_vec = np.array([0.0, *vec3])
     boosted = boost_to_rest_frame(four_vec, p_boost)
+    
+    # Verify the boost preserved the vector's magnitude
+    if not np.isclose(np.linalg.norm(boosted[1:]), np.linalg.norm(vec3), rtol=1e-3):
+        return np.array([np.nan, np.nan, np.nan])
+    
     return boosted[1:]  # Return spatial components
 
 def compute_cos_theta(p_pion, r_hat, n_hat, k_hat):
