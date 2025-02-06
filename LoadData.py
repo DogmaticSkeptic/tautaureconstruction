@@ -23,8 +23,22 @@ def define_coordinate_system(p_tau_p, p_tau_m):
     
     return r_hat, n_hat, k_hat
 
+def boost_to_rest_frame(p, p_boost):
+    """Boost a 4-momentum p into the rest frame of p_boost"""
+    # Calculate boost vector
+    beta = p_boost[1:] / p_boost[0]
+    beta_sq = np.dot(beta, beta)
+    gamma = 1.0 / np.sqrt(1.0 - beta_sq)
+    
+    # Boost components
+    p_parallel = np.dot(p[1:], beta) / beta_sq
+    E_prime = gamma * (p[0] - np.dot(beta, p[1:]))
+    p_prime = p[1:] + (gamma - 1.0) * p_parallel * beta / beta_sq - gamma * p[0] * beta
+    
+    return np.array([E_prime, *p_prime])
+
 def compute_cos_theta(p_pion, r_hat, n_hat, k_hat):
-    """Calculate cos theta for each axis"""
+    """Calculate cos theta for each axis in the rest frame"""
     # Normalize the pion momentum vector
     p_pion_norm = p_pion[1:] / np.linalg.norm(p_pion[1:])
     
@@ -350,32 +364,48 @@ reco_cos_theta_r_p, reco_cos_theta_n_p, reco_cos_theta_k_p = [], [], []
 reco_cos_theta_r_m, reco_cos_theta_n_m, reco_cos_theta_k_m = [], [], []
 
 for i in range(n_events):
-    # Define coordinate system for truth data
-    r_hat_truth, n_hat_truth, k_hat_truth = define_coordinate_system(truth_data[i][0], truth_data[i][1])
+    # Get tau-tau system momentum for truth and reco
+    p_tau_tau_truth = truth_data[i][0] + truth_data[i][1]
+    p_tau_tau_reco = reco_tau_momenta[i][0] + reco_tau_momenta[i][1]
     
-    # Truth cos theta for tau+
-    cos_theta_r_p, cos_theta_n_p, cos_theta_k_p = compute_cos_theta(truth_data[i][2], r_hat_truth, n_hat_truth, k_hat_truth)
+    # Boost truth particles to tau-tau rest frame
+    p_tau_p_truth_rest = boost_to_rest_frame(truth_data[i][0], p_tau_tau_truth)
+    p_tau_m_truth_rest = boost_to_rest_frame(truth_data[i][1], p_tau_tau_truth)
+    p_pion_p_truth_rest = boost_to_rest_frame(truth_data[i][2], p_tau_tau_truth)
+    p_pion_m_truth_rest = boost_to_rest_frame(truth_data[i][3], p_tau_tau_truth)
+    
+    # Define coordinate system in truth rest frame
+    r_hat_truth, n_hat_truth, k_hat_truth = define_coordinate_system(p_tau_p_truth_rest, p_tau_m_truth_rest)
+    
+    # Truth cos theta for tau+ (in rest frame)
+    cos_theta_r_p, cos_theta_n_p, cos_theta_k_p = compute_cos_theta(p_pion_p_truth_rest, r_hat_truth, n_hat_truth, k_hat_truth)
     truth_cos_theta_r_p.append(cos_theta_r_p)
     truth_cos_theta_n_p.append(cos_theta_n_p)
     truth_cos_theta_k_p.append(cos_theta_k_p)
     
-    # Truth cos theta for tau-
-    cos_theta_r_m, cos_theta_n_m, cos_theta_k_m = compute_cos_theta(truth_data[i][3], r_hat_truth, n_hat_truth, k_hat_truth)
+    # Truth cos theta for tau- (in rest frame)
+    cos_theta_r_m, cos_theta_n_m, cos_theta_k_m = compute_cos_theta(p_pion_m_truth_rest, r_hat_truth, n_hat_truth, k_hat_truth)
     truth_cos_theta_r_m.append(cos_theta_r_m)
     truth_cos_theta_n_m.append(cos_theta_n_m)
     truth_cos_theta_k_m.append(cos_theta_k_m)
     
-    # Define coordinate system for reco data
-    r_hat_reco, n_hat_reco, k_hat_reco = define_coordinate_system(reco_tau_momenta[i][0], reco_tau_momenta[i][1])
+    # Boost reco particles to tau-tau rest frame
+    p_tau_p_reco_rest = boost_to_rest_frame(reco_tau_momenta[i][0], p_tau_tau_reco)
+    p_tau_m_reco_rest = boost_to_rest_frame(reco_tau_momenta[i][1], p_tau_tau_reco)
+    p_pion_p_reco_rest = boost_to_rest_frame(reco_data[i][0], p_tau_tau_reco)
+    p_pion_m_reco_rest = boost_to_rest_frame(reco_data[i][1], p_tau_tau_reco)
     
-    # Reco cos theta for tau+
-    cos_theta_r_p, cos_theta_n_p, cos_theta_k_p = compute_cos_theta(reco_data[i][0], r_hat_reco, n_hat_reco, k_hat_reco)
+    # Define coordinate system in reco rest frame
+    r_hat_reco, n_hat_reco, k_hat_reco = define_coordinate_system(p_tau_p_reco_rest, p_tau_m_reco_rest)
+    
+    # Reco cos theta for tau+ (in rest frame)
+    cos_theta_r_p, cos_theta_n_p, cos_theta_k_p = compute_cos_theta(p_pion_p_reco_rest, r_hat_reco, n_hat_reco, k_hat_reco)
     reco_cos_theta_r_p.append(cos_theta_r_p)
     reco_cos_theta_n_p.append(cos_theta_n_p)
     reco_cos_theta_k_p.append(cos_theta_k_p)
     
-    # Reco cos theta for tau-
-    cos_theta_r_m, cos_theta_n_m, cos_theta_k_m = compute_cos_theta(reco_data[i][1], r_hat_reco, n_hat_reco, k_hat_reco)
+    # Reco cos theta for tau- (in rest frame)
+    cos_theta_r_m, cos_theta_n_m, cos_theta_k_m = compute_cos_theta(p_pion_m_reco_rest, r_hat_reco, n_hat_reco, k_hat_reco)
     reco_cos_theta_r_m.append(cos_theta_r_m)
     reco_cos_theta_n_m.append(cos_theta_n_m)
     reco_cos_theta_k_m.append(cos_theta_k_m)
