@@ -34,7 +34,7 @@ def compute_four_momentum(vec):
         
     return np.array([E, px, py, pz])
     
-n_events = 10000
+n_events = 100
 
 truth_data = []
 reco_data = []
