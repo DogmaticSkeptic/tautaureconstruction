@@ -25,9 +25,18 @@ def define_coordinate_system(p_tau_p, p_tau_m):
 
 def boost_to_rest_frame(p, p_boost):
     """Boost a 4-momentum p into the rest frame of p_boost"""
+    # Check for invalid inputs
+    if np.any(np.isnan(p)) or np.any(np.isnan(p_boost)):
+        return np.array([np.nan, np.nan, np.nan, np.nan])
+    
     # Calculate boost vector (use -β to go to the rest frame)
     beta = p_boost[1:] / p_boost[0]
     beta_sq = np.dot(beta, beta)
+    
+    # Check for invalid beta_sq
+    if beta_sq >= 1.0 or beta_sq < 0:
+        return np.array([np.nan, np.nan, np.nan, np.nan])
+    
     gamma = 1.0 / np.sqrt(1.0 - beta_sq)
     
     # Boost components
@@ -35,12 +44,7 @@ def boost_to_rest_frame(p, p_boost):
     E_prime = gamma * (p[0] - np.dot(beta, p[1:]))
     p_prime = p[1:] + (gamma - 1.0) * p_parallel * beta / beta_sq - gamma * p[0] * beta
     
-    # Debug test: Check if p_boost is at rest after the boost
-    rest_frame_of_boost = np.array([E_prime, *p_prime])
-    if np.allclose(p, p_boost):  # Only print when boosting p_boost itself
-        print(f"Debug: Boosted p_boost to rest frame: {rest_frame_of_boost}")
-    
-    return rest_frame_of_boost
+    return np.array([E_prime, *p_prime])
 
 def boost_three_vector(vec3, p_boost):
     """Boost a 3-vector using the same boost as for 4-momenta"""
@@ -51,13 +55,28 @@ def boost_three_vector(vec3, p_boost):
 
 def compute_cos_theta(p_pion, r_hat, n_hat, k_hat):
     """Calculate cos theta for each axis in the rest frame"""
+    # Check for invalid inputs
+    if np.any(np.isnan(p_pion)) or np.any(np.isnan(r_hat)) or \
+       np.any(np.isnan(n_hat)) or np.any(np.isnan(k_hat)):
+        return np.nan, np.nan, np.nan
+    
+    # Calculate pion momentum norm
+    p_norm = np.linalg.norm(p_pion[1:])
+    if p_norm < 1e-10:  # Avoid division by zero
+        return np.nan, np.nan, np.nan
+    
     # Normalize the pion momentum vector
-    p_pion_norm = p_pion[1:] / np.linalg.norm(p_pion[1:])
+    p_pion_norm = p_pion[1:] / p_norm
     
     # Calculate cos theta for each axis
     cos_theta_r = np.dot(p_pion_norm, r_hat)
     cos_theta_n = np.dot(p_pion_norm, n_hat)
     cos_theta_k = np.dot(p_pion_norm, k_hat)
+    
+    # Ensure cosines are in valid range
+    cos_theta_r = np.clip(cos_theta_r, -1.0, 1.0)
+    cos_theta_n = np.clip(cos_theta_n, -1.0, 1.0)
+    cos_theta_k = np.clip(cos_theta_k, -1.0, 1.0)
     
     return cos_theta_r, cos_theta_n, cos_theta_k
 
@@ -250,6 +269,17 @@ for i in range(n_events):
 
 # Function to plot histograms with ratio (without normalization on the top)
 def plot_comparison_with_ratio(truth_values, reco_values, xlabel, title, bins=50, xlim=None):
+    # Filter out NaN values
+    truth_values = np.array(truth_values)
+    reco_values = np.array(reco_values)
+    valid_mask = ~np.isnan(truth_values) & ~np.isnan(reco_values)
+    truth_values = truth_values[valid_mask]
+    reco_values = reco_values[valid_mask]
+    
+    if len(truth_values) == 0 or len(reco_values) == 0:
+        print(f"Warning: No valid data to plot for {title}")
+        return
+    
     fig, ax = plt.subplots(2, 1, figsize=(10, 8), gridspec_kw={'height_ratios': [3, 1]}, sharex=True)
 
     # Top Plot - Truth (filled) vs Reco (outline)
