@@ -26,7 +26,7 @@ def define_coordinate_system(p_tau_p, p_tau_m):
 def boost_to_rest_frame(p, p_boost):
     """Boost a 4-momentum p into the rest frame of p_boost"""
     # Calculate boost vector (use -β to go to the rest frame)
-    beta = -p_boost[1:] / p_boost[0]
+    beta = p_boost[1:] / p_boost[0]
     beta_sq = np.dot(beta, beta)
     gamma = 1.0 / np.sqrt(1.0 - beta_sq)
     
@@ -471,3 +471,7 @@ for component, idx in [('px', 1), ('py', 2), ('pz', 3)]:
     truth_m = [truth_data[i][5][idx] for i in range(n_events)]
     reco_m = [reco_neutrino_momenta[i][1][idx] for i in range(n_events)]
     plot_relative_uncertainty(truth_m, reco_m, component, 'Neutrino', '-')
+
+
+test = boost_to_rest_frame(p_tau_tau_truth, p_tau_tau_truth)
+print(test)
