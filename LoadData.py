@@ -52,10 +52,18 @@ def boost_to_rest_frame(p, p_boost, debug=False):
     # Debug checks
     if debug:
         # Verify p_boost is at rest after boost
-        p_boost_rest = np.array([p_boost[0]/gamma, *(p_boost[1:] - gamma*beta*p_boost[0] + (gamma-1)*p_parallel)])
-        print(f"Boosted p_boost to rest frame: {p_boost_rest}")
+        p_boost_rest = np.array([
+            gamma * (p_boost[0] - np.dot(beta, p_boost[1:])),
+            *(p_boost[1:] + (gamma - 1.0) * (np.dot(beta, p_boost[1:]) / beta_sq) * beta - gamma * p_boost[0] * beta)
+        ])
         
-        # Check total 3-momentum
+        # Calculate the magnitude of the boosted p_boost's 3-momentum
+        p_boost_rest_momentum = np.linalg.norm(p_boost_rest[1:])
+        
+        print(f"Boosted p_boost to rest frame: {p_boost_rest}")
+        print(f"Total 3-momentum of boosted p_boost: {p_boost_rest_momentum:.4f} GeV")
+        
+        # Check total 3-momentum of the boosted particle
         total_p = np.linalg.norm(p_prime[1:])
         print(f"Total 3-momentum after boost: {total_p:.4f} GeV")
         
@@ -80,7 +88,7 @@ def boost_three_vector(vec3, p_boost):
     
     gamma = 1.0 / np.sqrt(1.0 - beta_sq)
     
-    # Boost components
+    # Calculate components parallel and perpendicular to boost
     beta_dot_v = np.dot(beta, vec3)
     v_parallel = (beta_dot_v / beta_sq) * beta
     v_perp = vec3 - v_parallel
