@@ -27,13 +27,6 @@ truth_pion_m = particle_data_dict['truth_tau_m_child']
 tau_p_pion = particle_data_dict['tau_p_child1']
 tau_m_pion = particle_data_dict['tau_m_child1']
 MET = particle_data_dict['MET']
-
-def compute_four_momentum(vec):
-    px, py, pz, m = vec.px, vec.py, vec.pz, vec.mass
-    p_magnitude = np.sqrt(px**2 + py**2 + pz**2)
-    E = np.sqrt(p_magnitude**2 + m**2)  # Using natural units (c=1)
-        
-    return np.array([E, px, py, pz])
     
 n_events = 100
 
