@@ -159,22 +159,22 @@ for i in range(n_events):
     reco_pT_m.append(compute_pT(reco_neutrino_momenta[i][1]))
 
 # Plot pseudorapidity (eta) for positive and negative neutrinos
-plot_comparison_with_ratio(truth_eta_p, reco_eta_p, xlabel=r'Pseudorapidity $\eta$', 
+plot_comparison_with_ratio(truth_eta_p, reco_eta_p, xlabel=r'Pseudorapidity $\eta$',
                           title='Truth vs. Reconstructed Neutrino+ Pseudorapidity')
-plot_comparison_with_ratio(truth_eta_m, reco_eta_m, xlabel=r'Pseudorapidity $\eta$', 
+plot_comparison_with_ratio(truth_eta_m, reco_eta_m, xlabel=r'Pseudorapidity $\eta$',
                           title='Truth vs. Reconstructed Neutrino- Pseudorapidity')
 
 # Plot phi for positive and negative neutrinos
-plot_comparison_with_ratio(truth_phi_p, reco_phi_p, xlabel=r'Azimuthal Angle $\phi$ (radians)', 
+plot_comparison_with_ratio(truth_phi_p, reco_phi_p, xlabel=r'Azimuthal Angle $\phi$ (radians)',
                           title='Truth vs. Reconstructed Neutrino+ $\phi$')
-plot_comparison_with_ratio(truth_phi_m, reco_phi_m, xlabel=r'Azimuthal Angle $\phi$ (radians)', 
+plot_comparison_with_ratio(truth_phi_m, reco_phi_m, xlabel=r'Azimuthal Angle $\phi$ (radians)',
                           title='Truth vs. Reconstructed Neutrino- $\phi$')
 
 # Plot transverse momentum (pT) for positive and negative neutrinos
-plot_comparison_with_ratio(truth_pT_p, reco_pT_p, xlabel=r'Transverse Momentum $p_T$ (GeV)', 
+plot_comparison_with_ratio(truth_pT_p, reco_pT_p, xlabel=r'Transverse Momentum $p_T$ (GeV)',
                           title='Truth vs. Reconstructed Neutrino+ Transverse Momentum',
                           bins=50, xlim=(0, 100))
-plot_comparison_with_ratio(truth_pT_m, reco_pT_m, xlabel=r'Transverse Momentum $p_T$ (GeV)', 
+plot_comparison_with_ratio(truth_pT_m, reco_pT_m, xlabel=r'Transverse Momentum $p_T$ (GeV)',
                           title='Truth vs. Reconstructed Neutrino- Transverse Momentum',
                           bins=50, xlim=(0, 100))
 
@@ -240,10 +240,10 @@ plot_comparison_with_ratio(truth_tau_phi_m, reco_tau_phi_m, xlabel=r'Azimuthal A
                           title='Truth vs. Reconstructed Tau- $\phi$')
 
 # Plot transverse momentum (pT) for positive and negative taus
-plot_comparison_with_ratio(truth_tau_pT_p, reco_tau_pT_p, xlabel=r'Transverse Momentum $p_T$ (GeV)', 
+plot_comparison_with_ratio(truth_tau_pT_p, reco_tau_pT_p, xlabel=r'Transverse Momentum $p_T$ (GeV)',
                           title='Truth vs. Reconstructed Tau+ Transverse Momentum',
                           bins=50, xlim=(0, 150))
-plot_comparison_with_ratio(truth_tau_pT_m, reco_tau_pT_m, xlabel=r'Transverse Momentum $p_T$ (GeV)', 
+plot_comparison_with_ratio(truth_tau_pT_m, reco_tau_pT_m, xlabel=r'Transverse Momentum $p_T$ (GeV)',
                           title='Truth vs. Reconstructed Tau- Transverse Momentum',
                           bins=50, xlim=(0, 150))
 
@@ -390,11 +390,11 @@ plot_comparison_with_ratio(truth_cos_theta_k_p, reco_cos_theta_k_p, xlabel=r'$\c
                           title='Truth vs. Reconstructed $\cos \theta_k$ for Tau+')
 
 # Plot cos theta for tau-
-plot_comparison_with_ratio(truth_cos_theta_r_m, reco_cos_theta_r_m, xlabel=r'$\cos \theta_r$', 
+plot_comparison_with_ratio(truth_cos_theta_r_m, reco_cos_theta_r_m, xlabel=r'$\cos \theta_r$',
                           title='Truth vs. Reconstructed $\cos \theta_r$ for Tau-')
-plot_comparison_with_ratio(truth_cos_theta_n_m, reco_cos_theta_n_m, xlabel=r'$\cos \theta_n$', 
+plot_comparison_with_ratio(truth_cos_theta_n_m, reco_cos_theta_n_m, xlabel=r'$\cos \theta_n$',
                           title='Truth vs. Reconstructed $\cos \theta_n$ for Tau-')
-plot_comparison_with_ratio(truth_cos_theta_k_m, reco_cos_theta_k_m, xlabel=r'$\cos \theta_k$', 
+plot_comparison_with_ratio(truth_cos_theta_k_m, reco_cos_theta_k_m, xlabel=r'$\cos \theta_k$',
                           title='Truth vs. Reconstructed $\cos \theta_k$ for Tau-')
 
 # Function to plot relative uncertainties
@@ -419,7 +419,7 @@ for component, idx in [('px', 1), ('py', 2), ('pz', 3)]:
     truth_p = [truth_data[i][0][idx] for i in range(n_events)]
     reco_p = [reco_tau_momenta[i][0][idx] for i in range(n_events)]
     plot_relative_uncertainty(truth_p, reco_p, component, 'Tau', '+')
-    
+
     # Tau-
     truth_m = [truth_data[i][1][idx] for i in range(n_events)]
     reco_m = [reco_tau_momenta[i][1][idx] for i in range(n_events)]
@@ -432,7 +432,7 @@ for component, idx in [('px', 1), ('py', 2), ('pz', 3)]:
     truth_p = [truth_data[i][4][idx] for i in range(n_events)]
     reco_p = [reco_neutrino_momenta[i][0][idx] for i in range(n_events)]
     plot_relative_uncertainty(truth_p, reco_p, component, 'Neutrino', '+')
-    
+
     # Neutrino-
     truth_m = [truth_data[i][5][idx] for i in range(n_events)]
     reco_m = [reco_neutrino_momenta[i][1][idx] for i in range(n_events)]
