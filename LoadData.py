@@ -2,11 +2,11 @@ import pickle
 import numpy as np
 import matplotlib.pyplot as plt
 from tqdm import tqdm
-from physics.boosts import boost_to_rest_frame, boost_three_vector
-from physics.coordinate_system import define_coordinate_system
-from analysis.reconstruction import reconstruct_neutrino_momenta
-from analysis.plotting import plot_comparison_with_ratio, plot_relative_uncertainty
-from analysis.cos_theta import compute_cos_theta
+from helperfunctions import (
+    boost_to_rest_frame, boost_three_vector, define_coordinate_system,
+    reconstruct_neutrino_momenta, plot_comparison_with_ratio, plot_relative_uncertainty,
+    compute_cos_theta, chi_squared_nu
+)
 
 
 particle_data_dict = pickle.load(open('pi_pi_recon_particles.pkl', 'rb'))
@@ -42,7 +42,9 @@ reco_data = []
 print(len(truth_tau_p))
 
 for i in range(n_events):
-    truth_data.append((compute_four_momentum(truth_tau_p[i]), compute_four_momentum(truth_tau_m[i]), compute_four_momentum(truth_pion_p[i]), compute_four_momentum(truth_pion_m[i]), compute_four_momentum(truth_nu_p[i]), compute_four_momentum(truth_nu_m[i])))
+    truth_data.append((compute_four_momentum(truth_tau_p[i]), compute_four_momentum(truth_tau_m[i]),
+                         compute_four_momentum(truth_pion_p[i]), compute_four_momentum(truth_pion_m[i]),
+                         compute_four_momentum(truth_nu_p[i]), compute_four_momentum(truth_nu_m[i])))
     reco_data.append((compute_four_momentum(tau_p_pion[i]), compute_four_momentum(tau_m_pion[i])))
 
 
