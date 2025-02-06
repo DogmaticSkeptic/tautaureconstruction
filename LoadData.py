@@ -25,8 +25,8 @@ def define_coordinate_system(p_tau_p, p_tau_m):
 
 def boost_to_rest_frame(p, p_boost):
     """Boost a 4-momentum p into the rest frame of p_boost"""
-    # Calculate boost vector
-    beta = p_boost[1:] / p_boost[0]
+    # Calculate boost vector (use -β to go to the rest frame)
+    beta = -p_boost[1:] / p_boost[0]
     beta_sq = np.dot(beta, beta)
     gamma = 1.0 / np.sqrt(1.0 - beta_sq)
     
@@ -35,7 +35,12 @@ def boost_to_rest_frame(p, p_boost):
     E_prime = gamma * (p[0] - np.dot(beta, p[1:]))
     p_prime = p[1:] + (gamma - 1.0) * p_parallel * beta / beta_sq - gamma * p[0] * beta
     
-    return np.array([E_prime, *p_prime])
+    # Debug test: Check if p_boost is at rest after the boost
+    rest_frame_of_boost = np.array([E_prime, *p_prime])
+    if np.allclose(p, p_boost):  # Only print when boosting p_boost itself
+        print(f"Debug: Boosted p_boost to rest frame: {rest_frame_of_boost}")
+    
+    return rest_frame_of_boost
 
 def compute_cos_theta(p_pion, r_hat, n_hat, k_hat):
     """Calculate cos theta for each axis in the rest frame"""
