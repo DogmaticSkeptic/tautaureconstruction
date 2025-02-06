@@ -13,9 +13,6 @@ from helperfunctions import (
 
 particle_data_dict = pickle.load(open('pi_pi_recon_particles.pkl', 'rb'))
 
-#print(particle_data_dict.keys())
-
-
 # Truth Objects
 truth_tau_p = particle_data_dict['truth_tau_p']
 truth_tau_m = particle_data_dict['truth_tau_m']
@@ -34,40 +31,11 @@ n_events = 100
 truth_data = []
 reco_data = []
 
-print(len(truth_tau_p))
-
 for i in range(n_events):
     truth_data.append((compute_four_momentum(truth_tau_p[i]), compute_four_momentum(truth_tau_m[i]),
                          compute_four_momentum(truth_pion_p[i]), compute_four_momentum(truth_pion_m[i]),
                          compute_four_momentum(truth_nu_p[i]), compute_four_momentum(truth_nu_m[i])))
     reco_data.append((compute_four_momentum(tau_p_pion[i]), compute_four_momentum(tau_m_pion[i])))
-
-
-# Plot results
-true_energies = [p[2][0] for p in tqdm(truth_data)] + [p[3][0] for p in tqdm(truth_data)]
-reco_energies = [p[0][0] for p in tqdm(reco_data)] + [p[1][0] for p in tqdm(reco_data)]
-
-# Define x-axis range
-x_min, x_max = 0, 200  # Adjust this range as needed
-
-# Define number of bins and generate bin edges within x_min and x_max
-num_bins = 10
-bins = np.linspace(x_min, x_max, num_bins + 1)
-
-# Plot histograms using the defined bins
-#plt.hist(true_energies, bins=bins, alpha=0.7, label="True Pion Energies")
-#plt.hist(reco_energies, bins=bins, alpha=0.7, label="Reco Pion Energies")
-
-# Labels and title
-#plt.xlabel("Energy (GeV)")
-#plt.ylabel("Count")
-#plt.legend()
-#plt.title("True vs. Reconstructed Pion Energies")
-
-# Set the x-axis range explicitly (though the bins already enforce it)
-#plt.xlim(x_min, x_max)
-
-#plt.show()
 
 # Extract neutrino data for plotting
 true_neutrino_energies = [p[4][0] for p in truth_data] + [p[5][0] for p in truth_data]
@@ -248,27 +216,14 @@ truth_cos_theta_r_m, truth_cos_theta_n_m, truth_cos_theta_k_m = [], [], []
 reco_cos_theta_r_p, reco_cos_theta_n_p, reco_cos_theta_k_p = [], [], []
 reco_cos_theta_r_m, reco_cos_theta_n_m, reco_cos_theta_k_m = [], [], []
 
-# Debug flags
-DEBUG_BOOST = True  # Set to True to print boost debug info
-
 for i in range(n_events):
     # Get tau-tau system momentum for truth and reco
     p_tau_tau_truth = truth_data[i][0] + truth_data[i][1]
     p_tau_tau_reco = reco_tau_momenta[i][0] + reco_tau_momenta[i][1]
     
-    if DEBUG_BOOST:
-        print(f"\nEvent {i}:")
-        print(f"Initial tau+ momentum: {truth_data[i][0]}")
-        print(f"Initial tau- momentum: {truth_data[i][1]}")
-    
     # Boost truth particles to tau-tau rest frame
-    p_tau_p_truth_rest = boost_to_rest_frame(truth_data[i][0], p_tau_tau_truth, debug=DEBUG_BOOST)
+    p_tau_p_truth_rest = boost_to_rest_frame(truth_data[i][0], p_tau_tau_truth)
     p_tau_m_truth_rest = boost_to_rest_frame(truth_data[i][1], p_tau_tau_truth)
-    
-    # Verify we're in the tau-tau rest frame
-    if DEBUG_BOOST:
-        p_tau_tau_rest = p_tau_p_truth_rest + p_tau_m_truth_rest
-        print(f"Total momentum in tau-tau rest frame: {np.linalg.norm(p_tau_tau_rest[1:]):.4f} GeV")
     p_pion_p_truth_rest = boost_to_rest_frame(truth_data[i][2], p_tau_tau_truth)
     p_pion_m_truth_rest = boost_to_rest_frame(truth_data[i][3], p_tau_tau_truth)
     
@@ -392,8 +347,8 @@ plot_comparison_with_ratio(truth_cos_theta_n_m, reco_cos_theta_n_m, xlabel=r'$\c
 plot_comparison_with_ratio(truth_cos_theta_k_m, reco_cos_theta_k_m, xlabel=r'$\cos \theta_k$',
                           title=r'Truth vs. Reconstructed $\cos \theta_k$ for Tau-')
 
-# Function to plot relative uncertainties
 def plot_relative_uncertainty(truth_values, reco_values, component, particle_type, charge, bins=50, xlim=(-1, 1)):
+    """Plot relative uncertainties between truth and reconstructed values"""
     # Calculate relative uncertainties
     rel_unc = [(reco - truth)/truth if truth != 0 else 0
                for truth, reco in zip(truth_values, reco_values)]
@@ -432,7 +387,3 @@ for component, idx in [('px', 1), ('py', 2), ('pz', 3)]:
     truth_m = [truth_data[i][5][idx] for i in range(n_events)]
     reco_m = [reco_neutrino_momenta[i][1][idx] for i in range(n_events)]
     plot_relative_uncertainty(truth_m, reco_m, component, 'Neutrino', '-')
-
-
-test = boost_to_rest_frame(p_tau_tau_truth, p_tau_tau_truth)
-print(test)
