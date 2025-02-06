@@ -160,22 +160,22 @@ for i in range(n_events):
 
 # Plot pseudorapidity (eta) for positive and negative neutrinos
 plot_comparison_with_ratio(truth_eta_p, reco_eta_p, xlabel=r'Pseudorapidity $\eta$',
-                          title='Truth vs. Reconstructed Neutrino+ Pseudorapidity')
+                          title=r'Truth vs. Reconstructed Neutrino+ Pseudorapidity')
 plot_comparison_with_ratio(truth_eta_m, reco_eta_m, xlabel=r'Pseudorapidity $\eta$',
-                          title='Truth vs. Reconstructed Neutrino- Pseudorapidity')
+                          title=r'Truth vs. Reconstructed Neutrino- Pseudorapidity')
 
 # Plot phi for positive and negative neutrinos
 plot_comparison_with_ratio(truth_phi_p, reco_phi_p, xlabel=r'Azimuthal Angle $\phi$ (radians)',
-                          title='Truth vs. Reconstructed Neutrino+ $\phi$')
+                          title=r'Truth vs. Reconstructed Neutrino+ $\phi$')
 plot_comparison_with_ratio(truth_phi_m, reco_phi_m, xlabel=r'Azimuthal Angle $\phi$ (radians)',
-                          title='Truth vs. Reconstructed Neutrino- $\phi$')
+                          title=r'Truth vs. Reconstructed Neutrino- $\phi$')
 
 # Plot transverse momentum (pT) for positive and negative neutrinos
 plot_comparison_with_ratio(truth_pT_p, reco_pT_p, xlabel=r'Transverse Momentum $p_T$ (GeV)',
-                          title='Truth vs. Reconstructed Neutrino+ Transverse Momentum',
+                          title=r'Truth vs. Reconstructed Neutrino+ Transverse Momentum',
                           bins=50, xlim=(0, 100))
 plot_comparison_with_ratio(truth_pT_m, reco_pT_m, xlabel=r'Transverse Momentum $p_T$ (GeV)',
-                          title='Truth vs. Reconstructed Neutrino- Transverse Momentum',
+                          title=r'Truth vs. Reconstructed Neutrino- Transverse Momentum',
                           bins=50, xlim=(0, 100))
 
 
@@ -241,10 +241,10 @@ plot_comparison_with_ratio(truth_tau_phi_m, reco_tau_phi_m, xlabel=r'Azimuthal A
 
 # Plot transverse momentum (pT) for positive and negative taus
 plot_comparison_with_ratio(truth_tau_pT_p, reco_tau_pT_p, xlabel=r'Transverse Momentum $p_T$ (GeV)',
-                          title='Truth vs. Reconstructed Tau+ Transverse Momentum',
+                          title=r'Truth vs. Reconstructed Tau+ Transverse Momentum',
                           bins=50, xlim=(0, 150))
 plot_comparison_with_ratio(truth_tau_pT_m, reco_tau_pT_m, xlabel=r'Transverse Momentum $p_T$ (GeV)',
-                          title='Truth vs. Reconstructed Tau- Transverse Momentum',
+                          title=r'Truth vs. Reconstructed Tau- Transverse Momentum',
                           bins=50, xlim=(0, 150))
 
 # Initialize lists to store cos theta values
@@ -391,11 +391,11 @@ plot_comparison_with_ratio(truth_cos_theta_k_p, reco_cos_theta_k_p, xlabel=r'$\c
 
 # Plot cos theta for tau-
 plot_comparison_with_ratio(truth_cos_theta_r_m, reco_cos_theta_r_m, xlabel=r'$\cos \theta_r$',
-                          title='Truth vs. Reconstructed $\cos \theta_r$ for Tau-')
+                          title=r'Truth vs. Reconstructed $\cos \theta_r$ for Tau-')
 plot_comparison_with_ratio(truth_cos_theta_n_m, reco_cos_theta_n_m, xlabel=r'$\cos \theta_n$',
-                          title='Truth vs. Reconstructed $\cos \theta_n$ for Tau-')
+                          title=r'Truth vs. Reconstructed $\cos \theta_n$ for Tau-')
 plot_comparison_with_ratio(truth_cos_theta_k_m, reco_cos_theta_k_m, xlabel=r'$\cos \theta_k$',
-                          title='Truth vs. Reconstructed $\cos \theta_k$ for Tau-')
+                          title=r'Truth vs. Reconstructed $\cos \theta_k$ for Tau-')
 
 # Function to plot relative uncertainties
 def plot_relative_uncertainty(truth_values, reco_values, component, particle_type, charge, bins=50, xlim=(-1, 1)):
@@ -408,7 +408,7 @@ def plot_relative_uncertainty(truth_values, reco_values, component, particle_typ
     plt.hist(rel_unc, bins=bins, alpha=0.7)
     plt.xlabel(f'Relative Uncertainty in {component}')
     plt.ylabel('Count')
-    plt.title(f'Relative Uncertainty in {component} for {particle_type}{charge}')
+    plt.title(rf'Relative Uncertainty in {component} for {particle_type}{charge}')
     plt.xlim(xlim)
     plt.grid(True)
     plt.show()
