@@ -42,6 +42,13 @@ def boost_to_rest_frame(p, p_boost):
     
     return rest_frame_of_boost
 
+def boost_three_vector(vec3, p_boost):
+    """Boost a 3-vector using the same boost as for 4-momenta"""
+    # Treat as 4-vector with E=0
+    four_vec = np.array([0.0, *vec3])
+    boosted = boost_to_rest_frame(four_vec, p_boost)
+    return boosted[1:]  # Return spatial components
+
 def compute_cos_theta(p_pion, r_hat, n_hat, k_hat):
     """Calculate cos theta for each axis in the rest frame"""
     # Normalize the pion momentum vector
@@ -379,17 +386,51 @@ for i in range(n_events):
     p_pion_p_truth_rest = boost_to_rest_frame(truth_data[i][2], p_tau_tau_truth)
     p_pion_m_truth_rest = boost_to_rest_frame(truth_data[i][3], p_tau_tau_truth)
     
-    # Define coordinate system in truth rest frame
-    r_hat_truth, n_hat_truth, k_hat_truth = define_coordinate_system(p_tau_p_truth_rest, p_tau_m_truth_rest)
+    # Define coordinate system in tau-tau rest frame
+    r_hat_tautau, n_hat_tautau, k_hat_tautau = define_coordinate_system(p_tau_p_truth_rest, p_tau_m_truth_rest)
     
-    # Truth cos theta for tau+ (in rest frame)
-    cos_theta_r_p, cos_theta_n_p, cos_theta_k_p = compute_cos_theta(p_pion_p_truth_rest, r_hat_truth, n_hat_truth, k_hat_truth)
+    # Boost to single tau+ rest frame
+    p_tau_p_single_rest = boost_to_rest_frame(p_tau_p_truth_rest, p_tau_p_truth_rest)
+    p_pion_p_single_rest = boost_to_rest_frame(p_pion_p_truth_rest, p_tau_p_truth_rest)
+    
+    # Boost coordinate axes to single tau+ frame
+    r_hat_single_p = boost_three_vector(r_hat_tautau, p_tau_p_truth_rest)
+    n_hat_single_p = boost_three_vector(n_hat_tautau, p_tau_p_truth_rest)
+    k_hat_single_p = boost_three_vector(k_hat_tautau, p_tau_p_truth_rest)
+    
+    # Normalize boosted axes
+    r_hat_single_p /= np.linalg.norm(r_hat_single_p)
+    n_hat_single_p /= np.linalg.norm(n_hat_single_p)
+    k_hat_single_p /= np.linalg.norm(k_hat_single_p)
+    
+    # Calculate cosθ in single tau+ frame
+    cos_theta_r_p, cos_theta_n_p, cos_theta_k_p = compute_cos_theta(
+        p_pion_p_single_rest,
+        r_hat_single_p, n_hat_single_p, k_hat_single_p
+    )
     truth_cos_theta_r_p.append(cos_theta_r_p)
     truth_cos_theta_n_p.append(cos_theta_n_p)
     truth_cos_theta_k_p.append(cos_theta_k_p)
     
-    # Truth cos theta for tau- (in rest frame)
-    cos_theta_r_m, cos_theta_n_m, cos_theta_k_m = compute_cos_theta(p_pion_m_truth_rest, r_hat_truth, n_hat_truth, k_hat_truth)
+    # Boost to single tau- rest frame
+    p_tau_m_single_rest = boost_to_rest_frame(p_tau_m_truth_rest, p_tau_m_truth_rest)
+    p_pion_m_single_rest = boost_to_rest_frame(p_pion_m_truth_rest, p_tau_m_truth_rest)
+    
+    # Boost coordinate axes to single tau- frame
+    r_hat_single_m = boost_three_vector(r_hat_tautau, p_tau_m_truth_rest)
+    n_hat_single_m = boost_three_vector(n_hat_tautau, p_tau_m_truth_rest)
+    k_hat_single_m = boost_three_vector(k_hat_tautau, p_tau_m_truth_rest)
+    
+    # Normalize boosted axes
+    r_hat_single_m /= np.linalg.norm(r_hat_single_m)
+    n_hat_single_m /= np.linalg.norm(n_hat_single_m)
+    k_hat_single_m /= np.linalg.norm(k_hat_single_m)
+    
+    # Calculate cosθ in single tau- frame
+    cos_theta_r_m, cos_theta_n_m, cos_theta_k_m = compute_cos_theta(
+        p_pion_m_single_rest,
+        r_hat_single_m, n_hat_single_m, k_hat_single_m
+    )
     truth_cos_theta_r_m.append(cos_theta_r_m)
     truth_cos_theta_n_m.append(cos_theta_n_m)
     truth_cos_theta_k_m.append(cos_theta_k_m)
