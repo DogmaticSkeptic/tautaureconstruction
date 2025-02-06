@@ -1,5 +1,6 @@
 import pickle
 import numpy as np
+import matplotlib.pyplot as plt
 from tqdm import tqdm
 from physics.boosts import boost_to_rest_frame, boost_three_vector
 from physics.coordinate_system import define_coordinate_system
