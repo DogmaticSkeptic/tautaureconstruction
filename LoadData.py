@@ -16,6 +16,14 @@ def define_coordinate_system(p_tau_p, p_tau_m):
     # r^ = (p^ - k^ * cosΘ) / sinΘ
     cos_theta = np.dot(k_hat, p_hat)
     sin_theta = np.sqrt(1 - cos_theta**2)
+    
+    # Handle case where sinΘ is very small (tau nearly parallel to beam)
+    if sin_theta < 1e-6:
+        # Use x-axis as reference direction instead of z-axis
+        p_hat = np.array([1, 0, 0])
+        cos_theta = np.dot(k_hat, p_hat)
+        sin_theta = np.sqrt(1 - cos_theta**2)
+    
     r_hat = (p_hat - k_hat * cos_theta) / sin_theta
     
     # n^ = k^ × r^
@@ -28,6 +36,10 @@ def boost_to_rest_frame(p, p_boost, debug=False):
     # Check for invalid inputs
     if np.any(np.isnan(p)) or np.any(np.isnan(p_boost)):
         return np.array([np.nan, np.nan, np.nan, np.nan])
+    
+    # Early-out for trivial boost
+    if np.linalg.norm(p_boost[1:]) < 1e-10:
+        return p  # Already in the rest frame
     
     # Calculate boost vector (direction and magnitude)
     beta = p_boost[1:] / p_boost[0]  # β = p/E
@@ -74,7 +86,7 @@ def boost_to_rest_frame(p, p_boost, debug=False):
     return p_prime
 
 def boost_three_vector(vec3, p_boost):
-    """Boost a 3-vector using the same boost as for 4-momenta"""
+    """Boost a 3-vector by treating it as a 4-vector with E=0"""
     # Check for invalid inputs
     if np.any(np.isnan(vec3)) or np.any(np.isnan(p_boost)):
         return np.array([np.nan, np.nan, np.nan])
@@ -83,24 +95,25 @@ def boost_three_vector(vec3, p_boost):
     beta = p_boost[1:] / p_boost[0]
     beta_sq = np.dot(beta, beta)
     
-    if beta_sq >= 1.0 or beta_sq < 0:
+    if beta_sq >= 1.0:  # also covers beta_sq < 0 implicitly
         return np.array([np.nan, np.nan, np.nan])
     
     gamma = 1.0 / np.sqrt(1.0 - beta_sq)
     
-    # Calculate components parallel and perpendicular to boost
-    beta_dot_v = np.dot(beta, vec3)
-    v_parallel = (beta_dot_v / beta_sq) * beta
-    v_perp = vec3 - v_parallel
+    # Form the 4-vector with E=0:
+    V = np.concatenate(([0.0], vec3))
     
-    # Apply Lorentz transformation to spatial components
-    v_prime = v_perp + gamma * (v_parallel - beta * 0)  # E=0 for pure 3-vector
+    # Boost the 4-vector: note the standard formulas
+    V0_prime = -gamma * np.dot(beta, vec3)
+    V_space_prime = vec3 + ((gamma - 1.0) * np.dot(beta, vec3) / beta_sq) * beta
     
-    # Verify the boost preserved the vector's magnitude
-    if not np.isclose(np.linalg.norm(v_prime), np.linalg.norm(vec3), rtol=1e-3):
+    # Now extract and renormalize the spatial part:
+    v_prime = V_space_prime
+    norm = np.linalg.norm(v_prime)
+    if norm > 0:
+        return v_prime / norm
+    else:
         return np.array([np.nan, np.nan, np.nan])
-    
-    return v_prime
 
 def compute_cos_theta(p_pion, r_hat, n_hat, k_hat):
     """Calculate cos theta for each axis in the rest frame"""
