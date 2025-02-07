@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-import pickle
 import numpy as np
 import matplotlib.pyplot as plt
 from tqdm import tqdm
@@ -297,14 +296,3 @@ for component, idx in [('px', 1), ('py', 2), ('pz', 3)]:
     reco_m = [reco_neutrino_momenta[i][1][idx] for i in range(n_events)]
     plot_relative_uncertainty(truth_m, reco_m, component, 'Neutrino', '-')
 
-# Save analysis data for grid search
-if __name__ == "__main__":
-    # Make data available for import
-    data_dict = {
-        'truth_data': truth_data,
-        'reco_data': reco_data,
-        'MET': MET,
-        'n_events': n_events,
-        'particle_data_dict': particle_data_dict
-    }
-    pickle.dump(data_dict, open('analysis_data.pkl', 'wb'))
