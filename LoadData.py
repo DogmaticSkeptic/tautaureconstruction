@@ -42,7 +42,7 @@ true_neutrino_eta = []
 true_neutrino_phi = []
 
 # Calculate pseudorapidity (eta) and phi for neutrinos
-for event in truth_
+for event in truth_data:
     for i in [4, 5]:  # Neutrinos
         px, py, pz = event[i][1:]
         theta = np.arctan2(np.sqrt(px**2 + py**2), pz)  # Calculate theta
