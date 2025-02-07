@@ -262,8 +262,8 @@ for i in range(n_events):
 
     # Calculate cosθ in single tau+ frame using tau-tau rest frame basis
     reco_cos_theta_r_p.append(compute_cos_theta(p_pion_p_single_rest, r_hat_reco_tautau, n_hat_reco_tautau, k_hat_reco_tautau)[0])
-    reco_cos_theta_n_p.append(compute_cos_theta(p_pion_p_single_rest, r_hat_reco_tautau, n_hat_reco_tautau)[1])
-    reco_cos_theta_k_p.append(compute_cos_theta(p_pion_p_single_rest, r_hat_reco_tautau, n_hat_reco_tautau)[2])
+    reco_cos_theta_n_p.append(compute_cos_theta(p_pion_p_single_rest, r_hat_reco_tautau, n_hat_reco_tautau, k_hat_reco_tautau)[1])
+    reco_cos_theta_k_p.append(compute_cos_theta(p_pion_p_single_rest, r_hat_reco_tautau, n_hat_reco_tautau, k_hat_reco_tautau)[2])
 
     # Boost to single tau- rest frame
     p_tau_m_single_rest = boost_to_rest_frame(p_tau_m_reco_rest, p_tau_m_reco_rest)
@@ -271,7 +271,7 @@ for i in range(n_events):
 
     # Calculate cosθ in single tau- frame using tau-tau rest frame basis
     reco_cos_theta_r_m.append(compute_cos_theta(p_pion_m_single_rest, r_hat_reco_tautau, n_hat_reco_tautau, k_hat_reco_tautau)[0])
-    reco_cos_theta_n_m.append(compute_cos_theta(p_pion_m_single_rest, r_hat_reco_tautau, n_hat_reco_tautau)[1])
+    reco_cos_theta_n_m.append(compute_cos_theta(p_pion_m_single_rest, r_hat_reco_tautau, n_hat_reco_tautau, k_hat_reco_tautau)[1])
     reco_cos_theta_k_m.append(compute_cos_theta(p_pion_m_single_rest, r_hat_reco_tautau, n_hat_reco_tautau, k_hat_reco_tautau)[2])
 
 # Plot cos theta for tau+
