@@ -166,7 +166,7 @@ def plot_comparison_with_ratio(truth_values, reco_values, xlabel, title, bins=50
     plt.tight_layout()
     plt.show()
 
-def plot_relative_uncertainty(truth_values, reco_values, component, particle_type, charge, bins=50, xlim=(-1, 1)):
+def plot_relative_uncertainty(truth_values, reco_values, component, particle_type, charge, bins=50, xlim=(-3, 3)):
     """Plot relative uncertainties between truth and reconstructed values"""
     rel_unc = [(reco - truth) / truth if truth != 0 else 0
                for truth, reco in zip(truth_values, reco_values)]
