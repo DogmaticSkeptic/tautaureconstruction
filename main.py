@@ -1,10 +1,9 @@
-#!/usr/bin/env python3
 import numpy as np
 import matplotlib.pyplot as plt
 from tqdm import tqdm
 from multiprocessing import Pool
-
-NUM_CPUS = 4
+import pickle
+NUM_CPUS = 1
 from helperfunctions import (
     boost_to_rest_frame, define_coordinate_system,
     reconstruct_neutrino_momenta, plot_comparison_with_ratio, plot_relative_uncertainty,
@@ -27,7 +26,7 @@ tau_p_pion = particle_data_dict['tau_p_child1']
 tau_m_pion = particle_data_dict['tau_m_child1']
 MET = particle_data_dict['MET']
     
-n_events = 200
+n_events = 100000
 
 truth_data = []
 reco_data = []
