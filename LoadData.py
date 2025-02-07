@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
 import pickle
 import numpy as np
-from data_loading.load_data import compute_four_momentum
 import matplotlib.pyplot as plt
 from tqdm import tqdm
 from helperfunctions import (

@@ -2,6 +2,13 @@ import numpy as np
 import scipy.optimize as opt
 import matplotlib.pyplot as plt
 
+def compute_four_momentum(vec):
+    """Compute four-momentum from particle vector"""
+    px, py, pz, m = vec.px, vec.py, vec.pz, vec.mass
+    p_magnitude = np.sqrt(px**2 + py**2 + pz**2)
+    E = np.sqrt(p_magnitude**2 + m**2)
+    return np.array([E, px, py, pz])
+
 # Constants
 m_tau = 1.776  # Tau mass in GeV
 m_Z = 91.1876  # Z-boson mass in GeV
