@@ -297,32 +297,29 @@ for component, idx in [('px', 1), ('py', 2), ('pz', 3)]:
 
 # Calculate the Cij matrix elements using binned data
 C = np.zeros((3, 3))
-bins = 50  # Number of bins for histogramming
-bin_range = (-1, 1)  # Range of cos theta values
+bins = 50
+bin_range = (-1, 1)
 
 # Calculate each matrix element
 for i in range(3):
     for j in range(3):
-        # Get the corresponding cos theta values from reconstructed data
+        # Get the corresponding cos theta values
         cos_theta_p = [reco_cos_theta_r_p, reco_cos_theta_n_p, reco_cos_theta_k_p][i]
         cos_theta_m = [reco_cos_theta_r_m, reco_cos_theta_n_m, reco_cos_theta_k_m][j]
         
-        # Create 2D histogram
-        hist, xedges, yedges = np.histogram2d(cos_theta_p, cos_theta_m, 
-                                            bins=bins, range=[bin_range, bin_range])
+        # Create histograms
+        hist_p, edges = np.histogram(cos_theta_p, bins=bins, range=bin_range)
+        hist_m, _ = np.histogram(cos_theta_m, bins=bins, range=bin_range)
         
         # Calculate bin centers
-        xcenters = (xedges[:-1] + xedges[1:]) / 2
-        ycenters = (yedges[:-1] + yedges[1:]) / 2
+        bin_centers = (edges[:-1] + edges[1:]) / 2
+        bin_width = edges[1] - edges[0]
         
-        # Calculate bin width
-        bin_width = xedges[1] - xedges[0]
+        # Multiply histograms element-wise and sum
+        product_sum = np.sum(hist_p * hist_m * bin_centers * bin_centers)
         
-        # Calculate expectation value by multiplying bin contents and bin width
-        expectation = np.sum(xcenters * ycenters * hist) * bin_width / np.sum(hist)
-        
-        # Fill the matrix element
-        C[i, j] = -9 * expectation
+        # Normalize by total number of events and multiply by -9
+        C[i,j] = -9 * product_sum * bin_width / (len(cos_theta_p) * len(cos_theta_m))
 
 # Calculate eigenvalues and sort them
 eigenvalues = np.linalg.eigvals(C)
