@@ -187,10 +187,10 @@ plot_comparison_with_ratio(truth_tau_phi_m, reco_tau_phi_m, xlabel=r'Azimuthal A
 # Plot transverse momentum (pT) for positive and negative taus
 plot_comparison_with_ratio(truth_tau_pT_p, reco_tau_pT_p, xlabel=r'Transverse Momentum $p_T$ (GeV)',
                           title=r'Truth vs. Reconstructed Tau+ Transverse Momentum',
-                          bins=50, xlim=(0, 150))
+                          bins=50, xlim=(0, 100))
 plot_comparison_with_ratio(truth_tau_pT_m, reco_tau_pT_m, xlabel=r'Transverse Momentum $p_T$ (GeV)',
                           title=r'Truth vs. Reconstructed Tau- Transverse Momentum',
-                          bins=50, xlim=(0, 150))
+                          bins=50, xlim=(0, 100))
 
 # Initialize lists to store cos theta values
 truth_cos_theta_r_p, truth_cos_theta_n_p, truth_cos_theta_k_p = [], [], []
