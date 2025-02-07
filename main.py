@@ -315,16 +315,11 @@ for i in range(3):
         xcenters = (xedges[:-1] + xedges[1:]) / 2
         ycenters = (yedges[:-1] + yedges[1:]) / 2
         
-        # Create meshgrid of bin centers
-        X, Y = np.meshgrid(xcenters, ycenters)
+        # Calculate bin width
+        bin_width = xedges[1] - xedges[0]
         
-        # Calculate bin areas
-        bin_width_x = xedges[1] - xedges[0]
-        bin_width_y = yedges[1] - yedges[0]
-        bin_area = bin_width_x * bin_width_y
-        
-        # Calculate expectation value by multiplying bin contents and bin areas
-        expectation = np.sum(X * Y * hist) * bin_area / np.sum(hist)
+        # Calculate expectation value by multiplying bin contents and bin width
+        expectation = np.sum(xcenters * ycenters * hist) * bin_width / np.sum(hist)
         
         # Fill the matrix element
         C[i, j] = -9 * expectation
