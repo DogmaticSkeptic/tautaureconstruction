@@ -302,9 +302,9 @@ cos_theta_labels = ['r', 'n', 'k']
 # Calculate each matrix element
 for i in range(3):
     for j in range(3):
-        # Get the corresponding cos theta values
-        cos_theta_p = [truth_cos_theta_r_p, truth_cos_theta_n_p, truth_cos_theta_k_p][i]
-        cos_theta_m = [truth_cos_theta_r_m, truth_cos_theta_n_m, truth_cos_theta_k_m][j]
+        # Get the corresponding cos theta values from reconstructed data
+        cos_theta_p = [reco_cos_theta_r_p, reco_cos_theta_n_p, reco_cos_theta_k_p][i]
+        cos_theta_m = [reco_cos_theta_r_m, reco_cos_theta_n_m, reco_cos_theta_k_m][j]
         
         # Calculate the expectation value
         expectation = np.mean(np.array(cos_theta_p) * np.array(cos_theta_m))
