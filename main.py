@@ -105,9 +105,11 @@ for i in range(n_events):
 
 # Plot pseudorapidity (eta) for positive and negative neutrinos
 plot_comparison_with_ratio(truth_eta_p, reco_eta_p, xlabel=r'Pseudorapidity $\eta$',
-                          title=r'Truth vs. Reconstructed Neutrino+ Pseudorapidity')
+                          title=r'Truth vs. Reconstructed Neutrino+ Pseudorapidity',
+                          xlim=(-3.5, 3.5))
 plot_comparison_with_ratio(truth_eta_m, reco_eta_m, xlabel=r'Pseudorapidity $\eta$',
-                          title=r'Truth vs. Reconstructed Neutrino- Pseudorapidity')
+                          title=r'Truth vs. Reconstructed Neutrino- Pseudorapidity',
+                          xlim=(-3.5, 3.5))
 
 # Plot phi for positive and negative neutrinos
 plot_comparison_with_ratio(truth_phi_p, reco_phi_p, xlabel=r'Azimuthal Angle $\phi$ (radians)',
@@ -174,9 +176,11 @@ for i in range(n_events):
 
 # Plot pseudorapidity (eta) for positive and negative taus
 plot_comparison_with_ratio(truth_tau_eta_p, reco_tau_eta_p, xlabel=r'Pseudorapidity $\eta$', 
-                          title='Truth vs. Reconstructed Tau+ Pseudorapidity')
+                          title='Truth vs. Reconstructed Tau+ Pseudorapidity',
+                          xlim=(-3.5, 3.5))
 plot_comparison_with_ratio(truth_tau_eta_m, reco_tau_eta_m, xlabel=r'Pseudorapidity $\eta$', 
-                          title='Truth vs. Reconstructed Tau- Pseudorapidity')
+                          title='Truth vs. Reconstructed Tau- Pseudorapidity',
+                          xlim=(-3.5, 3.5))
 
 # Plot phi for positive and negative taus
 plot_comparison_with_ratio(truth_tau_phi_p, reco_tau_phi_p, xlabel=r'Azimuthal Angle $\phi$ (radians)', 
