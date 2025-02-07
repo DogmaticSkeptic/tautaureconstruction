@@ -88,9 +88,9 @@ def chi_squared_nu(neutrino_params, p_pi_p, p_pi_m, MET_x, MET_y):
 
     return chi2_total
 
-def define_coordinate_system(p_tau_p, p_tau_m):
-    """Define the {r^, n^, k^} coordinate system in the tau tau rest frame"""
-    k_hat = p_tau_m[1:] / np.linalg.norm(p_tau_m[1:])
+def define_coordinate_system(p_tau):
+    """Define the {r^, n^, k^} coordinate system in the tau rest frame"""
+    k_hat = p_tau[1:] / np.linalg.norm(p_tau[1:])
 
     p_hat = np.array([0, 0, 1])
 

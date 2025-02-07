@@ -227,7 +227,7 @@ for i in range(n_events):
     p_pion_m_truth_rest = boost_to_rest_frame(truth_data[i][3], p_tau_tau_truth)
     
     # Define coordinate system in tau-tau rest frame
-    r_hat_tautau, n_hat_tautau, k_hat_tautau = define_coordinate_system(p_tau_p_truth_rest, p_tau_m_truth_rest)
+    r_hat_tautau, n_hat_tautau, k_hat_tautau = define_coordinate_system(p_tau_m_truth_rest)
 
     # Boost pion+ to single tau+ rest frame
     p_pion_p_single_rest = boost_to_rest_frame(p_pion_p_truth_rest, p_tau_p_truth_rest)
@@ -266,7 +266,7 @@ for i in range(n_events):
     p_pion_m_reco_rest = boost_to_rest_frame(reco_data[i][1], p_tau_tau_reco)
     
     # Define coordinate system in tau-tau rest frame
-    r_hat_reco_tautau, n_hat_reco_tautau, k_hat_reco_tautau = define_coordinate_system(p_tau_p_reco_rest, p_tau_m_reco_rest)
+    r_hat_reco_tautau, n_hat_reco_tautau, k_hat_reco_tautau = define_coordinate_system(p_tau_m_reco_rest)
 
     # Boost to single tau+ rest frame
     p_pion_p_single_rest = boost_to_rest_frame(p_pion_p_reco_rest, p_tau_p_reco_rest)
