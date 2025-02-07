@@ -3,6 +3,9 @@ import pickle
 import numpy as np
 import matplotlib.pyplot as plt
 from tqdm import tqdm
+from multiprocessing import Pool
+
+NUM_CPUS = 4
 from helperfunctions import (
     boost_to_rest_frame, define_coordinate_system,
     reconstruct_neutrino_momenta, plot_comparison_with_ratio, plot_relative_uncertainty,
@@ -53,21 +56,17 @@ for event in truth_data:
         true_neutrino_phi.append(phi)
 
 
-# Reconstruct neutrino momenta for all events
-reco_neutrino_momenta = []
+# Prepare arguments for parallel processing
+reco_args = [(reco_data[i][0], reco_data[i][1], MET[i].px, MET[i].py) for i in range(n_events)]
 
-for i in tqdm(range(n_events)):
-    # Extract reconstructed pion momenta
-    p_pi_p_reco = reco_data[i][0]
-    p_pi_m_reco = reco_data[i][1]
+# Reconstruct neutrino momenta using multiprocessing
+def reconstruct_event(args):
+    p_pi_p_reco, p_pi_m_reco, MET_x, MET_y = args
+    return reconstruct_neutrino_momenta(p_pi_p_reco, p_pi_m_reco, MET_x, MET_y)
 
-    # Extract MET components
-    MET_x = MET[i].px
-    MET_y = MET[i].py
-
-    # Perform reconstruction
-    p_nu_p_opt, p_nu_m_opt = reconstruct_neutrino_momenta(p_pi_p_reco, p_pi_m_reco, MET_x, MET_y)
-    reco_neutrino_momenta.append((p_nu_p_opt, p_nu_m_opt))
+# Use multiprocessing with NUM_CPUS CPUs
+with Pool(processes=NUM_CPUS) as pool:
+    reco_neutrino_momenta = list(tqdm(pool.imap(reconstruct_event, reco_args), total=n_events))
 
 # Collect truth and reconstructed values separated by charge
 truth_eta_p = []
