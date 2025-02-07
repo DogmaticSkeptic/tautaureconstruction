@@ -25,7 +25,7 @@ tau_p_pion = particle_data_dict['tau_p_child1']
 tau_m_pion = particle_data_dict['tau_m_child1']
 MET = particle_data_dict['MET']
     
-n_events = 100
+n_events = 200
 
 truth_data = []
 reco_data = []
