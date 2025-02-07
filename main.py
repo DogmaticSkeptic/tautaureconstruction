@@ -295,3 +295,43 @@ for component, idx in [('px', 1), ('py', 2), ('pz', 3)]:
     reco_m = [reco_neutrino_momenta[i][1][idx] for i in range(n_events)]
     plot_relative_uncertainty(truth_m, reco_m, component, 'Neutrino', '-')
 
+# Calculate the Cij matrix elements
+C = np.zeros((3, 3))
+cos_theta_labels = ['r', 'n', 'k']
+
+# Calculate each matrix element
+for i in range(3):
+    for j in range(3):
+        # Get the corresponding cos theta values
+        cos_theta_p = [truth_cos_theta_r_p, truth_cos_theta_n_p, truth_cos_theta_k_p][i]
+        cos_theta_m = [truth_cos_theta_r_m, truth_cos_theta_n_m, truth_cos_theta_k_m][j]
+        
+        # Calculate the expectation value
+        expectation = np.mean(np.array(cos_theta_p) * np.array(cos_theta_m))
+        
+        # Fill the matrix element
+        C[i, j] = -9 * expectation
+
+# Calculate eigenvalues and sort them
+eigenvalues = np.linalg.eigvals(C)
+sorted_eigenvalues = np.sort(eigenvalues)[::-1]  # Sort in descending order
+
+# Calculate the sum of the two largest eigenvalues
+concurrence = np.sum(sorted_eigenvalues[:2])
+
+# Print the results
+print("\nConcurrence Analysis:")
+print("Cij Matrix:")
+print(C)
+print("\nEigenvalues:", sorted_eigenvalues)
+print("Sum of two largest eigenvalues (Concurrence):", concurrence)
+
+# Save the results to a file
+with open('concurrence_results.txt', 'w') as f:
+    f.write("Concurrence Analysis Results\n")
+    f.write("===========================\n\n")
+    f.write("Cij Matrix:\n")
+    f.write(str(C) + "\n\n")
+    f.write("Eigenvalues: " + str(sorted_eigenvalues) + "\n")
+    f.write("Sum of two largest eigenvalues (Concurrence): " + str(concurrence) + "\n")
+
