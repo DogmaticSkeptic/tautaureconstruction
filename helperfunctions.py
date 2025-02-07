@@ -171,8 +171,11 @@ def plot_relative_uncertainty(truth_values, reco_values, component, particle_typ
     rel_unc = [(reco - truth) / truth if truth != 0 else 0
                for truth, reco in zip(truth_values, reco_values)]
 
+    # Create bins that span exactly the xlim range
+    bin_edges = np.linspace(xlim[0], xlim[1], bins + 1)
+
     plt.figure(figsize=(10, 6))
-    plt.hist(rel_unc, bins=bins, alpha=0.7)
+    plt.hist(rel_unc, bins=bin_edges, alpha=0.7)
     plt.xlabel(f'Relative Uncertainty in {component}')
     plt.ylabel('Count')
     plt.title(rf'Relative Uncertainty in {component} for {particle_type}{charge}')
