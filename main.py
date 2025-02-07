@@ -215,13 +215,6 @@ for i in range(n_events):
     # Boost pion+ to single tau+ rest frame
     p_pion_p_single_rest = boost_to_rest_frame(p_pion_p_truth_rest, p_tau_p_truth_rest)
 
-    # Debug print statements for truth tau+
-    print(f"Event {i}:")
-    print(f"  p_tau_p_truth_rest: {p_tau_p_truth_rest}")
-    print(f"  p_pion_p_truth_rest: {p_pion_p_truth_rest}")
-    print(f"  p_pion_p_single_rest: {p_pion_p_single_rest}")
-    print(f"  r_hat_tautau: {r_hat_tautau}, n_hat_tautau: {n_hat_tautau}, k_hat_tautau: {k_hat_tautau}")
-
     # Calculate cosθ in single tau+ frame using tau-tau rest frame basis
     truth_cos_theta_r_p.append(compute_cos_theta(p_pion_p_single_rest, r_hat_tautau, n_hat_tautau, k_hat_tautau)[0])
     truth_cos_theta_n_p.append(compute_cos_theta(p_pion_p_single_rest, r_hat_tautau, n_hat_tautau, k_hat_tautau)[1])
@@ -229,13 +222,6 @@ for i in range(n_events):
 
     # Boost to single tau- rest frame
     p_pion_m_single_rest = boost_to_rest_frame(p_pion_m_truth_rest, p_tau_m_truth_rest)
-
-    # Debug print statements for truth tau-
-    print(f"Event {i}:")
-    print(f"  p_tau_m_truth_rest: {p_tau_m_truth_rest}")
-    print(f"  p_pion_m_truth_rest: {p_pion_m_truth_rest}")
-    print(f"  p_pion_m_single_rest: {p_pion_m_single_rest}")
-    print(f"  r_hat_tautau: {r_hat_tautau}, n_hat_tautau: {n_hat_tautau}, k_hat_tautau: {k_hat_tautau}")
 
     # Calculate cosθ in single tau- frame using tau-tau rest frame basis
     truth_cos_theta_r_m.append(compute_cos_theta(p_pion_m_single_rest, r_hat_tautau, n_hat_tautau, k_hat_tautau)[0])
@@ -254,13 +240,6 @@ for i in range(n_events):
     # Boost to single tau+ rest frame
     p_pion_p_single_rest = boost_to_rest_frame(p_pion_p_reco_rest, p_tau_p_reco_rest)
 
-    # Debug print statements for reco tau+
-    print(f"Event {i}:")
-    print(f"  p_tau_p_reco_rest: {p_tau_p_reco_rest}")
-    print(f"  p_pion_p_reco_rest: {p_pion_p_reco_rest}")
-    print(f"  p_pion_p_single_rest: {p_pion_p_single_rest}")
-    print(f"  r_hat_reco_tautau: {r_hat_reco_tautau}, n_hat_reco_tautau: {n_hat_reco_tautau}, k_hat_reco_tautau: {k_hat_reco_tautau}")
-
     # Calculate cosθ in single tau+ frame using tau-tau rest frame basis
     reco_cos_theta_r_p.append(compute_cos_theta(p_pion_p_single_rest, r_hat_reco_tautau, n_hat_reco_tautau, k_hat_reco_tautau)[0])
     reco_cos_theta_n_p.append(compute_cos_theta(p_pion_p_single_rest, r_hat_reco_tautau, n_hat_reco_tautau, k_hat_reco_tautau)[1])
@@ -268,13 +247,6 @@ for i in range(n_events):
 
     # Boost to single tau- rest frame
     p_pion_m_single_rest = boost_to_rest_frame(p_pion_m_reco_rest, p_tau_m_reco_rest)
-
-    # Debug print statements for reco tau-
-    print(f"Event {i}:")
-    print(f"  p_tau_m_reco_rest: {p_tau_m_reco_rest}")
-    print(f"  p_pion_m_reco_rest: {p_pion_m_reco_rest}")
-    print(f"  p_pion_m_single_rest: {p_pion_m_single_rest}")
-    print(f"  r_hat_reco_tautau: {r_hat_reco_tautau}, n_hat_reco_tautau: {n_hat_reco_tautau}, k_hat_reco_tautau: {k_hat_reco_tautau}")
 
     # Calculate cosθ in single tau- frame using tau-tau rest frame basis
     reco_cos_theta_r_m.append(compute_cos_theta(p_pion_m_single_rest, r_hat_reco_tautau, n_hat_reco_tautau, k_hat_reco_tautau)[0])

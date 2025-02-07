@@ -19,7 +19,7 @@ SIGMA_Z = 0.002  # Z mass uncertainty (GeV)
 
 
 # Physics functions
-def boost_to_rest_frame(p, p_boost, debug=False):  # pylint: disable=unused-argument
+def boost_to_rest_frame(p, p_boost):
     """Boost a 4-momentum p into the rest frame of p_boost"""
     beta = p_boost[1:] / p_boost[0]
     beta_sq = np.dot(beta, beta)
