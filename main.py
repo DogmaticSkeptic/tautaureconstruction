@@ -297,7 +297,6 @@ for component, idx in [('px', 1), ('py', 2), ('pz', 3)]:
 
 # Calculate the Cij matrix elements using binned data
 C = np.zeros((3, 3))
-cos_theta_labels = ['r', 'n', 'k']
 bins = 50  # Number of bins for histogramming
 bin_range = (-1, 1)  # Range of cos theta values
 
@@ -317,15 +316,15 @@ for i in range(3):
         ycenters = (yedges[:-1] + yedges[1:]) / 2
         
         # Create meshgrid of bin centers
-        X, Y = np.meshgrid(xcenters, yedges[:-1])
+        X, Y = np.meshgrid(xcenters, ycenters)
         
         # Calculate bin areas
         bin_width_x = xedges[1] - xedges[0]
         bin_width_y = yedges[1] - yedges[0]
         bin_area = bin_width_x * bin_width_y
         
-        # Calculate expectation value with proper normalization
-        expectation = np.sum(X * Y * hist) * bin_area / (len(cos_theta_p) * len(cos_theta_m))
+        # Calculate expectation value by multiplying bin contents and bin areas
+        expectation = np.sum(X * Y * hist) * bin_area / np.sum(hist)
         
         # Fill the matrix element
         C[i, j] = -9 * expectation
