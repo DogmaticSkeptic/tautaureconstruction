@@ -126,8 +126,16 @@ def compute_cos_theta(p_pion, r_hat, n_hat, k_hat):
 
     return cos_theta_r, cos_theta_n, cos_theta_k
 
+import os
+
+def ensure_plots_dir():
+    """Ensure the plots directory exists"""
+    if not os.path.exists('plots'):
+        os.makedirs('plots')
+
 def plot_comparison_with_ratio(truth_values, reco_values, xlabel, title, bins=50, xlim=None):
-    """Plot histograms with ratio plot below"""
+    """Plot histograms with ratio plot below and save to file"""
+    ensure_plots_dir()
     truth_values = np.array(truth_values)
     reco_values = np.array(reco_values)
     valid_mask = ~np.isnan(truth_values) & ~np.isnan(reco_values)
@@ -164,10 +172,14 @@ def plot_comparison_with_ratio(truth_values, reco_values, xlabel, title, bins=50
         ax[0].set_xlim(xlim)
         ax[1].set_xlim(xlim)
     plt.tight_layout()
-    plt.show()
+    # Create a safe filename from the title
+    filename = title.lower().replace(' ', '_').replace('$', '').replace('/', '_') + '.png'
+    plt.savefig(f'plots/{filename}')
+    plt.close()
 
 def plot_relative_uncertainty(truth_values, reco_values, component, particle_type, charge, bins=50, xlim=(-3, 3)):
-    """Plot relative uncertainties between truth and reconstructed values"""
+    """Plot relative uncertainties between truth and reconstructed values and save to file"""
+    ensure_plots_dir()
     rel_unc = [(reco - truth) / truth if truth != 0 else 0
                for truth, reco in zip(truth_values, reco_values)]
 
@@ -181,4 +193,6 @@ def plot_relative_uncertainty(truth_values, reco_values, component, particle_typ
     plt.title(rf'Relative Uncertainty in {component} for {particle_type}{charge}')
     plt.xlim(xlim)
     plt.grid(True)
-    plt.show()
+    filename = f'rel_unc_{particle_type}_{charge}_{component}.png'
+    plt.savefig(f'plots/{filename}')
+    plt.close()
