@@ -77,6 +77,22 @@ def define_coordinate_system(p_tau):
 
     return r_hat, n_hat, k_hat
 
+# Compute pseudorapidity function
+def compute_eta(p):
+    px, py, pz = p[1], p[2], p[3]
+    theta = np.arctan2(np.sqrt(px**2 + py**2), pz)
+    return -np.log(np.tan(theta / 2))
+
+# Compute phi function
+def compute_phi(p):
+    px, py = p[1], p[2]
+    return np.arctan2(py, px)
+
+# Compute transverse momentum function
+def compute_pT(p):
+    px, py = p[1], p[2]
+    return np.sqrt(px**2 + py**2)
+
 # Analysis functions
 def reconstruct_neutrino_momenta(p_pi_p_reco, p_pi_m_reco, MET_x, MET_y):
     """Reconstruct neutrino momenta using chi-squared minimization"""
