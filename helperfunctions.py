@@ -21,12 +21,6 @@ SIGMA_Z = 0.002  # Z mass uncertainty (GeV)
 # Physics functions
 def boost_to_rest_frame(p, p_boost, debug=False):  # pylint: disable=unused-argument
     """Boost a 4-momentum p into the rest frame of p_boost"""
-    if np.any(np.isnan(p)) or np.any(np.isnan(p_boost)):
-        return np.array([np.nan, np.nan, np.nan, np.nan])
-
-    if np.linalg.norm(p_boost[1:]) < 1e-10:
-        return p
-
     beta = p_boost[1:] / p_boost[0]
     beta_sq = np.dot(beta, beta)
 
@@ -44,31 +38,6 @@ def boost_to_rest_frame(p, p_boost, debug=False):  # pylint: disable=unused-argu
     p_prime = np.array([E_prime, *(p_prime_parallel + p_perp)])
 
     return p_prime
-
-def boost_three_vector(vec3, p_boost):
-    """Boost a 3-vector by treating it as a 4-vector with E=0"""
-    if np.any(np.isnan(vec3)) or np.any(np.isnan(p_boost)):
-        return np.array([np.nan, np.nan, np.nan])
-
-    beta = p_boost[1:] / p_boost[0]
-    beta_sq = np.dot(beta, beta)
-
-    if beta_sq >= 1.0:  # also covers beta_sq < 0 implicitly
-        return np.array([np.nan, np.nan, np.nan])
-
-    gamma = 1.0 / np.sqrt(1.0 - beta_sq)
-
-    V = np.concatenate(([0.0], vec3))
-
-    V0_prime = -gamma * np.dot(beta, vec3)
-    V_space_prime = vec3 + ((gamma - 1.0) * np.dot(beta, vec3) / beta_sq) * beta
-
-    v_prime = V_space_prime
-    norm = np.linalg.norm(v_prime)
-    if norm > 0:
-        return v_prime / norm
-    else:
-        return np.array([np.nan, np.nan, np.nan])
 
 def chi_squared_nu(neutrino_params, p_pi_p, p_pi_m, MET_x, MET_y):
     """Chi-squared function for neutrino momentum reconstruction"""
@@ -126,13 +95,8 @@ def reconstruct_neutrino_momenta(p_pi_p_reco, p_pi_m_reco, MET_x, MET_y):
 
 def compute_cos_theta(p_pion, r_hat, n_hat, k_hat):
     """Calculate cos theta for each axis in the rest frame"""
-    if np.any(np.isnan(p_pion)) or np.any(np.isnan(r_hat)) or \
-       np.any(np.isnan(n_hat)) or np.any(np.isnan(k_hat)):
-        return np.nan, np.nan, np.nan
 
     p_norm = np.linalg.norm(p_pion[1:])
-    if p_norm < 1e-10:
-        return np.nan, np.nan, np.nan
 
     p_pion_norm = p_pion[1:] / p_norm
 
