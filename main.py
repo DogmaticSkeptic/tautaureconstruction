@@ -295,9 +295,11 @@ for component, idx in [('px', 1), ('py', 2), ('pz', 3)]:
     reco_m = [reco_neutrino_momenta[i][1][idx] for i in range(n_events)]
     plot_relative_uncertainty(truth_m, reco_m, component, 'Neutrino', '-')
 
-# Calculate the Cij matrix elements
+# Calculate the Cij matrix elements using binned data
 C = np.zeros((3, 3))
 cos_theta_labels = ['r', 'n', 'k']
+bins = 50  # Number of bins for histogramming
+bin_range = (-1, 1)  # Range of cos theta values
 
 # Calculate each matrix element
 for i in range(3):
@@ -306,8 +308,24 @@ for i in range(3):
         cos_theta_p = [reco_cos_theta_r_p, reco_cos_theta_n_p, reco_cos_theta_k_p][i]
         cos_theta_m = [reco_cos_theta_r_m, reco_cos_theta_n_m, reco_cos_theta_k_m][j]
         
-        # Calculate the expectation value
-        expectation = np.mean(np.array(cos_theta_p) * np.array(cos_theta_m))
+        # Create 2D histogram
+        hist, xedges, yedges = np.histogram2d(cos_theta_p, cos_theta_m, 
+                                            bins=bins, range=[bin_range, bin_range])
+        
+        # Calculate bin centers
+        xcenters = (xedges[:-1] + xedges[1:]) / 2
+        ycenters = (yedges[:-1] + yedges[1:]) / 2
+        
+        # Create meshgrid of bin centers
+        X, Y = np.meshgrid(xcenters, yedges[:-1])
+        
+        # Calculate bin areas
+        bin_width_x = xedges[1] - xedges[0]
+        bin_width_y = yedges[1] - yedges[0]
+        bin_area = bin_width_x * bin_width_y
+        
+        # Calculate expectation value with proper normalization
+        expectation = np.sum(X * Y * hist) * bin_area / (len(cos_theta_p) * len(cos_theta_m))
         
         # Fill the matrix element
         C[i, j] = -9 * expectation
