@@ -290,22 +290,6 @@ plot_comparison_with_ratio(truth_cos_theta_n_m, reco_cos_theta_n_m, xlabel=r'$\c
 plot_comparison_with_ratio(truth_cos_theta_k_m, reco_cos_theta_k_m, xlabel=r'$\cos \theta_k$',
                           title=r'Truth vs. Reconstructed $\cos \theta_k$ for Tau-')
 
-def plot_relative_uncertainty(truth_values, reco_values, component, particle_type, charge, bins=50, xlim=(-1, 1)):
-    """Plot relative uncertainties between truth and reconstructed values"""
-    # Calculate relative uncertainties
-    rel_unc = [(reco - truth)/truth if truth != 0 else 0
-               for truth, reco in zip(truth_values, reco_values)]
-
-    # Plot histogram
-    plt.figure(figsize=(10, 6))
-    plt.hist(rel_unc, bins=bins, alpha=0.7)
-    plt.xlabel(f'Relative Uncertainty in {component}')
-    plt.ylabel('Count')
-    plt.title(rf'Relative Uncertainty in {component} for {particle_type}{charge}')
-    plt.xlim(xlim)
-    plt.grid(True)
-    plt.show()
-
 # Plot relative uncertainties for tau components
 for component, idx in [('px', 1), ('py', 2), ('pz', 3)]:
     # Tau+
