@@ -224,18 +224,23 @@ def reconstruct_neutrino_collinear(p_pi_p_reco, p_pi_m_reco, MET_x, MET_y):
     return p_nu_p, p_nu_m
 
 def plot_residual_comparison(residuals1, residuals2, xlabel, title, bins=50, xlim=(-10, 10)):
-    """Plot residual histograms comparing two methods"""
+    """Plot residual relative uncertainty histograms comparing two methods"""
     ensure_plots_dir()
+    
+    # Calculate relative uncertainties
+    rel_residuals1 = [r/truth if truth != 0 else 0 for r, truth in zip(residuals1, truth_values)]
+    rel_residuals2 = [r/truth if truth != 0 else 0 for r, truth in zip(residuals2, truth_values)]
+    
     plt.figure(figsize=(10,6))
-    plt.hist(residuals1, bins=bins, range=xlim, 
+    plt.hist(rel_residuals1, bins=bins, range=xlim, 
             alpha=0.5, label='Original Method')
-    plt.hist(residuals2, bins=bins, range=xlim,
+    plt.hist(rel_residuals2, bins=bins, range=xlim,
             alpha=0.5, label='Collinear Method')
-    plt.xlabel(xlabel)
+    plt.xlabel(f'Relative {xlabel}')
     plt.ylabel('Count')
-    plt.title(title)
+    plt.title(f'Relative {title}')
     plt.legend()
-    filename = title.lower().replace(' ', '_').replace('$', '') + '.png'
+    filename = 'relative_' + title.lower().replace(' ', '_').replace('$', '') + '.png'
     plt.savefig(f'plots/{filename}')
     plt.close()
 

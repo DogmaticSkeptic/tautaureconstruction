@@ -301,9 +301,14 @@ for component, idx in [('px', 1), ('py', 2), ('pz', 3)]:
     residuals_original = [t - r for t,r in zip(truth_p, reco_p)]
     residuals_coll = [t - r for t,r in zip(truth_p, reco_coll_p)]
     plot_residual_comparison(residuals_original, residuals_coll,
-                           xlabel=f'{component} Residual (GeV)',
-                           title=f'Neutrino+ {component} Residual Comparison',
-                           xlim=(-50, 50))
+                           xlabel=f'{component} Relative Residual',
+                           title=f'Neutrino+ {component} Relative Residual Comparison',
+                           xlim=(-1, 1))
+    
+    # Print chi2 values
+    print(f"\nNeutrino+ {component} Chi2 values:")
+    print(f"Original method: {chi_squared_nu(reco_neutrino_momenta[i][0], reco_data[i][0], reco_data[i][1], MET[i].px, MET[i].py):.2f}")
+    print(f"Collinear method: {chi_squared_collinear([alpha, beta], reco_data[i][0], reco_data[i][1], MET[i].px, MET[i].py):.2f}")
 
     # Neutrino-
     truth_m = [truth_data[i][5][idx] for i in range(n_events)]
@@ -315,9 +320,14 @@ for component, idx in [('px', 1), ('py', 2), ('pz', 3)]:
     residuals_original = [t - r for t,r in zip(truth_m, reco_m)]
     residuals_coll = [t - r for t,r in zip(truth_m, reco_coll_m)]
     plot_residual_comparison(residuals_original, residuals_coll,
-                           xlabel=f'{component} Residual (GeV)',
-                           title=f'Neutrino- {component} Residual Comparison',
-                           xlim=(-50, 50))
+                           xlabel=f'{component} Relative Residual',
+                           title=f'Neutrino- {component} Relative Residual Comparison',
+                           xlim=(-1, 1))
+    
+    # Print chi2 values
+    print(f"\nNeutrino- {component} Chi2 values:")
+    print(f"Original method: {chi_squared_nu(reco_neutrino_momenta[i][1], reco_data[i][0], reco_data[i][1], MET[i].px, MET[i].py):.2f}")
+    print(f"Collinear method: {chi_squared_collinear([alpha, beta], reco_data[i][0], reco_data[i][1], MET[i].px, MET[i].py):.2f}")
 
 # Calculate the Cij matrix elements using binned data
 C = np.zeros((3, 3))
