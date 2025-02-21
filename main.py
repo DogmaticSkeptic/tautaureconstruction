@@ -199,11 +199,6 @@ plot_comparison_with_ratio(truth_tau_pT_m, reco_tau_pT_m, xlabel=r'Transverse Mo
                           title=r'Truth vs. Reconstructed Tau- Transverse Momentum',
                           bins=50, xlim=(0, 100))
 
-# Initialize lists to store cos theta values
-truth_cos_theta_r_p, truth_cos_theta_n_p, truth_cos_theta_k_p = [], [], []
-truth_cos_theta_r_m, truth_cos_theta_n_m, truth_cos_theta_k_m = [], [], []
-reco_cos_theta_r_p, reco_cos_theta_n_p, reco_cos_theta_k_p = [], [], []
-reco_cos_theta_r_m, reco_cos_theta_n_m, reco_cos_theta_k_m = [], [], []
 
 for i in range(n_events):
     # Get tau-tau system momentum for truth and reco

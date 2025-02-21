@@ -109,22 +109,6 @@ def reconstruct_neutrino_momenta(p_pi_p_reco, p_pi_m_reco, MET_x, MET_y):
 
     return p_nu_p_opt, p_nu_m_opt
 
-def compute_cos_theta(p_pion, r_hat, n_hat, k_hat):
-    """Calculate cos theta for each axis in the rest frame"""
-
-    p_norm = np.linalg.norm(p_pion[1:])
-
-    p_pion_norm = p_pion[1:] / p_norm
-
-    cos_theta_r = np.dot(p_pion_norm, r_hat)
-    cos_theta_n = np.dot(p_pion_norm, n_hat)
-    cos_theta_k = np.dot(p_pion_norm, k_hat)
-
-    cos_theta_r = np.clip(cos_theta_r, -1.0, 1.0)
-    cos_theta_n = np.clip(cos_theta_n, -1.0, 1.0)
-    cos_theta_k = np.clip(cos_theta_k, -1.0, 1.0)
-
-    return cos_theta_r, cos_theta_n, cos_theta_k
 
 import os
 
