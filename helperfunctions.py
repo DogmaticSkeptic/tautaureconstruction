@@ -289,24 +289,31 @@ def plot_relative_uncertainty(truth_values, reco_values, component, particle_typ
     plt.savefig(f'plots/{filename}')
     plt.close()
 
-def plot_met_assumption_comparison(truth_values, met_values, component, particle_type, charge, bins=50, xlim=(-3, 3)):
-    """Plot comparison of MET/2 assumption vs truth values"""
+def plot_met_assumption_comparison(truth_values, met_values, component, particle_type, charge, reco_values=None, bins=50, xlim=(-3, 3)):
+    """Plot comparison of MET/2 assumption vs truth values and original reconstruction"""
     ensure_plots_dir()
     
     # Calculate residuals assuming MET/2 for each neutrino
     met_assumption = [met/2 for met in met_values]
-    residuals = [t - m for t, m in zip(truth_values, met_assumption)]
+    met_residuals = [t - m for t, m in zip(truth_values, met_assumption)]
     
     # Calculate relative uncertainties
-    rel_unc = [(m - t)/t if t != 0 else 0 for t, m in zip(truth_values, met_assumption)]
+    met_rel_unc = [(m - t)/t if t != 0 else 0 for t, m in zip(truth_values, met_assumption)]
+    
+    # Calculate original reconstruction relative uncertainties if provided
+    if reco_values is not None:
+        reco_rel_unc = [(r - t)/t if t != 0 else 0 for t, r in zip(truth_values, reco_values)]
 
     plt.figure(figsize=(10, 6))
-    plt.hist(rel_unc, bins=bins, range=xlim, alpha=0.7)
-    plt.xlabel(f'Relative Uncertainty in {component} (MET/2 assumption)')
+    plt.hist(met_rel_unc, bins=bins, range=xlim, alpha=0.5, label='MET/2 Assumption')
+    if reco_values is not None:
+        plt.hist(reco_rel_unc, bins=bins, range=xlim, alpha=0.5, label='Original Reconstruction')
+    plt.xlabel(f'Relative Uncertainty in {component}')
     plt.ylabel('Count')
-    plt.title(rf'MET/2 Assumption vs Truth for {particle_type}{charge} {component}')
+    plt.title(rf'Reconstruction Methods Comparison for {particle_type}{charge} {component}')
+    plt.legend()
     plt.xlim(xlim)
     plt.grid(True)
-    filename = f'met_assumption_{particle_type}_{charge}_{component}.png'
+    filename = f'met_assumption_comparison_{particle_type}_{charge}_{component}.png'
     plt.savefig(f'plots/{filename}')
     plt.close()

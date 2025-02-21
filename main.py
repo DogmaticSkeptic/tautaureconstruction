@@ -247,7 +247,8 @@ for component, idx in [('px', 1), ('py', 2), ('pz', 3)]:
     # Plot MET/2 assumption comparison for transverse components
     if component in ['px', 'py']:
         met_values = [MET[i].px if component == 'px' else MET[i].py for i in range(n_events)]
-        plot_met_assumption_comparison(truth_p, met_values, component, 'Neutrino', '+')
+        reco_p = [reco_neutrino_momenta[i][0][idx] for i in range(n_events)]
+        plot_met_assumption_comparison(truth_p, met_values, component, 'Neutrino', '+', reco_values=reco_p)
     
     # Print chi2 values for all events
     # print(f"\nNeutrino+ {component} Chi2 values:")
@@ -285,7 +286,8 @@ for component, idx in [('px', 1), ('py', 2), ('pz', 3)]:
     # Plot MET/2 assumption comparison for transverse components
     if component in ['px', 'py']:
         met_values = [MET[i].px if component == 'px' else MET[i].py for i in range(n_events)]
-        plot_met_assumption_comparison(truth_m, met_values, component, 'Neutrino', '-')
+        reco_m = [reco_neutrino_momenta[i][1][idx] for i in range(n_events)]
+        plot_met_assumption_comparison(truth_m, met_values, component, 'Neutrino', '-', reco_values=reco_m)
     
     # Print chi2 values for all events
     # print(f"\nNeutrino- {component} Chi2 values:")
