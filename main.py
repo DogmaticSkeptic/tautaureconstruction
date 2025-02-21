@@ -309,7 +309,12 @@ for component, idx in [('px', 1), ('py', 2), ('pz', 3)]:
     # Print chi2 values for first event as example
     i = 0  # Just show first event's chi2 values
     print(f"\nNeutrino+ {component} Chi2 values (first event):")
-    print(f"Original method: {chi_squared_nu(reco_neutrino_momenta[i][0], reco_data[i][0], reco_data[i][1], MET[i].px, MET[i].py):.2f}")
+    # Get the 3-momentum components for both neutrinos
+    p_nu_p = reco_neutrino_momenta[i][0][1:]  # px,py,pz of nu+
+    p_nu_m = reco_neutrino_momenta[i][1][1:]  # px,py,pz of nu-
+    # Combine into 6-parameter array expected by chi_squared_nu
+    params = np.concatenate([p_nu_p, p_nu_m])
+    print(f"Original method: {chi_squared_nu(params, reco_data[i][0], reco_data[i][1], MET[i].px, MET[i].py):.2f}")
     # Get collinear params from reconstruction
     p_nu_p, p_nu_m = reco_neutrino_collinear[i]
     alpha = np.linalg.norm(p_nu_p[1:])/np.linalg.norm(reco_data[i][0][1:])
@@ -334,7 +339,12 @@ for component, idx in [('px', 1), ('py', 2), ('pz', 3)]:
     # Print chi2 values for first event as example
     i = 0  # Just show first event's chi2 values
     print(f"\nNeutrino- {component} Chi2 values (first event):")
-    print(f"Original method: {chi_squared_nu(reco_neutrino_momenta[i][1], reco_data[i][0], reco_data[i][1], MET[i].px, MET[i].py):.2f}")
+    # Get the 3-momentum components for both neutrinos
+    p_nu_p = reco_neutrino_momenta[i][0][1:]  # px,py,pz of nu+
+    p_nu_m = reco_neutrino_momenta[i][1][1:]  # px,py,pz of nu-
+    # Combine into 6-parameter array expected by chi_squared_nu
+    params = np.concatenate([p_nu_p, p_nu_m])
+    print(f"Original method: {chi_squared_nu(params, reco_data[i][0], reco_data[i][1], MET[i].px, MET[i].py):.2f}")
     # Get collinear params from reconstruction
     p_nu_p, p_nu_m = reco_neutrino_collinear[i]
     alpha = np.linalg.norm(p_nu_p[1:])/np.linalg.norm(reco_data[i][0][1:])
