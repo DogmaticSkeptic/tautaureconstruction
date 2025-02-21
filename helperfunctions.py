@@ -177,7 +177,7 @@ def chi_squared_collinear(params, p_pi_p, p_pi_m, MET_x, MET_y):
 
 def reconstruct_neutrino_collinear(p_pi_p_reco, p_pi_m_reco, MET_x, MET_y):
     """Collinear approximation reconstruction"""
-    result = opt.minimize(chi_squared_collinear, [0, 0], 
+    result = opt.minimize(chi_squared_collinear, [0.01, 0.01], 
                         args=(p_pi_p_reco, p_pi_m_reco, MET_x, MET_y),
                         method='COBYLA', tol=1000,
                         options={'disp': True, 'maxiter': 100})
