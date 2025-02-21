@@ -289,6 +289,15 @@ for component, idx in [('px', 1), ('py', 2), ('pz', 3)]:
     plot_relative_uncertainty(truth_m, reco_m, component, 'Tau', '-')
 
 
+# Test collinearity assumption with truth data
+truth_pion_p_momenta = [truth_data[i][2] for i in range(n_events)]
+truth_pion_m_momenta = [truth_data[i][3] for i in range(n_events)]
+truth_nu_p_momenta = [truth_data[i][4] for i in range(n_events)]
+truth_nu_m_momenta = [truth_data[i][5] for i in range(n_events)]
+
+plot_collinearity_test(truth_pion_p_momenta, truth_nu_p_momenta, 'Neutrino', '+')
+plot_collinearity_test(truth_pion_m_momenta, truth_nu_m_momenta, 'Neutrino', '-')
+
 # Plot relative uncertainties and residuals for neutrino components
 for component, idx in [('px', 1), ('py', 2), ('pz', 3)]:
     # Neutrino+

@@ -244,6 +244,27 @@ def plot_residual_comparison(residuals1, residuals2, xlabel, title, truth_values
     plt.savefig(f'plots/{filename}')
     plt.close()
 
+def plot_collinearity_test(truth_pion_momenta, truth_neutrino_momenta, particle_type, charge):
+    """Plot the collinearity test between truth pions and neutrinos"""
+    ensure_plots_dir()
+    
+    # Calculate dot products of normalized 3-momenta
+    collinearity = []
+    for pion, nu in zip(truth_pion_momenta, truth_neutrino_momenta):
+        pion_3vec = pion[1:] / np.linalg.norm(pion[1:])
+        nu_3vec = nu[1:] / np.linalg.norm(nu[1:])
+        collinearity.append(np.dot(pion_3vec, nu_3vec))
+    
+    plt.figure(figsize=(10,6))
+    plt.hist(collinearity, bins=50, range=(-1,1), alpha=0.7)
+    plt.xlabel('Collinearity (cosθ)')
+    plt.ylabel('Count')
+    plt.title(f'Collinearity Test for {particle_type}{charge}')
+    plt.grid(True)
+    filename = f'collinearity_test_{particle_type}_{charge}.png'
+    plt.savefig(f'plots/{filename}')
+    plt.close()
+
 def plot_relative_uncertainty(truth_values, reco_values, component, particle_type, charge, bins=50, xlim=(-3, 3)):
     """Plot relative uncertainties between truth and reconstructed values and save to file"""
     ensure_plots_dir()
