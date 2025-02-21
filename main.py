@@ -306,8 +306,9 @@ for component, idx in [('px', 1), ('py', 2), ('pz', 3)]:
                            truth_values=truth_p,
                            xlim=(-1, 1))
     
-    # Print chi2 values
-    print(f"\nNeutrino+ {component} Chi2 values:")
+    # Print chi2 values for first event as example
+    i = 0  # Just show first event's chi2 values
+    print(f"\nNeutrino+ {component} Chi2 values (first event):")
     print(f"Original method: {chi_squared_nu(reco_neutrino_momenta[i][0], reco_data[i][0], reco_data[i][1], MET[i].px, MET[i].py):.2f}")
     # Get collinear params from reconstruction
     p_nu_p, p_nu_m = reco_neutrino_collinear[i]
@@ -330,8 +331,9 @@ for component, idx in [('px', 1), ('py', 2), ('pz', 3)]:
                            truth_values=truth_m,
                            xlim=(-1, 1))
     
-    # Print chi2 values
-    print(f"\nNeutrino- {component} Chi2 values:")
+    # Print chi2 values for first event as example
+    i = 0  # Just show first event's chi2 values
+    print(f"\nNeutrino- {component} Chi2 values (first event):")
     print(f"Original method: {chi_squared_nu(reco_neutrino_momenta[i][1], reco_data[i][0], reco_data[i][1], MET[i].px, MET[i].py):.2f}")
     # Get collinear params from reconstruction
     p_nu_p, p_nu_m = reco_neutrino_collinear[i]
