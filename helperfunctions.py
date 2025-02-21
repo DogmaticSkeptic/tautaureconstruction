@@ -79,10 +79,14 @@ def reconstruct_neutrino_momenta(p_pi_p_reco, p_pi_m_reco, MET_x, MET_y):
     """Reconstruct neutrino momenta using chi-squared minimization"""
     initial_guess = [MET_x / 2, MET_y / 2, 5.0, MET_x / 2, MET_y / 2, -5.0]
 
+    # Use L-BFGS-B with bounds to prevent unphysical solutions
+    bounds = [(0, None)] * 6  # All momentum components must be >= 0
     result = opt.minimize(
         chi_squared_nu, initial_guess,
         args=(p_pi_p_reco, p_pi_m_reco, MET_x, MET_y),
-        method='BFGS'
+        method='L-BFGS-B',
+        bounds=bounds,
+        options={'maxiter': 1000, 'ftol': 1e-8}
     )
 
     p_nu_p_opt = np.array([np.linalg.norm(result.x[:3]), *result.x[:3]])
@@ -198,9 +202,13 @@ def reconstruct_neutrino_collinear(p_pi_p_reco, p_pi_m_reco, MET_x, MET_y):
         # Fallback if matrix is singular
         alpha_init, beta_init = 0.5, 0.5
     
-    result = opt.minimize(chi_squared_collinear, [alpha_init, beta_init], 
+    # Use L-BFGS-B with bounds for collinear method
+    bounds = [(0.1, 10.0), (0.1, 10.0)]  # Reasonable bounds for alpha and beta
+    result = opt.minimize(chi_squared_collinear, [alpha_init, beta_init],
                         args=(p_pi_p_reco, p_pi_m_reco, MET_x, MET_y),
-                        method='BFGS')
+                        method='L-BFGS-B',
+                        bounds=bounds,
+                        options={'maxiter': 1000, 'ftol': 1e-8})
     
     alpha, beta = result.x
     p_nu_p = np.array([alpha*np.linalg.norm(p_pi_p_reco[1:]), 
