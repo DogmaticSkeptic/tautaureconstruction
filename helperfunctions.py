@@ -143,7 +143,7 @@ def plot_comparison_with_ratio(truth_values, reco_values, xlabel, title, bins=50
     plt.close()
 
 def chi_squared_collinear(params, p_pi_p, p_pi_m, MET_x, MET_y):
-    """Chi-squared for collinear neutrino approximation"""
+    """Chi-squared function for collinear neutrino momentum reconstruction"""
     alpha, beta = params
     
     # Reconstructed neutrino momenta (collinear with pions)
@@ -152,32 +152,28 @@ def chi_squared_collinear(params, p_pi_p, p_pi_m, MET_x, MET_y):
 
     # Tau+ calculations
     p_tau_p = p_pi_p + p_nu_p
-    mass2_tau_p = p_tau_p[0]**2 - (p_tau_p[1]**2 + p_tau_p[2]**2 + p_tau_p[3]**2)
-    chi2_tau_p = ((M_TAU**2 - mass2_tau_p)**2)/SIGMA_TAU**2
+    chi2_tau_p = ((M_TAU**2 - (p_tau_p[0]**2 - np.sum(p_tau_p[1:]**2)))**2) / SIGMA_TAU**2
     
-    # Tau- calculations 
+    # Tau- calculations
     p_tau_m = p_pi_m + p_nu_m
-    mass2_tau_m = p_tau_m[0]**2 - (p_tau_m[1]**2 + p_tau_m[2]**2 + p_tau_m[3]**2)
-    chi2_tau_m = ((M_TAU**2 - mass2_tau_m)**2)/SIGMA_TAU**2
+    chi2_tau_m = ((M_TAU**2 - (p_tau_m[0]**2 - np.sum(p_tau_m[1:]**2)))**2) / SIGMA_TAU**2
+
+    # MET constraints
+    chi2_MET_x = ((p_nu_p[1] + p_nu_m[1] - MET_x)**2) / SIGMA_MET**2
+    chi2_MET_y = ((p_nu_p[2] + p_nu_m[2] - MET_y)**2) / SIGMA_MET**2
 
     # Combined Z system
     p_Z = p_tau_p + p_tau_m
-    mass2_Z = p_Z[0]**2 - (p_Z[1]**2 + p_Z[2]**2 + p_Z[3]**2)
-    chi2_Z = ((M_Z**2 - mass2_Z)**2)/SIGMA_Z**2
-
-    # MET constraints
-    met_x = p_nu_p[1] + p_nu_m[1]
-    met_y = p_nu_p[2] + p_nu_m[2]
-    chi2_MET = ((MET_x - met_x)**2 + (MET_y - met_y)**2)/SIGMA_MET**2
+    chi2_Z_mass = ((M_Z**2 - (p_Z[0]**2 - np.sum(p_Z[1:]**2)))**2) / SIGMA_Z**2
 
     # Print individual terms
     print(f"\nChi2 terms for alpha={alpha:.3f}, beta={beta:.3f}:")
     print(f"Tau+: {chi2_tau_p:.2f}")
     print(f"Tau-: {chi2_tau_m:.2f}") 
-    print(f"Z: {chi2_Z:.2f}")
-    print(f"MET: {chi2_MET:.2f}")
+    print(f"Z: {chi2_Z_mass:.2f}")
+    print(f"MET: {chi2_MET_x + chi2_MET_y:.2f}")
 
-    return chi2_tau_p + chi2_tau_m + chi2_MET + chi2_Z
+    return chi2_tau_p + chi2_tau_m + chi2_MET_x + chi2_MET_y + chi2_Z_mass
 
 def reconstruct_neutrino_collinear(p_pi_p_reco, p_pi_m_reco, MET_x, MET_y):
     """Collinear approximation reconstruction"""
