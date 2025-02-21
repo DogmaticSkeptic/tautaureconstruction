@@ -303,11 +303,16 @@ for component, idx in [('px', 1), ('py', 2), ('pz', 3)]:
     plot_residual_comparison(residuals_original, residuals_coll,
                            xlabel=f'{component} Relative Residual',
                            title=f'Neutrino+ {component} Relative Residual Comparison',
+                           truth_values=truth_p,
                            xlim=(-1, 1))
     
     # Print chi2 values
     print(f"\nNeutrino+ {component} Chi2 values:")
     print(f"Original method: {chi_squared_nu(reco_neutrino_momenta[i][0], reco_data[i][0], reco_data[i][1], MET[i].px, MET[i].py):.2f}")
+    # Get collinear params from reconstruction
+    p_nu_p, p_nu_m = reco_neutrino_collinear[i]
+    alpha = np.linalg.norm(p_nu_p[1:])/np.linalg.norm(reco_data[i][0][1:])
+    beta = np.linalg.norm(p_nu_m[1:])/np.linalg.norm(reco_data[i][1][1:])
     print(f"Collinear method: {chi_squared_collinear([alpha, beta], reco_data[i][0], reco_data[i][1], MET[i].px, MET[i].py):.2f}")
 
     # Neutrino-
@@ -322,11 +327,16 @@ for component, idx in [('px', 1), ('py', 2), ('pz', 3)]:
     plot_residual_comparison(residuals_original, residuals_coll,
                            xlabel=f'{component} Relative Residual',
                            title=f'Neutrino- {component} Relative Residual Comparison',
+                           truth_values=truth_m,
                            xlim=(-1, 1))
     
     # Print chi2 values
     print(f"\nNeutrino- {component} Chi2 values:")
     print(f"Original method: {chi_squared_nu(reco_neutrino_momenta[i][1], reco_data[i][0], reco_data[i][1], MET[i].px, MET[i].py):.2f}")
+    # Get collinear params from reconstruction
+    p_nu_p, p_nu_m = reco_neutrino_collinear[i]
+    alpha = np.linalg.norm(p_nu_p[1:])/np.linalg.norm(reco_data[i][0][1:])
+    beta = np.linalg.norm(p_nu_m[1:])/np.linalg.norm(reco_data[i][1][1:])
     print(f"Collinear method: {chi_squared_collinear([alpha, beta], reco_data[i][0], reco_data[i][1], MET[i].px, MET[i].py):.2f}")
 
 # Calculate the Cij matrix elements using binned data
