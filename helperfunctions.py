@@ -177,6 +177,68 @@ def plot_comparison_with_ratio(truth_values, reco_values, xlabel, title, bins=50
     plt.savefig(f'plots/{filename}')
     plt.close()
 
+def chi_squared_collinear(params, p_pi_p, p_pi_m, MET_x, MET_y):
+    """Chi-squared for collinear neutrino approximation"""
+    alpha, beta = params
+    
+    # Reconstructed neutrino momenta (collinear with pions)
+    p_nu_p = np.array([alpha*np.linalg.norm(p_pi_p[1:]), alpha*p_pi_p[1], alpha*p_pi_p[2], alpha*p_pi_p[3]])
+    p_nu_m = np.array([beta*np.linalg.norm(p_pi_m[1:]), beta*p_pi_m[1], beta*p_pi_m[2], beta*p_pi_m[3]])
+
+    # Tau+ calculations
+    p_tau_p = p_pi_p + p_nu_p
+    mass2_tau_p = p_tau_p[0]**2 - (p_tau_p[1]**2 + p_tau_p[2]**2 + p_tau_p[3]**2)
+    
+    # Tau- calculations 
+    p_tau_m = p_pi_m + p_nu_m
+    mass2_tau_m = p_tau_m[0]**2 - (p_tau_m[1]**2 + p_tau_m[2]**2 + p_tau_m[3]**2)
+
+    # Combined Z system
+    p_Z = p_tau_p + p_tau_m
+    mass2_Z = p_Z[0]**2 - (p_Z[1]**2 + p_Z[2]**2 + p_Z[3]**2)
+
+    # MET constraints
+    met_x = p_nu_p[1] + p_nu_m[1]
+    met_y = p_nu_p[2] + p_nu_m[2]
+
+    return ((M_TAU**2 - mass2_tau_p)**2)/SIGMA_TAU**2 + \
+           ((M_TAU**2 - mass2_tau_m)**2)/SIGMA_TAU**2 + \
+           ((MET_x - met_x)**2 + (MET_y - met_y)**2)/SIGMA_MET**2 + \
+           ((M_Z**2 - mass2_Z)**2)/SIGMA_Z**2
+
+def reconstruct_neutrino_collinear(p_pi_p_reco, p_pi_m_reco, MET_x, MET_y):
+    """Collinear approximation reconstruction"""
+    result = opt.minimize(chi_squared_collinear, [1.0, 1.0], 
+                        args=(p_pi_p_reco, p_pi_m_reco, MET_x, MET_y),
+                        method='BFGS')
+    
+    alpha, beta = result.x
+    p_nu_p = np.array([alpha*np.linalg.norm(p_pi_p_reco[1:]), 
+                      alpha*p_pi_p_reco[1], 
+                      alpha*p_pi_p_reco[2], 
+                      alpha*p_pi_p_reco[3]])
+    p_nu_m = np.array([beta*np.linalg.norm(p_pi_m_reco[1:]),
+                      beta*p_pi_m_reco[1],
+                      beta*p_pi_m_reco[2],
+                      beta*p_pi_m_reco[3]])
+    return p_nu_p, p_nu_m
+
+def plot_residual_comparison(residuals1, residuals2, xlabel, title, bins=50, xlim=(-10, 10)):
+    """Plot residual histograms comparing two methods"""
+    ensure_plots_dir()
+    plt.figure(figsize=(10,6))
+    plt.hist(residuals1, bins=bins, range=xlim, 
+            alpha=0.5, label='Original Method')
+    plt.hist(residuals2, bins=bins, range=xlim,
+            alpha=0.5, label='Collinear Method')
+    plt.xlabel(xlabel)
+    plt.ylabel('Count')
+    plt.title(title)
+    plt.legend()
+    filename = title.lower().replace(' ', '_').replace('$', '') + '.png'
+    plt.savefig(f'plots/{filename}')
+    plt.close()
+
 def plot_relative_uncertainty(truth_values, reco_values, component, particle_type, charge, bins=50, xlim=(-3, 3)):
     """Plot relative uncertainties between truth and reconstructed values and save to file"""
     ensure_plots_dir()

@@ -62,9 +62,14 @@ def reconstruct_event(args):
     p_pi_p_reco, p_pi_m_reco, MET_x, MET_y = args
     return reconstruct_neutrino_momenta(p_pi_p_reco, p_pi_m_reco, MET_x, MET_y)
 
-# Use multiprocessing with NUM_CPUS CPUs
+def reconstruct_collinear_event(args):
+    p_pi_p_reco, p_pi_m_reco, MET_x, MET_y = args
+    return reconstruct_neutrino_collinear(p_pi_p_reco, p_pi_m_reco, MET_x, MET_y)
+
+# Use multiprocessing with NUM_CPUS CPUs for both methods
 with Pool(processes=NUM_CPUS) as pool:
     reco_neutrino_momenta = list(tqdm(pool.imap(reconstruct_event, reco_args), total=n_events))
+    reco_neutrino_collinear = list(tqdm(pool.imap(reconstruct_collinear_event, reco_args), total=n_events))
 
 # Collect truth and reconstructed values separated by charge
 truth_eta_p = []
@@ -283,17 +288,35 @@ for component, idx in [('px', 1), ('py', 2), ('pz', 3)]:
     plot_relative_uncertainty(truth_m, reco_m, component, 'Tau', '-')
 
 
-# Plot relative uncertainties for neutrino components
+# Plot relative uncertainties and residuals for neutrino components
 for component, idx in [('px', 1), ('py', 2), ('pz', 3)]:
     # Neutrino+
     truth_p = [truth_data[i][4][idx] for i in range(n_events)]
     reco_p = [reco_neutrino_momenta[i][0][idx] for i in range(n_events)]
+    reco_coll_p = [reco_neutrino_collinear[i][0][idx] for i in range(n_events)]
     plot_relative_uncertainty(truth_p, reco_p, component, 'Neutrino', '+')
+    
+    # Plot residual comparison
+    residuals_original = [t - r for t,r in zip(truth_p, reco_p)]
+    residuals_coll = [t - r for t,r in zip(truth_p, reco_coll_p)]
+    plot_residual_comparison(residuals_original, residuals_coll,
+                           xlabel=f'{component} Residual (GeV)',
+                           title=f'Neutrino+ {component} Residual Comparison',
+                           xlim=(-50, 50))
 
     # Neutrino-
     truth_m = [truth_data[i][5][idx] for i in range(n_events)]
     reco_m = [reco_neutrino_momenta[i][1][idx] for i in range(n_events)]
+    reco_coll_m = [reco_neutrino_collinear[i][1][idx] for i in range(n_events)]
     plot_relative_uncertainty(truth_m, reco_m, component, 'Neutrino', '-')
+    
+    # Plot residual comparison
+    residuals_original = [t - r for t,r in zip(truth_m, reco_m)]
+    residuals_coll = [t - r for t,r in zip(truth_m, reco_coll_m)]
+    plot_residual_comparison(residuals_original, residuals_coll,
+                           xlabel=f'{component} Residual (GeV)',
+                           title=f'Neutrino- {component} Residual Comparison',
+                           xlim=(-50, 50))
 
 # Calculate the Cij matrix elements using binned data
 C = np.zeros((3, 3))
