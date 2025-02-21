@@ -183,7 +183,7 @@ def reconstruct_neutrino_collinear(p_pi_p_reco, p_pi_m_reco, MET_x, MET_y):
     """Collinear approximation reconstruction"""
     result = opt.minimize(chi_squared_collinear, [0, 0], 
                         args=(p_pi_p_reco, p_pi_m_reco, MET_x, MET_y),
-                        method='Nelder-Mead')
+                        method='BFGS')
     
     alpha, beta = result.x
     p_nu_p = np.array([alpha*np.linalg.norm(p_pi_p_reco[1:]), 
