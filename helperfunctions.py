@@ -62,7 +62,13 @@ def chi_squared_nu(neutrino_params, p_pi_p, p_pi_m, MET_x, MET_y):
 def compute_eta(p):
     px, py, pz = p[1], p[2], p[3]
     theta = np.arctan2(np.sqrt(px**2 + py**2), pz)
-    return -np.log(np.tan(theta / 2))
+    # Add small epsilon to prevent division by zero
+    epsilon = 1e-10
+    tan_theta_half = np.tan(theta / 2 + epsilon)
+    # Handle cases where tan_theta_half is very small
+    if abs(tan_theta_half) < epsilon:
+        return np.sign(pz) * 1e10  # Return large value with correct sign
+    return -np.log(abs(tan_theta_half))
 
 # Compute phi function
 def compute_phi(p):
