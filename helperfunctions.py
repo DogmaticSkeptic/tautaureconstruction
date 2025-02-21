@@ -177,7 +177,27 @@ def chi_squared_collinear(params, p_pi_p, p_pi_m, MET_x, MET_y):
 
 def reconstruct_neutrino_collinear(p_pi_p_reco, p_pi_m_reco, MET_x, MET_y):
     """Collinear approximation reconstruction"""
-    result = opt.minimize(chi_squared_collinear, [0.01, 0.01], 
+    # Calculate initial guesses for alpha and beta based on MET
+    p_pi_p_px, p_pi_p_py = p_pi_p_reco[1], p_pi_p_reco[2]
+    p_pi_m_px, p_pi_m_py = p_pi_m_reco[1], p_pi_m_reco[2]
+    
+    # Solve for alpha and beta that would match MET exactly
+    # alpha*p_pi_p_px + beta*p_pi_m_px = MET_x
+    # alpha*p_pi_p_py + beta*p_pi_m_py = MET_y
+    A = np.array([[p_pi_p_px, p_pi_m_px],
+                 [p_pi_p_py, p_pi_m_py]])
+    b = np.array([MET_x, MET_y])
+    
+    try:
+        alpha_init, beta_init = np.linalg.solve(A, b)
+        # Ensure positive values and reasonable range
+        alpha_init = max(0.1, min(10.0, alpha_init))
+        beta_init = max(0.1, min(10.0, beta_init))
+    except np.linalg.LinAlgError:
+        # Fallback if matrix is singular
+        alpha_init, beta_init = 0.5, 0.5
+    
+    result = opt.minimize(chi_squared_collinear, [alpha_init, beta_init], 
                         args=(p_pi_p_reco, p_pi_m_reco, MET_x, MET_y),
                         method='COBYLA', tol=1000,
                         options={'disp': True, 'maxiter': 100})
