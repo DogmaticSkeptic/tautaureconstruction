@@ -57,25 +57,6 @@ def chi_squared_nu(neutrino_params, p_pi_p, p_pi_m, MET_x, MET_y):
 
     return chi2_total
 
-def define_coordinate_system(p_tau):
-    """Define the {r^, n^, k^} coordinate system in the tau rest frame"""
-    k_hat = p_tau[1:] / np.linalg.norm(p_tau[1:])
-
-    p_hat = np.array([0, 0, 1])
-
-    cos_theta = np.dot(k_hat, p_hat)
-    sin_theta = np.sqrt(1 - cos_theta**2)
-
-    if sin_theta < 1e-6:
-        p_hat = np.array([1, 0, 0])
-        cos_theta = np.dot(k_hat, p_hat)
-        sin_theta = np.sqrt(1 - cos_theta**2)
-
-    r_hat = (p_hat - k_hat * cos_theta) / sin_theta
-
-    n_hat = np.cross(k_hat, r_hat)
-
-    return r_hat, n_hat, k_hat
 
 # Compute pseudorapidity function
 def compute_eta(p):
