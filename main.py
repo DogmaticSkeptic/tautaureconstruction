@@ -245,22 +245,22 @@ for component, idx in [('px', 1), ('py', 2), ('pz', 3)]:
                            xlim=(-1, 1))
     
     # Print chi2 values for all events
-    print(f"\nNeutrino+ {component} Chi2 values:")
-    print(f"{'Event':<6} {'Original':<10} {'Collinear':<10}")
-    for i in range(n_events):
-        # Original method
-        p_nu_p = reco_neutrino_momenta[i][0][1:]  # px,py,pz of nu+
-        p_nu_m = reco_neutrino_momenta[i][1][1:]  # px,py,pz of nu-
-        params = np.concatenate([p_nu_p, p_nu_m])
-        chi2_orig = chi_squared_nu(params, reco_data[i][0], reco_data[i][1], MET[i].px, MET[i].py)
-        
-        # Collinear method
-        p_nu_p, p_nu_m = reco_neutrino_collinear[i]
-        alpha = np.linalg.norm(p_nu_p[1:])/np.linalg.norm(reco_data[i][0][1:])
-        beta = np.linalg.norm(p_nu_m[1:])/np.linalg.norm(reco_data[i][1][1:])
-        chi2_coll = chi_squared_collinear([alpha, beta], reco_data[i][0], reco_data[i][1], MET[i].px, MET[i].py)
-        
-        print(f"{i:<6} {chi2_orig:<10.2f} {chi2_coll:<10.2f}")
+    # print(f"\nNeutrino+ {component} Chi2 values:")
+    # print(f"{'Event':<6} {'Original':<10} {'Collinear':<10}")
+    # for i in range(n_events):
+    #     # Original method
+    #     p_nu_p = reco_neutrino_momenta[i][0][1:]  # px,py,pz of nu+
+    #     p_nu_m = reco_neutrino_momenta[i][1][1:]  # px,py,pz of nu-
+    #     params = np.concatenate([p_nu_p, p_nu_m])
+    #     chi2_orig = chi_squared_nu(params, reco_data[i][0], reco_data[i][1], MET[i].px, MET[i].py)
+    #     
+    #     # Collinear method
+    #     p_nu_p, p_nu_m = reco_neutrino_collinear[i]
+    #     alpha = np.linalg.norm(p_nu_p[1:])/np.linalg.norm(reco_data[i][0][1:])
+    #     beta = np.linalg.norm(p_nu_m[1:])/np.linalg.norm(reco_data[i][1][1:])
+    #     chi2_coll = chi_squared_collinear([alpha, beta], reco_data[i][0], reco_data[i][1], MET[i].px, MET[i].py)
+    #     
+    #     print(f"{i:<6} {chi2_orig:<10.2f} {chi2_coll:<10.2f}")
 
     # Neutrino-
     truth_m = [truth_data[i][5][idx] for i in range(n_events)]
@@ -278,21 +278,21 @@ for component, idx in [('px', 1), ('py', 2), ('pz', 3)]:
                            xlim=(-1, 1))
     
     # Print chi2 values for all events
-    print(f"\nNeutrino- {component} Chi2 values:")
-    print(f"{'Event':<6} {'Original':<10} {'Collinear':<10}")
-    for i in range(n_events):
-        # Original method
-        p_nu_p = reco_neutrino_momenta[i][0][1:]  # px,py,pz of nu+
-        p_nu_m = reco_neutrino_momenta[i][1][1:]  # px,py,pz of nu-
-        params = np.concatenate([p_nu_p, p_nu_m])
-        chi2_orig = chi_squared_nu(params, reco_data[i][0], reco_data[i][1], MET[i].px, MET[i].py)
-        
-        # Collinear method
-        p_nu_p, p_nu_m = reco_neutrino_collinear[i]
-        alpha = np.linalg.norm(p_nu_p[1:])/np.linalg.norm(reco_data[i][0][1:])
-        beta = np.linalg.norm(p_nu_m[1:])/np.linalg.norm(reco_data[i][1][1:])
-        chi2_coll = chi_squared_collinear([alpha, beta], reco_data[i][0], reco_data[i][1], MET[i].px, MET[i].py)
-        
-        print(f"{i:<6} {chi2_orig:<10.2f} {chi2_coll:<10.2f}")
+    # print(f"\nNeutrino- {component} Chi2 values:")
+    # print(f"{'Event':<6} {'Original':<10} {'Collinear':<10}")
+    # for i in range(n_events):
+    #     # Original method
+    #     p_nu_p = reco_neutrino_momenta[i][0][1:]  # px,py,pz of nu+
+    #     p_nu_m = reco_neutrino_momenta[i][1][1:]  # px,py,pz of nu-
+    #     params = np.concatenate([p_nu_p, p_nu_m])
+    #     chi2_orig = chi_squared_nu(params, reco_data[i][0], reco_data[i][1], MET[i].px, MET[i].py)
+    #     
+    #     # Collinear method
+    #     p_nu_p, p_nu_m = reco_neutrino_collinear[i]
+    #     alpha = np.linalg.norm(p_nu_p[1:])/np.linalg.norm(reco_data[i][0][1:])
+    #     beta = np.linalg.norm(p_nu_m[1:])/np.linalg.norm(reco_data[i][1][1:])
+    #     chi2_coll = chi_squared_collinear([alpha, beta], reco_data[i][0], reco_data[i][1], MET[i].px, MET[i].py)
+    #     
+    #     print(f"{i:<6} {chi2_orig:<10.2f} {chi2_coll:<10.2f}")
 
 
