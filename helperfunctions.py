@@ -41,8 +41,8 @@ def boost_to_rest_frame(p, p_boost):
 
 def chi_squared_nu(neutrino_params, p_pi_p, p_pi_m, MET_x, MET_y):
     """Chi-squared function for neutrino momentum reconstruction"""
-    p_nu_p = np.array([np.linalg.norm(neutrino_params[:3]), *neutrino_params[:3]])
-    p_nu_m = np.array([np.linalg.norm(neutrino_params[3:]), *neutrino_params[3:]])
+    p_nu_p = np.array([np.linalg.norm(neutrino_params[:3]), neutrino_params[0], neutrino_params[1], neutrino_params[2]])
+    p_nu_m = np.array([np.linalg.norm(neutrino_params[3:]), neutrino_params[3], neutrino_params[4], neutrino_params[5]])
 
     p_tau_p = p_pi_p + p_nu_p
     p_tau_m = p_pi_m + p_nu_m
