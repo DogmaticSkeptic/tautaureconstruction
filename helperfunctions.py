@@ -191,16 +191,16 @@ def reconstruct_neutrino_collinear(p_pi_p_reco, p_pi_m_reco, MET_x, MET_y):
     try:
         alpha_init, beta_init = np.linalg.solve(A, b)
         # Ensure positive values and reasonable range
-        alpha_init = max(0.1, min(10.0, alpha_init))
-        beta_init = max(0.1, min(10.0, beta_init))
+        alpha_init = max(0.1, min(1.0, alpha_init))
+        beta_init = max(0.1, min(1.0, beta_init))
+        #print(alpha_init, beta_init)
     except np.linalg.LinAlgError:
         # Fallback if matrix is singular
         alpha_init, beta_init = 0.5, 0.5
     
     result = opt.minimize(chi_squared_collinear, [alpha_init, beta_init], 
                         args=(p_pi_p_reco, p_pi_m_reco, MET_x, MET_y),
-                        method='COBYLA', tol=1000,
-                        options={'disp': True, 'maxiter': 100})
+                        method='BFGS')
     
     alpha, beta = result.x
     p_nu_p = np.array([alpha*np.linalg.norm(p_pi_p_reco[1:]), 
