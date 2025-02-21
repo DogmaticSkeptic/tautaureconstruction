@@ -213,8 +213,8 @@ def reconstruct_neutrino_collinear(p_pi_p_reco, p_pi_m_reco, MET_x, MET_y):
                       beta*p_pi_m_reco[3]])
     return p_nu_p, p_nu_m
 
-def plot_residual_comparison(residuals1, residuals2, xlabel, title, truth_values, bins=50, xlim=(-10, 10)):
-    """Plot residual relative uncertainty histograms comparing two methods"""
+def plot_residual_comparison(residuals1, residuals2, xlabel, title, truth_values, bins=50, xlim=(-3, 3)):
+    """Plot relative uncertainty histograms comparing two methods"""
     ensure_plots_dir()
     
     # Calculate relative uncertainties
@@ -230,7 +230,7 @@ def plot_residual_comparison(residuals1, residuals2, xlabel, title, truth_values
     plt.ylabel('Count')
     plt.title(f'Relative {title}')
     plt.legend()
-    filename = 'relative_' + title.lower().replace(' ', '_').replace('$', '') + '.png'
+    filename = 'relative_uncertainty_' + title.lower().replace(' ', '_').replace('$', '') + '.png'
     plt.savefig(f'plots/{filename}')
     plt.close()
 
