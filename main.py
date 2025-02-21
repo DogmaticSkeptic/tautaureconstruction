@@ -244,6 +244,11 @@ for component, idx in [('px', 1), ('py', 2), ('pz', 3)]:
                            truth_values=truth_p,
                            xlim=(-1, 1))
     
+    # Plot MET/2 assumption comparison for transverse components
+    if component in ['px', 'py']:
+        met_values = [MET[i].px if component == 'px' else MET[i].py for i in range(n_events)]
+        plot_met_assumption_comparison(truth_p, met_values, component, 'Neutrino', '+')
+    
     # Print chi2 values for all events
     # print(f"\nNeutrino+ {component} Chi2 values:")
     # print(f"{'Event':<6} {'Original':<10} {'Collinear':<10}")
@@ -276,6 +281,11 @@ for component, idx in [('px', 1), ('py', 2), ('pz', 3)]:
                            title=f'Neutrino- {component} Relative Residual Comparison',
                            truth_values=truth_m,
                            xlim=(-1, 1))
+    
+    # Plot MET/2 assumption comparison for transverse components
+    if component in ['px', 'py']:
+        met_values = [MET[i].px if component == 'px' else MET[i].py for i in range(n_events)]
+        plot_met_assumption_comparison(truth_m, met_values, component, 'Neutrino', '-')
     
     # Print chi2 values for all events
     # print(f"\nNeutrino- {component} Chi2 values:")
