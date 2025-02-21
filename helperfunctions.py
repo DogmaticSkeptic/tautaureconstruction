@@ -166,12 +166,12 @@ def chi_squared_collinear(params, p_pi_p, p_pi_m, MET_x, MET_y):
     p_Z = p_tau_p + p_tau_m
     chi2_Z_mass = ((M_Z**2 - (p_Z[0]**2 - np.sum(p_Z[1:]**2)))**2) / SIGMA_Z**2
 
-    # Print individual terms
-    print(f"\nChi2 terms for alpha={alpha:.3f}, beta={beta:.3f}:")
-    print(f"Tau+: {chi2_tau_p:.2f}")
-    print(f"Tau-: {chi2_tau_m:.2f}") 
-    print(f"Z: {chi2_Z_mass:.2f}")
-    print(f"MET: {chi2_MET_x + chi2_MET_y:.2f}")
+    # Print individual terms (commented out)
+    # print(f"\nChi2 terms for alpha={alpha:.3f}, beta={beta:.3f}:")
+    # print(f"Tau+: {chi2_tau_p:.2f}")
+    # print(f"Tau-: {chi2_tau_m:.2f}") 
+    # print(f"Z: {chi2_Z_mass:.2f}")
+    # print(f"MET: {chi2_MET_x + chi2_MET_y:.2f}")
 
     return chi2_tau_p + chi2_tau_m + chi2_MET_x + chi2_MET_y + chi2_Z_mass
 
