@@ -8,7 +8,7 @@ import helperfunctions as hf
 
 NUM_CPUS = 8
 GRID_POINTS = 10
-N_EVENTS = 1000  # Use first 1000 events
+N_EVENTS = 10  # Use first 1000 events
 
 def generate_grid():
     """Generate 3D grid of sigma values"""
@@ -24,7 +24,7 @@ def load_data():
     
     # Create args list with truth and reco data
     args_list = []
-    for i in range(N_EVENTS):
+    for i in tqdm(range(N_EVENTS)):
         # Reconstructed components
         p_pi_p_reco = hf.compute_four_momentum(particle_data_dict['tau_p_child1'][i])
         p_pi_m_reco = hf.compute_four_momentum(particle_data_dict['tau_m_child1'][i])
