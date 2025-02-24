@@ -6,9 +6,9 @@ from functools import partial
 import itertools
 import helperfunctions as hf
 
-NUM_CPUS = 8
+NUM_CPUS = 12
 GRID_POINTS = 10
-N_EVENTS = 10  # Use first 1000 events
+N_EVENTS = 1000  # Use first 1000 events
 
 def generate_grid():
     """Generate 3D grid of sigma values"""
