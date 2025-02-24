@@ -230,10 +230,15 @@ def reconstruct_neutrino_collinear(p_pi_p_reco, p_pi_m_reco, MET_x, MET_y):
 def plot_residual_comparison(residuals1, residuals2, xlabel, title, truth_values, bins=50, xlim=(-3, 3)):
     """Plot relative uncertainty histograms comparing two methods"""
     ensure_plots_dir()
+    epsilon = 1e-6  # Small value to avoid division by zero/vanishingly small values
     
-    # Calculate relative uncertainties
-    rel_residuals1 = [r/truth if truth != 0 else 0 for r, truth in zip(residuals1, truth_values)]
-    rel_residuals2 = [r/truth if truth != 0 else 0 for r, truth in zip(residuals2, truth_values)]
+    # Calculate relative uncertainties with protection against small truth values
+    rel_residuals1 = []
+    rel_residuals2 = []
+    for r1, r2, truth in zip(residuals1, residuals2, truth_values):
+        denominator = max(abs(truth), epsilon) * (1 if truth >= 0 else -1)
+        rel_residuals1.append(r1 / denominator)
+        rel_residuals2.append(r2 / denominator)
     
     plt.figure(figsize=(10,6))
     plt.hist(rel_residuals1, bins=bins, range=xlim, 
@@ -272,8 +277,11 @@ def plot_collinearity_test(truth_pion_momenta, truth_neutrino_momenta, particle_
 def plot_relative_uncertainty(truth_values, reco_values, component, particle_type, charge, bins=50, xlim=(-3, 3)):
     """Plot relative uncertainties between truth and reconstructed values and save to file"""
     ensure_plots_dir()
-    rel_unc = [(reco - truth) / truth if truth != 0 else 0
-               for truth, reco in zip(truth_values, reco_values)]
+    epsilon = 1e-6  # Small value to avoid division by zero/vanishingly small values
+    rel_unc = []
+    for truth, reco in zip(truth_values, reco_values):
+        denominator = max(abs(truth), epsilon) * (1 if truth >= 0 else -1)
+        rel_unc.append((reco - truth) / denominator)
 
     # Create bins that span exactly the xlim range
     bin_edges = np.linspace(xlim[0], xlim[1], bins + 1)
