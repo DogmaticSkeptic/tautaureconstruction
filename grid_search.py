@@ -76,6 +76,60 @@ def parallel_worker(grid_point, args_list):
         print(f"Error with {grid_point}: {str(e)}")
         return grid_point, np.inf
 
+import matplotlib.pyplot as plt
+
+def plot_grid_search_results(results, grid_points):
+    """Plot 2D heatmaps of grid search results"""
+    # Convert results to numpy array for easier manipulation
+    grid = np.array([r[0] for r in results])
+    scores = np.array([r[1] for r in results])
+    
+    # Reshape into 3D grid
+    grid_3d = grid.reshape((grid_points, grid_points, grid_points, 3))
+    scores_3d = scores.reshape((grid_points, grid_points, grid_points))
+    
+    # Create subplots
+    fig, axes = plt.subplots(1, 3, figsize=(18, 6))
+    
+    # Plot heatmaps for each fixed parameter
+    for i, (param_name, ax) in enumerate(zip(['SIGMA_TAU', 'SIGMA_Z', 'SIGMA_MET'], axes)):
+        # Find index where other parameters are at their median value
+        fixed_idx = grid_points // 2
+        
+        if i == 0:  # Fix SIGMA_TAU
+            data = scores_3d[fixed_idx, :, :]
+            x = grid_3d[fixed_idx, :, :, 1]  # SIGMA_Z
+            y = grid_3d[fixed_idx, :, :, 2]  # SIGMA_MET
+            title = f'Score vs SIGMA_Z and SIGMA_MET\n(SIGMA_TAU fixed at {grid_3d[fixed_idx,0,0,0]:.4f})'
+            xlabel = 'SIGMA_Z'
+            ylabel = 'SIGMA_MET'
+        elif i == 1:  # Fix SIGMA_Z
+            data = scores_3d[:, fixed_idx, :]
+            x = grid_3d[:, fixed_idx, :, 0]  # SIGMA_TAU
+            y = grid_3d[:, fixed_idx, :, 2]  # SIGMA_MET
+            title = f'Score vs SIGMA_TAU and SIGMA_MET\n(SIGMA_Z fixed at {grid_3d[0,fixed_idx,0,1]:.4f})'
+            xlabel = 'SIGMA_TAU'
+            ylabel = 'SIGMA_MET'
+        else:  # Fix SIGMA_MET
+            data = scores_3d[:, :, fixed_idx]
+            x = grid_3d[:, :, fixed_idx, 0]  # SIGMA_TAU
+            y = grid_3d[:, :, fixed_idx, 1]  # SIGMA_Z
+            title = f'Score vs SIGMA_TAU and SIGMA_Z\n(SIGMA_MET fixed at {grid_3d[0,0,fixed_idx,2]:.4f})'
+            xlabel = 'SIGMA_TAU'
+            ylabel = 'SIGMA_Z'
+        
+        # Plot heatmap
+        im = ax.imshow(data, origin='lower', aspect='auto',
+                      extent=[x.min(), x.max(), y.min(), y.max()])
+        ax.set_title(title)
+        ax.set_xlabel(xlabel)
+        ax.set_ylabel(ylabel)
+        fig.colorbar(im, ax=ax, label='Score')
+    
+    plt.tight_layout()
+    plt.savefig('grid_search_heatmaps.png')
+    plt.close()
+
 if __name__ == "__main__":
     args_list = load_data()
     grid = generate_grid()
@@ -95,7 +149,11 @@ if __name__ == "__main__":
     print(f"\nBest parameters (tau, z, met): {best_params}")
     print(f"Best score: {best_score:.2f}")
     
-    # Save full results
+    # Save and plot results
     with open("grid_search_results.pkl", "wb") as f:
         pickle.dump(results, f)
     print("Saved results to grid_search_results.pkl")
+    
+    # Generate visualization
+    plot_grid_search_results(results, GRID_POINTS)
+    print("Saved grid search visualization to grid_search_heatmaps.png")
