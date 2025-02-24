@@ -39,7 +39,8 @@ def boost_to_rest_frame(p, p_boost):
 
     return p_prime
 
-def chi_squared_nu(neutrino_params, p_pi_p, p_pi_m, MET_x, MET_y):
+def chi_squared_nu(neutrino_params, p_pi_p, p_pi_m, MET_x, MET_y, 
+                   sigma_tau=0.001, sigma_z=0.002, sigma_met=0.01):
     """Chi-squared function for neutrino momentum reconstruction"""
     p_nu_p = np.array([np.linalg.norm(neutrino_params[:3]), neutrino_params[0], neutrino_params[1], neutrino_params[2]])
     p_nu_m = np.array([np.linalg.norm(neutrino_params[3:]), neutrino_params[3], neutrino_params[4], neutrino_params[5]])
@@ -47,11 +48,11 @@ def chi_squared_nu(neutrino_params, p_pi_p, p_pi_m, MET_x, MET_y):
     p_tau_p = p_pi_p + p_nu_p
     p_tau_m = p_pi_m + p_nu_m
 
-    chi2_tau_p = ((M_TAU**2 - (p_tau_p[0]**2 - np.sum(p_tau_p[1:]**2)))**2) / SIGMA_TAU**2
-    chi2_tau_m = ((M_TAU**2 - (p_tau_m[0]**2 - np.sum(p_tau_m[1:]**2)))**2) / SIGMA_TAU**2
-    chi2_MET_x = ((p_nu_p[1] + p_nu_m[1] - MET_x)**2) / SIGMA_MET**2
-    chi2_MET_y = ((p_nu_p[2] + p_nu_m[2] - MET_y)**2) / SIGMA_MET**2
-    chi2_Z_mass = ((M_Z**2 - ((p_tau_p + p_tau_m)[0]**2 - np.sum((p_tau_p + p_tau_m)[1:]**2)))**2) / SIGMA_Z**2
+    chi2_tau_p = ((M_TAU**2 - (p_tau_p[0]**2 - np.sum(p_tau_p[1:]**2)))**2) / sigma_tau**2
+    chi2_tau_m = ((M_TAU**2 - (p_tau_m[0]**2 - np.sum(p_tau_m[1:]**2)))**2) / sigma_tau**2
+    chi2_MET_x = ((p_nu_p[1] + p_nu_m[1] - MET_x)**2) / sigma_met**2
+    chi2_MET_y = ((p_nu_p[2] + p_nu_m[2] - MET_y)**2) / sigma_met**2
+    chi2_Z_mass = ((M_Z**2 - ((p_tau_p + p_tau_m)[0]**2 - np.sum((p_tau_p + p_tau_m)[1:]**2)))**2) / sigma_z**2
 
     chi2_total = chi2_tau_p + chi2_tau_m + chi2_MET_x + chi2_MET_y + chi2_Z_mass
 
@@ -81,7 +82,8 @@ def compute_pT(p):
     return np.sqrt(px**2 + py**2)
 
 # Analysis functions
-def reconstruct_neutrino_momenta(p_pi_p_reco, p_pi_m_reco, MET_x, MET_y):
+def reconstruct_neutrino_momenta(p_pi_p_reco, p_pi_m_reco, MET_x, MET_y,
+                                sigma_tau=0.001, sigma_z=0.002, sigma_met=0.01):
     """Reconstruct neutrino momenta using chi-squared minimization"""
     initial_guess = [MET_x / 2, MET_y / 2, 5.0, MET_x / 2, MET_y / 2, -5.0]
 
@@ -89,7 +91,7 @@ def reconstruct_neutrino_momenta(p_pi_p_reco, p_pi_m_reco, MET_x, MET_y):
     bounds = [(0, None)] * 6  # All momentum components must be >= 0
     result = opt.minimize(
         chi_squared_nu, initial_guess,
-        args=(p_pi_p_reco, p_pi_m_reco, MET_x, MET_y),
+        args=(p_pi_p_reco, p_pi_m_reco, MET_x, MET_y, sigma_tau, sigma_z, sigma_met),
         method="BFGS"
     )
 

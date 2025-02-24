@@ -1,81 +1,101 @@
 import numpy as np
 import pickle
-from helperfunctions import chi_squared_nu, compute_cos_theta, boost_to_rest_frame, define_coordinate_system, reconstruct_neutrino_momenta
-from scipy.optimize import minimize
 from tqdm import tqdm
+from multiprocessing import Pool
+from functools import partial
+import itertools
+import helperfunctions as hf
 
-def calculate_cos_theta_overlap(truth_cos, reco_cos):
-    """Calculate overlap between truth and reconstructed cos theta distributions"""
-    hist_truth, _ = np.histogram(truth_cos, bins=50, range=(-1, 1))
-    hist_reco, _ = np.histogram(reco_cos, bins=50, range=(-1, 1))
-    overlap = np.sum(np.minimum(hist_truth, hist_reco)) / np.sum(hist_truth)
-    return overlap
+NUM_CPUS = 8
+GRID_POINTS = 10
+N_EVENTS = 1000  # Use first 1000 events
 
-def evaluate_uncertainties(sigma_tau, sigma_met, sigma_z, data):
-    """Evaluate reconstruction quality for given uncertainties"""
-    # Modify uncertainties in helperfunctions
-    global SIGMA_TAU, SIGMA_MET, SIGMA_Z
-    SIGMA_TAU = sigma_tau
-    SIGMA_MET = sigma_met
-    SIGMA_Z = sigma_z
+def generate_grid():
+    """Generate 3D grid of sigma values"""
+    return list(itertools.product(
+        np.linspace(0.001, 0.05, GRID_POINTS),  # SIGMA_TAU
+        np.linspace(0.001, 0.05, GRID_POINTS),  # SIGMA_Z
+        np.linspace(0.001, 0.05, GRID_POINTS)   # SIGMA_MET
+    ))
+
+def load_data():
+    """Load data identical to main.py"""
+    particle_data_dict = pickle.load(open('pi_pi_recon_particles.pkl', 'rb'))
     
-    # Reconstruct neutrino momenta
-    reco_neutrino_momenta = []
-    for i in range(data['n_events']):
-        result = reconstruct_neutrino_momenta(
-            data['reco_data'][i][0], data['reco_data'][i][1], 
-            data['MET'][i].px, data['MET'][i].py
-        )
-        reco_neutrino_momenta.append(result)
-    
-    # Calculate cos theta values
-    truth_cos_theta_k_p, reco_cos_theta_k_p = [], []
-    for i in range(data['n_events']):
-        # Truth calculation
-        p_tau_tau_truth = data['truth_data'][i][0] + data['truth_data'][i][1]
-        p_tau_m_truth_rest = boost_to_rest_frame(data['truth_data'][i][1], p_tau_tau_truth)
-        p_pion_m_truth_rest = boost_to_rest_frame(data['truth_data'][i][3], p_tau_tau_truth)
-        p_pion_m_single_rest = boost_to_rest_frame(p_pion_m_truth_rest, p_tau_m_truth_rest)
-        r_hat, n_hat, k_hat = define_coordinate_system(p_tau_m_truth_rest)
-        truth_cos_theta_k_p.append(compute_cos_theta(p_pion_m_single_rest, r_hat, n_hat, k_hat)[2])
+    # Create args list with truth and reco data
+    args_list = []
+    for i in range(N_EVENTS):
+        # Reconstructed components
+        p_pi_p_reco = hf.compute_four_momentum(particle_data_dict['tau_p_child1'][i])
+        p_pi_m_reco = hf.compute_four_momentum(particle_data_dict['tau_m_child1'][i])
+        MET_x = particle_data_dict['MET'][i].px
+        MET_y = particle_data_dict['MET'][i].py
         
-        # Reco calculation
-        p_tau_p_reco = data['reco_data'][i][0] + reco_neutrino_momenta[i][0]
-        p_tau_m_reco = data['reco_data'][i][1] + reco_neutrino_momenta[i][1]
-        p_tau_tau_reco = p_tau_p_reco + p_tau_m_reco
-        p_tau_m_reco_rest = boost_to_rest_frame(p_tau_m_reco, p_tau_tau_reco)
-        p_pion_m_reco_rest = boost_to_rest_frame(data['reco_data'][i][1], p_tau_tau_reco)
-        p_pion_m_single_rest = boost_to_rest_frame(p_pion_m_reco_rest, p_tau_m_reco_rest)
-        r_hat, n_hat, k_hat = define_coordinate_system(p_tau_m_reco_rest)
-        reco_cos_theta_k_p.append(compute_cos_theta(p_pion_m_single_rest, r_hat, n_hat, k_hat)[2])
+        # Truth values
+        truth_nu_p = hf.compute_four_momentum(particle_data_dict['truth_nu_p'][i])
+        truth_nu_m = hf.compute_four_momentum(particle_data_dict['truth_nu_m'][i])
+        
+        args_list.append((p_pi_p_reco, p_pi_m_reco, MET_x, MET_y, truth_nu_p, truth_nu_m))
     
-    return calculate_cos_theta_overlap(truth_cos_theta_k_p, reco_cos_theta_k_p)
+    return args_list
 
-def grid_search():
-    """Perform grid search over uncertainties"""
-    # Load data
-    data = pickle.load(open('analysis_data.pkl', 'rb'))
+def evaluate_grid_point(grid_point, args_list):
+    """Evaluate one grid point's performance"""
+    sigma_tau, sigma_z, sigma_met = grid_point
+    total_score = 0.0
     
-    # Define search space
-    tau_uncertainties = np.linspace(0.001, 0.01, 5)
-    met_uncertainties = np.linspace(0.001, 0.01, 5)
-    z_uncertainties = np.linspace(0.001, 0.01, 5)
-    
-    best_score = 0
-    best_params = (0.006, 0.08, 0.001)  # Default values
-    
-    # Perform grid search
-    for sigma_tau in tqdm(tau_uncertainties, desc="Tau uncertainty"):
-        for sigma_met in tqdm(met_uncertainties, desc="MET uncertainty", leave=False):
-            for sigma_z in tqdm(z_uncertainties, desc="Z uncertainty", leave=False):
-                score = evaluate_uncertainties(sigma_tau, sigma_met, sigma_z, data)
-                if score > best_score:
-                    best_score = score
-                    best_params = (sigma_tau, sigma_met, sigma_z)
-    
-    return best_params, best_score
+    for args in args_list:
+        p_pi_p, p_pi_m, MET_x, MET_y, truth_nu_p, truth_nu_m = args
+        
+        # Reconstruct with current sigmas
+        try:
+            p_nu_p, p_nu_m = hf.reconstruct_neutrino_momenta(
+                p_pi_p, p_pi_m, MET_x, MET_y,
+                sigma_tau=sigma_tau,
+                sigma_z=sigma_z,
+                sigma_met=sigma_met
+            )
+        except:
+            return grid_point, np.inf  # Penalize failed reconstructions
+
+        # Calculate residuals for all components (px, py, pz)
+        for reco_nu, truth_nu in [(p_nu_p, truth_nu_p), (p_nu_m, truth_nu_m)]:
+            for i in [1, 2, 3]:  # px, py, pz components
+                truth_val = truth_nu[i]
+                reco_val = reco_nu[i]
+                if abs(truth_val) > 1e-6:  # Avoid division by zero
+                    residual = abs((truth_val - reco_val) / truth_val)
+                    total_score += residual
+
+    return grid_point, total_score
+
+def parallel_worker(grid_point, args_list):
+    try:
+        return evaluate_grid_point(grid_point, args_list)
+    except Exception as e:
+        print(f"Error with {grid_point}: {str(e)}")
+        return grid_point, np.inf
 
 if __name__ == "__main__":
-    best_params, best_score = grid_search()
-    print(f"Best uncertainties: Tau={best_params[0]:.4f}, MET={best_params[1]:.4f}, Z={best_params[2]:.4f}")
-    print(f"Best cos theta overlap: {best_score:.4f}")
+    args_list = load_data()
+    grid = generate_grid()
+    print(f"Loaded {len(args_list)} events, searching {len(grid)} parameter combinations")
+    
+    # Create worker with frozen args_list
+    worker = partial(parallel_worker, args_list=args_list)
+    
+    results = []
+    with Pool(processes=NUM_CPUS) as pool:
+        for result in tqdm(pool.imap(worker, grid), total=len(grid)):
+            results.append(result)
+    
+    # Find and display best parameters
+    results.sort(key=lambda x: x[1])
+    best_params, best_score = results[0]
+    print(f"\nBest parameters (tau, z, met): {best_params}")
+    print(f"Best score: {best_score:.2f}")
+    
+    # Save full results
+    with open("grid_search_results.pkl", "wb") as f:
+        pickle.dump(results, f)
+    print("Saved results to grid_search_results.pkl")
