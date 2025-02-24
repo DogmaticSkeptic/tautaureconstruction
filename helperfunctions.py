@@ -90,9 +90,7 @@ def reconstruct_neutrino_momenta(p_pi_p_reco, p_pi_m_reco, MET_x, MET_y):
     result = opt.minimize(
         chi_squared_nu, initial_guess,
         args=(p_pi_p_reco, p_pi_m_reco, MET_x, MET_y),
-        method='L-BFGS-B',
-        bounds=bounds,
-        options={'maxiter': 1000, 'ftol': 1e-8}
+        method="BFGS"
     )
 
     p_nu_p_opt = np.array([np.linalg.norm(result.x[:3]), *result.x[:3]])
