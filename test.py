@@ -33,6 +33,27 @@ def plot_relative_uncertainty(truth_values, reco_values, component, particle_typ
         
     rel_unc = [(r - t) / t for t, r in valid_data]
 
+    # Print chi-square values for events with zero reconstruction
+    for i, (t, r) in enumerate(zip(truth_values, reco_values)):
+        if t != 0 and abs(r) < 1e-6:  # Check for near-zero reconstruction
+            # Get the corresponding event's reconstructed momenta
+            p_nu_p, p_nu_m = reco_neutrino_momenta[i]
+            # Recompute chi-square
+            p_pi_p = reco_data[i][0]
+            p_pi_m = reco_data[i][1]
+            MET_x = MET[i].px
+            MET_y = MET[i].py
+            chi2 = chi_squared_nu(
+                [p_nu_p[1], p_nu_p[2], p_nu_p[3], p_nu_m[1], p_nu_m[2], p_nu_m[3]],
+                p_pi_p, p_pi_m, MET_x, MET_y
+            )
+            print(f"\nEvent {i} with zero {component} reconstruction:")
+            print(f"Truth {component}: {t}")
+            print(f"Reco {component}: {r}")
+            print(f"Chi-square value: {chi2}")
+            if i > 5:  # Print up to 5 examples
+                break
+
     # Debug print statements
     print(f"\nDebugging {particle_type}{charge} {component}:")
     print(f"Number of events: {len(rel_unc)}")
