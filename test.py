@@ -108,7 +108,15 @@ def chi_squared_nu(neutrino_params, p_pi_p, p_pi_m, MET_x, MET_y,
 def reconstruct_neutrino_momenta(p_pi_p_reco, p_pi_m_reco, MET_x, MET_y,
                                 sigma_tau=0.001, sigma_z=0.002, sigma_met=0.01):
     """Reconstruct neutrino momenta using chi-squared minimization"""
-    initial_guess = [MET_x / 2, MET_y / 2, 5.0, MET_x / 2, MET_y / 2, -5.0]
+    # Get pion directions
+    pi_p_dir = p_pi_p_reco[1:3] / np.linalg.norm(p_pi_p_reco[1:3])
+    pi_m_dir = p_pi_m_reco[1:3] / np.linalg.norm(p_pi_m_reco[1:3])
+    
+    # Initial guess: half of MET in opposite direction of corresponding pion
+    nu_p_xy = -0.5 * MET_x * pi_p_dir[0], -0.5 * MET_y * pi_p_dir[1]
+    nu_m_xy = -0.5 * MET_x * pi_m_dir[0], -0.5 * MET_y * pi_m_dir[1]
+    
+    initial_guess = [*nu_p_xy, 5.0, *nu_m_xy, -5.0]
 
     # Use L-BFGS-B with bounds to prevent unphysical solutions
     bounds = [(0, None)] * 6  # All momentum components must be >= 0
