@@ -229,6 +229,59 @@ def plot_chi2_distribution(chi2_values, bins=50):
     plt.savefig('plots/chi2_distribution.png')
     plt.close()
 
+def plot_neg_one_uncertainty_events(truth_values, reco_values, reco_neutrino_momenta, MET, component, particle_type, charge):
+    """Plot momentum and MET distributions for events with relative uncertainty around -1"""
+    # Find events with relative uncertainty around -1
+    rel_unc = [(r - t) / t if t != 0 else 0 for t, r in zip(truth_values, reco_values)]
+    neg_one_indices = [i for i, x in enumerate(rel_unc) if abs(x + 1) < 0.1]
+    
+    if not neg_one_indices:
+        print(f"No events found with relative uncertainty around -1 for {particle_type}{charge} {component}")
+        return
+    
+    # Get momentum components for these events
+    px = [reco_neutrino_momenta[i][0 if charge == '+' else 1][1] for i in neg_one_indices]
+    py = [reco_neutrino_momenta[i][0 if charge == '+' else 1][2] for i in neg_one_indices]
+    pz = [reco_neutrino_momenta[i][0 if charge == '+' else 1][3] for i in neg_one_indices]
+    met_x = [MET[i].px for i in neg_one_indices]
+    met_y = [MET[i].py for i in neg_one_indices]
+    
+    # Create figure with 4 subplots
+    fig, axes = plt.subplots(4, 1, figsize=(10, 20))
+    
+    # Plot px
+    axes[0].hist(px, bins=50, alpha=0.7)
+    axes[0].set_xlabel('px (GeV)')
+    axes[0].set_ylabel('Count')
+    axes[0].set_title(f'px Distribution for {particle_type}{charge} Events with {component} Rel. Unc. ~ -1')
+    axes[0].grid(True)
+    
+    # Plot py
+    axes[1].hist(py, bins=50, alpha=0.7)
+    axes[1].set_xlabel('py (GeV)')
+    axes[1].set_ylabel('Count')
+    axes[1].set_title(f'py Distribution for {particle_type}{charge} Events with {component} Rel. Unc. ~ -1')
+    axes[1].grid(True)
+    
+    # Plot pz
+    axes[2].hist(pz, bins=50, alpha=0.7)
+    axes[2].set_xlabel('pz (GeV)')
+    axes[2].set_ylabel('Count')
+    axes[2].set_title(f'pz Distribution for {particle_type}{charge} Events with {component} Rel. Unc. ~ -1')
+    axes[2].grid(True)
+    
+    # Plot MET
+    axes[3].hist(np.sqrt(np.array(met_x)**2 + np.array(met_y)**2), bins=50, alpha=0.7)
+    axes[3].set_xlabel('MET (GeV)')
+    axes[3].set_ylabel('Count')
+    axes[3].set_title(f'MET Distribution for {particle_type}{charge} Events with {component} Rel. Unc. ~ -1')
+    axes[3].grid(True)
+    
+    plt.tight_layout()
+    filename = f'neg_one_unc_{particle_type}_{charge}_{component}.png'
+    plt.savefig(f'plots/{filename}')
+    plt.close()
+
 def plot_high_chi2_momenta(chi2_values, reco_neutrino_momenta, threshold=1e6):
     """Plot momentum components for events with chi-square above threshold"""
     high_chi2_indices = [i for i, chi2 in enumerate(chi2_values) if chi2 > threshold]
