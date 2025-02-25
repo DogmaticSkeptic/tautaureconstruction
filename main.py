@@ -274,17 +274,21 @@ def plot_2d_correlation(truth_values, reco_values, xlabel, ylabel, title, bins=5
     plt.close()
 
 # Plot correlations for each cos theta component
-for component, label in [('r', r'$\cos\theta_r$'), ('n', r'$\cos\theta_n$'), ('k', r'$\cos\theta_k$')]:
+for component, label, truth_p, reco_p, truth_m, reco_m in [
+    ('r', r'$\cos\theta_r$', cos_theta_r_p_truth, cos_theta_r_p_reco, cos_theta_r_m_truth, cos_theta_r_m_reco),
+    ('n', r'$\cos\theta_n$', cos_theta_n_p_truth, cos_theta_n_p_reco, cos_theta_n_m_truth, cos_theta_n_m_reco),
+    ('k', r'$\cos\theta_k$', cos_theta_k_p_truth, cos_theta_k_p_reco, cos_theta_k_m_truth, cos_theta_k_m_reco)
+]:
     # Tau+
     plot_2d_correlation(
-        cos_theta_r_p_truth, cos_theta_r_p_reco,
+        truth_p, reco_p,
         xlabel=f'Truth {label}',
         ylabel=f'Reconstructed {label}',
         title=f'Truth vs Reconstructed {label} for Tau+'
     )
     # Tau-
     plot_2d_correlation(
-        cos_theta_r_m_truth, cos_theta_r_m_reco,
+        truth_m, reco_m,
         xlabel=f'Truth {label}',
         ylabel=f'Reconstructed {label}',
         title=f'Truth vs Reconstructed {label} for Tau-'
