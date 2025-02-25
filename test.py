@@ -33,6 +33,21 @@ def plot_relative_uncertainty(truth_values, reco_values, component, particle_typ
         
     rel_unc = [(r - t) / t for t, r in valid_data]
 
+    # Debug print statements
+    print(f"\nDebugging {particle_type}{charge} {component}:")
+    print(f"Number of events: {len(rel_unc)}")
+    print(f"Number of -1 values: {sum(1 for x in rel_unc if abs(x + 1) < 1e-6)}")
+    
+    # Print some examples where rel_unc is close to -1
+    for i, (t, r, ru) in enumerate(zip(truth_values, reco_values, rel_unc)):
+        if abs(ru + 1) < 1e-6:
+            print(f"\nEvent {i} with rel_unc ~ -1:")
+            print(f"Truth {component}: {t}")
+            print(f"Reco {component}: {r}")
+            print(f"Relative uncertainty: {ru}")
+            if i > 5:  # Print up to 5 examples
+                break
+
     # Create bins that span exactly the xlim range
     bin_edges = np.linspace(xlim[0], xlim[1], bins + 1)
 
