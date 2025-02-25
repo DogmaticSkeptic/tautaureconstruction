@@ -173,60 +173,86 @@ for component, idx in [('px', 1), ('py', 2), ('pz', 3)]:
     plot_relative_uncertainty(truth_m, reco_m, component, 'Neutrino', '-')
 
 # Calculate cos theta distributions for tau+ and tau-
-cos_theta_r_p = []
-cos_theta_n_p = []
-cos_theta_k_p = []
+cos_theta_r_p_truth = []
+cos_theta_n_p_truth = []
+cos_theta_k_p_truth = []
+cos_theta_r_p_reco = []
+cos_theta_n_p_reco = []
+cos_theta_k_p_reco = []
 
-cos_theta_r_m = []
-cos_theta_n_m = []
-cos_theta_k_m = []
+cos_theta_r_m_truth = []
+cos_theta_n_m_truth = []
+cos_theta_k_m_truth = []
+cos_theta_r_m_reco = []
+cos_theta_n_m_reco = []
+cos_theta_k_m_reco = []
 
 for i in range(n_events):
     # Tau+
-    p_tau_p = truth_data[i][0]  # Truth tau+ momentum
-    p_pion_p = truth_data[i][2]  # Truth pion+ momentum
+    p_tau_p_truth = truth_data[i][0]  # Truth tau+ momentum
+    p_pion_p_truth = truth_data[i][2]  # Truth pion+ momentum
+    p_tau_p_reco = reco_tau_momenta[i][0]  # Reco tau+ momentum
+    p_pion_p_reco = reco_data[i][0]  # Reco pion+ momentum
     
     # Define coordinate system for tau+
-    r_hat_p, n_hat_p, k_hat_p = define_coordinate_system(p_tau_p)
+    r_hat_p, n_hat_p, k_hat_p = define_coordinate_system(p_tau_p_truth)
     
-    # Boost pion+ momentum to tau+ rest frame
-    p_pion_p_rest = boost_to_rest_frame(p_pion_p, p_tau_p)
+    # Boost pion+ momentum to tau+ rest frame (truth)
+    p_pion_p_rest_truth = boost_to_rest_frame(p_pion_p_truth, p_tau_p_truth)
+    # Boost pion+ momentum to tau+ rest frame (reco)
+    p_pion_p_rest_reco = boost_to_rest_frame(p_pion_p_reco, p_tau_p_reco)
     
-    # Compute cos theta for tau+
-    cos_r_p, cos_n_p, cos_k_p = compute_cos_theta(p_pion_p_rest, r_hat_p, n_hat_p, k_hat_p)
-    cos_theta_r_p.append(cos_r_p)
-    cos_theta_n_p.append(cos_n_p)
-    cos_theta_k_p.append(cos_k_p)
+    # Compute cos theta for tau+ (truth)
+    cos_r_p_truth, cos_n_p_truth, cos_k_p_truth = compute_cos_theta(p_pion_p_rest_truth, r_hat_p, n_hat_p, k_hat_p)
+    cos_theta_r_p_truth.append(cos_r_p_truth)
+    cos_theta_n_p_truth.append(cos_n_p_truth)
+    cos_theta_k_p_truth.append(cos_k_p_truth)
+    
+    # Compute cos theta for tau+ (reco)
+    cos_r_p_reco, cos_n_p_reco, cos_k_p_reco = compute_cos_theta(p_pion_p_rest_reco, r_hat_p, n_hat_p, k_hat_p)
+    cos_theta_r_p_reco.append(cos_r_p_reco)
+    cos_theta_n_p_reco.append(cos_n_p_reco)
+    cos_theta_k_p_reco.append(cos_k_p_reco)
     
     # Tau-
-    p_tau_m = truth_data[i][1]  # Truth tau- momentum
-    p_pion_m = truth_data[i][3]  # Truth pion- momentum
+    p_tau_m_truth = truth_data[i][1]  # Truth tau- momentum
+    p_pion_m_truth = truth_data[i][3]  # Truth pion- momentum
+    p_tau_m_reco = reco_tau_momenta[i][1]  # Reco tau- momentum
+    p_pion_m_reco = reco_data[i][1]  # Reco pion- momentum
     
     # Define coordinate system for tau-
-    r_hat_m, n_hat_m, k_hat_m = define_coordinate_system(p_tau_m)
+    r_hat_m, n_hat_m, k_hat_m = define_coordinate_system(p_tau_m_truth)
     
-    # Boost pion- momentum to tau- rest frame
-    p_pion_m_rest = boost_to_rest_frame(p_pion_m, p_tau_m)
+    # Boost pion- momentum to tau- rest frame (truth)
+    p_pion_m_rest_truth = boost_to_rest_frame(p_pion_m_truth, p_tau_m_truth)
+    # Boost pion- momentum to tau- rest frame (reco)
+    p_pion_m_rest_reco = boost_to_rest_frame(p_pion_m_reco, p_tau_m_reco)
     
-    # Compute cos theta for tau-
-    cos_r_m, cos_n_m, cos_k_m = compute_cos_theta(p_pion_m_rest, r_hat_m, n_hat_m, k_hat_m)
-    cos_theta_r_m.append(cos_r_m)
-    cos_theta_n_m.append(cos_n_m)
-    cos_theta_k_m.append(cos_k_m)
+    # Compute cos theta for tau- (truth)
+    cos_r_m_truth, cos_n_m_truth, cos_k_m_truth = compute_cos_theta(p_pion_m_rest_truth, r_hat_m, n_hat_m, k_hat_m)
+    cos_theta_r_m_truth.append(cos_r_m_truth)
+    cos_theta_n_m_truth.append(cos_n_m_truth)
+    cos_theta_k_m_truth.append(cos_k_m_truth)
+    
+    # Compute cos theta for tau- (reco)
+    cos_r_m_reco, cos_n_m_reco, cos_k_m_reco = compute_cos_theta(p_pion_m_rest_reco, r_hat_m, n_hat_m, k_hat_m)
+    cos_theta_r_m_reco.append(cos_r_m_reco)
+    cos_theta_n_m_reco.append(cos_n_m_reco)
+    cos_theta_k_m_reco.append(cos_k_m_reco)
 
 # Plot cos theta distributions for tau+
-plot_comparison_with_ratio(cos_theta_r_p, cos_theta_r_p, xlabel=r'$\cos\theta_r$',
+plot_comparison_with_ratio(cos_theta_r_p_truth, cos_theta_r_p_reco, xlabel=r'$\cos\theta_r$',
                           title=r'$\cos\theta_r$ Distribution for Tau+', bins=50, xlim=(-1, 1))
-plot_comparison_with_ratio(cos_theta_n_p, cos_theta_n_p, xlabel=r'$\cos\theta_n$',
+plot_comparison_with_ratio(cos_theta_n_p_truth, cos_theta_n_p_reco, xlabel=r'$\cos\theta_n$',
                           title=r'$\cos\theta_n$ Distribution for Tau+', bins=50, xlim=(-1, 1))
-plot_comparison_with_ratio(cos_theta_k_p, cos_theta_k_p, xlabel=r'$\cos\theta_k$',
+plot_comparison_with_ratio(cos_theta_k_p_truth, cos_theta_k_p_reco, xlabel=r'$\cos\theta_k$',
                           title=r'$\cos\theta_k$ Distribution for Tau+', bins=50, xlim=(-1, 1))
 
 # Plot cos theta distributions for tau-
-plot_comparison_with_ratio(cos_theta_r_m, cos_theta_r_m, xlabel=r'$\cos\theta_r$',
+plot_comparison_with_ratio(cos_theta_r_m_truth, cos_theta_r_m_reco, xlabel=r'$\cos\theta_r$',
                           title=r'$\cos\theta_r$ Distribution for Tau-', bins=50, xlim=(-1, 1))
-plot_comparison_with_ratio(cos_theta_n_m, cos_theta_n_m, xlabel=r'$\cos\theta_n$',
+plot_comparison_with_ratio(cos_theta_n_m_truth, cos_theta_n_m_reco, xlabel=r'$\cos\theta_n$',
                           title=r'$\cos\theta_n$ Distribution for Tau-', bins=50, xlim=(-1, 1))
-plot_comparison_with_ratio(cos_theta_k_m, cos_theta_k_m, xlabel=r'$\cos\theta_k$',
+plot_comparison_with_ratio(cos_theta_k_m_truth, cos_theta_k_m_reco, xlabel=r'$\cos\theta_k$',
                           title=r'$\cos\theta_k$ Distribution for Tau-', bins=50, xlim=(-1, 1))
 
