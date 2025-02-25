@@ -198,10 +198,11 @@ for i in range(n_events):
 def plot_chi2_distribution(chi2_values, bins=50):
     """Plot distribution of chi-square values"""
     plt.figure(figsize=(10, 6))
-    plt.hist(chi2_values, bins=bins, alpha=0.7)
+    plt.hist(chi2_values, bins=bins, alpha=0.7, range=(0, 1000))
     plt.xlabel('Chi-square value')
     plt.ylabel('Count')
     plt.title('Distribution of Chi-square Values')
+    plt.xlim(0, 1000)
     plt.grid(True)
     plt.savefig('plots/chi2_distribution.png')
     plt.close()
