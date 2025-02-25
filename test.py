@@ -205,9 +205,23 @@ for i in range(n_events):
     )
     chi2_values.append(chi2)
 
+def plot_chi2_distribution(chi2_values, bins=50):
+    """Plot distribution of chi-square values"""
+    plt.figure(figsize=(10, 6))
+    plt.hist(chi2_values, bins=bins, alpha=0.7)
+    plt.xlabel('Chi-square value')
+    plt.ylabel('Count')
+    plt.title('Distribution of Chi-square Values')
+    plt.grid(True)
+    plt.savefig('plots/chi2_distribution.png')
+    plt.close()
+
 print(f"\nAverage chi-square value: {np.mean(chi2_values):.2f}")
 print(f"Minimum chi-square value: {np.min(chi2_values):.2f}")
 print(f"Maximum chi-square value: {np.max(chi2_values):.2f}")
+
+# Plot chi-square distribution
+plot_chi2_distribution(chi2_values)
 
 # Check for NaN values in reconstructed momenta
 nan_count = sum(1 for momenta in reco_neutrino_momenta 
