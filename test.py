@@ -39,7 +39,7 @@ def plot_relative_uncertainty(truth_values, reco_values, component, particle_typ
                 [p_nu_p[1], p_nu_p[2], p_nu_p[3], p_nu_m[1], p_nu_m[2], p_nu_m[3]],
                 p_pi_p, p_pi_m, MET_x, MET_y
             )
-            if chi2 <= 200:
+            if chi2 <= 1000000:
                 valid_data.append((t, r))
                 
     if not valid_data:
@@ -213,11 +213,11 @@ for i in range(n_events):
 def plot_chi2_distribution(chi2_values, bins=50):
     """Plot distribution of chi-square values"""
     plt.figure(figsize=(10, 6))
-    plt.hist(chi2_values, bins=bins, alpha=0.7, range=(0, 1000))
+    plt.hist(chi2_values, bins=bins, alpha=0.7, range=(0, 2000))
     plt.xlabel('Chi-square value')
     plt.ylabel('Count')
     plt.title('Distribution of Chi-square Values')
-    plt.xlim(0, 1000)
+    plt.xlim(0, 2000)
     plt.grid(True)
     plt.savefig('plots/chi2_distribution.png')
     plt.close()
