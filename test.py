@@ -58,11 +58,11 @@ def plot_momentum_comparison(truth_values, reco_values, component, particle_type
     
     bin_edges = np.linspace(xlim[0], xlim[1], bins + 1)
     
-    plt.hist(truth_values, bins=bin_edges, alpha=0.7, label='Truth', density=True)
-    plt.hist(reco_values, bins=bin_edges, alpha=0.7, label='Reconstructed', density=True)
+    plt.hist(truth_values, bins=bin_edges, alpha=0.7, label='Truth')
+    plt.hist(reco_values, bins=bin_edges, alpha=0.7, label='Reconstructed')
     
     plt.xlabel(f'{component} (GeV)')
-    plt.ylabel('Normalized Count')
+    plt.ylabel('Count')
     plt.title(rf'{component} Distribution for {particle_type}{charge}')
     plt.legend()
     plt.grid(True)
