@@ -256,6 +256,40 @@ plot_comparison_with_ratio(cos_theta_n_m_truth, cos_theta_n_m_reco, xlabel=r'$\c
 plot_comparison_with_ratio(cos_theta_k_m_truth, cos_theta_k_m_reco, xlabel=r'$\cos\theta_k$',
                           title=r'$\cos\theta_k$ Distribution for Tau-', bins=50, xlim=(-1, 1))
 
+# Plot 2D correlation plots for cos theta observables
+def plot_2d_correlation(truth_values, reco_values, xlabel, ylabel, title, bins=50, range=(-1, 1)):
+    """Plot 2D correlation heatmap with y=x line"""
+    plt.figure(figsize=(8, 8))
+    plt.hist2d(truth_values, reco_values, bins=bins, range=[range, range], cmap='viridis', cmin=1)
+    plt.colorbar(label='Counts')
+    plt.plot(range, range, 'r--', linewidth=1, label='y = x')
+    plt.xlabel(xlabel)
+    plt.ylabel(ylabel)
+    plt.title(title)
+    plt.legend()
+    plt.grid(True)
+    # Create a safe filename from the title
+    filename = title.lower().replace(' ', '_').replace('$', '').replace('/', '_') + '_2d.png'
+    plt.savefig(f'plots/{filename}')
+    plt.close()
+
+# Plot correlations for each cos theta component
+for component, label in [('r', r'$\cos\theta_r$'), ('n', r'$\cos\theta_n$'), ('k', r'$\cos\theta_k$')]:
+    # Tau+
+    plot_2d_correlation(
+        cos_theta_r_p_truth, cos_theta_r_p_reco,
+        xlabel=f'Truth {label}',
+        ylabel=f'Reconstructed {label}',
+        title=f'Truth vs Reconstructed {label} for Tau+'
+    )
+    # Tau-
+    plot_2d_correlation(
+        cos_theta_r_m_truth, cos_theta_r_m_reco,
+        xlabel=f'Truth {label}',
+        ylabel=f'Reconstructed {label}',
+        title=f'Truth vs Reconstructed {label} for Tau-'
+    )
+
 # Calculate spin correlation matrix C_ij
 def calculate_spin_correlation(cos_theta_r_p, cos_theta_n_p, cos_theta_k_p,
                               cos_theta_r_m, cos_theta_n_m, cos_theta_k_m):
