@@ -256,3 +256,76 @@ plot_comparison_with_ratio(cos_theta_n_m_truth, cos_theta_n_m_reco, xlabel=r'$\c
 plot_comparison_with_ratio(cos_theta_k_m_truth, cos_theta_k_m_reco, xlabel=r'$\cos\theta_k$',
                           title=r'$\cos\theta_k$ Distribution for Tau-', bins=50, xlim=(-1, 1))
 
+# Calculate spin correlation matrix C_ij
+def calculate_spin_correlation(cos_theta_r_p, cos_theta_n_p, cos_theta_k_p,
+                              cos_theta_r_m, cos_theta_n_m, cos_theta_k_m):
+    # Initialize correlation matrix
+    C = np.zeros((3, 3))
+    
+    # Axes labels
+    axes_p = [cos_theta_r_p, cos_theta_n_p, cos_theta_k_p]
+    axes_m = [cos_theta_r_m, cos_theta_n_m, cos_theta_k_m]
+    axis_labels = ['r', 'n', 'k']
+    
+    # Calculate C_ij for each pair of axes
+    for i in range(3):
+        for j in range(3):
+            # Calculate x = cos_theta_i * cos_theta_j for each event
+            x = [axes_p[i][k] * axes_m[j][k] for k in range(len(axes_p[i]))]
+            
+            # Count positive and negative x values
+            N_plus = sum(1 for val in x if val > 0)
+            N_minus = sum(1 for val in x if val < 0)
+            
+            # Calculate asymmetry A
+            if (N_plus + N_minus) > 0:
+                A = (N_plus - N_minus) / (N_plus + N_minus)
+            else:
+                A = 0
+                
+            # Calculate correlation matrix element
+            C[i,j] = 4 * A
+            
+    return C, axis_labels
+
+# Calculate and print correlation matrix for truth and reconstructed values
+C_truth, labels = calculate_spin_correlation(cos_theta_r_p_truth, cos_theta_n_p_truth, cos_theta_k_p_truth,
+                                            cos_theta_r_m_truth, cos_theta_n_m_truth, cos_theta_k_m_truth)
+print("Truth Spin Correlation Matrix:")
+print("   " + "   ".join(labels))
+for i in range(3):
+    print(f"{labels[i]} {C_truth[i]}")
+
+C_reco, labels = calculate_spin_correlation(cos_theta_r_p_reco, cos_theta_n_p_reco, cos_theta_k_p_reco,
+                                           cos_theta_r_m_reco, cos_theta_n_m_reco, cos_theta_k_m_reco)
+print("\nReconstructed Spin Correlation Matrix:")
+print("   " + "   ".join(labels))
+for i in range(3):
+    print(f"{labels[i]} {C_reco[i]}")
+
+# Plot correlation matrices
+def plot_correlation_matrix(C, labels, title):
+    fig, ax = plt.subplots()
+    im = ax.imshow(C, cmap='coolwarm', vmin=-1, vmax=1)
+    
+    # Add labels
+    ax.set_xticks(np.arange(len(labels)))
+    ax.set_yticks(np.arange(len(labels)))
+    ax.set_xticklabels(labels)
+    ax.set_yticklabels(labels)
+    
+    # Add values to each cell
+    for i in range(len(labels)):
+        for j in range(len(labels)):
+            text = ax.text(j, i, f"{C[i,j]:.2f}",
+                         ha="center", va="center", color="w")
+    
+    ax.set_title(title)
+    fig.colorbar(im)
+    plt.tight_layout()
+    plt.savefig(f'plots/{title.lower().replace(" ", "_")}.png')
+    plt.close()
+
+plot_correlation_matrix(C_truth, labels, "Truth Spin Correlation Matrix")
+plot_correlation_matrix(C_reco, labels, "Reconstructed Spin Correlation Matrix")
+
