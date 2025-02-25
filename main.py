@@ -172,4 +172,61 @@ for component, idx in [('px', 1), ('py', 2), ('pz', 3)]:
     reco_m = [reco_neutrino_momenta[i][1][idx] for i in range(n_events)]
     plot_relative_uncertainty(truth_m, reco_m, component, 'Neutrino', '-')
 
+# Calculate cos theta distributions for tau+ and tau-
+cos_theta_r_p = []
+cos_theta_n_p = []
+cos_theta_k_p = []
+
+cos_theta_r_m = []
+cos_theta_n_m = []
+cos_theta_k_m = []
+
+for i in range(n_events):
+    # Tau+
+    p_tau_p = truth_data[i][0]  # Truth tau+ momentum
+    p_pion_p = truth_data[i][2]  # Truth pion+ momentum
+    
+    # Define coordinate system for tau+
+    r_hat_p, n_hat_p, k_hat_p = define_coordinate_system(p_tau_p)
+    
+    # Boost pion+ momentum to tau+ rest frame
+    p_pion_p_rest = boost_to_rest_frame(p_pion_p, p_tau_p)
+    
+    # Compute cos theta for tau+
+    cos_r_p, cos_n_p, cos_k_p = compute_cos_theta(p_pion_p_rest, r_hat_p, n_hat_p, k_hat_p)
+    cos_theta_r_p.append(cos_r_p)
+    cos_theta_n_p.append(cos_n_p)
+    cos_theta_k_p.append(cos_k_p)
+    
+    # Tau-
+    p_tau_m = truth_data[i][1]  # Truth tau- momentum
+    p_pion_m = truth_data[i][3]  # Truth pion- momentum
+    
+    # Define coordinate system for tau-
+    r_hat_m, n_hat_m, k_hat_m = define_coordinate_system(p_tau_m)
+    
+    # Boost pion- momentum to tau- rest frame
+    p_pion_m_rest = boost_to_rest_frame(p_pion_m, p_tau_m)
+    
+    # Compute cos theta for tau-
+    cos_r_m, cos_n_m, cos_k_m = compute_cos_theta(p_pion_m_rest, r_hat_m, n_hat_m, k_hat_m)
+    cos_theta_r_m.append(cos_r_m)
+    cos_theta_n_m.append(cos_n_m)
+    cos_theta_k_m.append(cos_k_m)
+
+# Plot cos theta distributions for tau+
+plot_comparison_with_ratio(cos_theta_r_p, cos_theta_r_p, xlabel=r'$\cos\theta_r$',
+                          title=r'$\cos\theta_r$ Distribution for Tau+', bins=50, xlim=(-1, 1))
+plot_comparison_with_ratio(cos_theta_n_p, cos_theta_n_p, xlabel=r'$\cos\theta_n$',
+                          title=r'$\cos\theta_n$ Distribution for Tau+', bins=50, xlim=(-1, 1))
+plot_comparison_with_ratio(cos_theta_k_p, cos_theta_k_p, xlabel=r'$\cos\theta_k$',
+                          title=r'$\cos\theta_k$ Distribution for Tau+', bins=50, xlim=(-1, 1))
+
+# Plot cos theta distributions for tau-
+plot_comparison_with_ratio(cos_theta_r_m, cos_theta_r_m, xlabel=r'$\cos\theta_r$',
+                          title=r'$\cos\theta_r$ Distribution for Tau-', bins=50, xlim=(-1, 1))
+plot_comparison_with_ratio(cos_theta_n_m, cos_theta_n_m, xlabel=r'$\cos\theta_n$',
+                          title=r'$\cos\theta_n$ Distribution for Tau-', bins=50, xlim=(-1, 1))
+plot_comparison_with_ratio(cos_theta_k_m, cos_theta_k_m, xlabel=r'$\cos\theta_k$',
+                          title=r'$\cos\theta_k$ Distribution for Tau-', bins=50, xlim=(-1, 1))
 
