@@ -3,12 +3,8 @@ import matplotlib.pyplot as plt
 from tqdm import tqdm
 from multiprocessing import Pool
 import pickle
-NUM_CPUS = 4
-from helperfunctions import (
-    boost_to_rest_frame, reconstruct_neutrino_momenta, plot_comparison_with_ratio, plot_relative_uncertainty,
-    chi_squared_nu, chi_squared_collinear, compute_four_momentum, compute_eta, compute_phi, compute_pT,
-    reconstruct_neutrino_collinear, plot_residual_comparison, plot_collinearity_test, plot_met_assumption_comparison
-)
+NUM_CPUS = 12
+from helperfunctions import reconstruct_neutrino_momenta, plot_comparison_with_ratio, plot_relative_uncertainty,compute_four_momentum, compute_eta, compute_phi, compute_pT
 
 
 particle_data_dict = pickle.load(open('pi_pi_recon_particles.pkl', 'rb'))
@@ -62,14 +58,9 @@ def reconstruct_event(args):
     p_pi_p_reco, p_pi_m_reco, MET_x, MET_y = args
     return reconstruct_neutrino_momenta(p_pi_p_reco, p_pi_m_reco, MET_x, MET_y)
 
-def reconstruct_collinear_event(args):
-    p_pi_p_reco, p_pi_m_reco, MET_x, MET_y = args
-    return reconstruct_neutrino_collinear(p_pi_p_reco, p_pi_m_reco, MET_x, MET_y)
-
 # Use multiprocessing with NUM_CPUS CPUs for both methods
 with Pool(processes=NUM_CPUS) as pool:
     reco_neutrino_momenta = list(tqdm(pool.imap(reconstruct_event, reco_args), total=n_events))
-    reco_neutrino_collinear = list(tqdm(pool.imap(reconstruct_collinear_event, reco_args), total=n_events))
 
 # Collect truth and reconstructed values separated by charge
 truth_eta_p = []
@@ -142,61 +133,6 @@ for i in range(n_events):
 
     reco_tau_momenta.append((p_tau_p_reco, p_tau_m_reco))
 
-# Collect truth and reconstructed tau properties separated by charge
-truth_tau_eta_p = []
-truth_tau_phi_p = []
-truth_tau_pT_p = []
-reco_tau_eta_p = []
-reco_tau_phi_p = []
-reco_tau_pT_p = []
-
-truth_tau_eta_m = []
-truth_tau_phi_m = []
-truth_tau_pT_m = []
-reco_tau_eta_m = []
-reco_tau_phi_m = []
-reco_tau_pT_m = []
-
-for i in range(n_events):
-    # Truth taus
-    truth_tau_eta_p.append(compute_eta(truth_data[i][0]))  # tau+
-    truth_tau_phi_p.append(compute_phi(truth_data[i][0]))
-    truth_tau_pT_p.append(compute_pT(truth_data[i][0]))
-    
-    truth_tau_eta_m.append(compute_eta(truth_data[i][1]))  # tau-
-    truth_tau_phi_m.append(compute_phi(truth_data[i][1]))
-    truth_tau_pT_m.append(compute_pT(truth_data[i][1]))
-
-    # Reconstructed taus
-    reco_tau_eta_p.append(compute_eta(reco_tau_momenta[i][0]))  # tau+
-    reco_tau_phi_p.append(compute_phi(reco_tau_momenta[i][0]))
-    reco_tau_pT_p.append(compute_pT(reco_tau_momenta[i][0]))
-    
-    reco_tau_eta_m.append(compute_eta(reco_tau_momenta[i][1]))  # tau-
-    reco_tau_phi_m.append(compute_phi(reco_tau_momenta[i][1]))
-    reco_tau_pT_m.append(compute_pT(reco_tau_momenta[i][1]))
-
-# Plot pseudorapidity (eta) for positive and negative taus
-plot_comparison_with_ratio(truth_tau_eta_p, reco_tau_eta_p, xlabel=r'Pseudorapidity $\eta$', 
-                          title='Truth vs. Reconstructed Tau+ Pseudorapidity',
-                          xlim=(-3.5, 3.5))
-plot_comparison_with_ratio(truth_tau_eta_m, reco_tau_eta_m, xlabel=r'Pseudorapidity $\eta$', 
-                          title='Truth vs. Reconstructed Tau- Pseudorapidity',
-                          xlim=(-3.5, 3.5))
-
-# Plot phi for positive and negative taus
-plot_comparison_with_ratio(truth_tau_phi_p, reco_tau_phi_p, xlabel=r'Azimuthal Angle $\phi$ (radians)', 
-                          title='Truth vs. Reconstructed Tau+ $\phi$')
-plot_comparison_with_ratio(truth_tau_phi_m, reco_tau_phi_m, xlabel=r'Azimuthal Angle $\phi$ (radians)', 
-                          title='Truth vs. Reconstructed Tau- $\phi$')
-
-# Plot transverse momentum (pT) for positive and negative taus
-plot_comparison_with_ratio(truth_tau_pT_p, reco_tau_pT_p, xlabel=r'Transverse Momentum $p_T$ (GeV)',
-                          title=r'Truth vs. Reconstructed Tau+ Transverse Momentum',
-                          bins=50, xlim=(0, 100))
-plot_comparison_with_ratio(truth_tau_pT_m, reco_tau_pT_m, xlabel=r'Transverse Momentum $p_T$ (GeV)',
-                          title=r'Truth vs. Reconstructed Tau- Transverse Momentum',
-                          bins=50, xlim=(0, 100))
 
 
 for i in range(n_events):
@@ -224,87 +160,16 @@ truth_pion_m_momenta = [truth_data[i][3] for i in range(n_events)]
 truth_nu_p_momenta = [truth_data[i][4] for i in range(n_events)]
 truth_nu_m_momenta = [truth_data[i][5] for i in range(n_events)]
 
-plot_collinearity_test(truth_pion_p_momenta, truth_nu_p_momenta, 'Neutrino', '+')
-plot_collinearity_test(truth_pion_m_momenta, truth_nu_m_momenta, 'Neutrino', '-')
-
 # Plot relative uncertainties and residuals for neutrino components
 for component, idx in [('px', 1), ('py', 2), ('pz', 3)]:
     # Neutrino+
     truth_p = [truth_data[i][4][idx] for i in range(n_events)]
     reco_p = [reco_neutrino_momenta[i][0][idx] for i in range(n_events)]
-    reco_coll_p = [reco_neutrino_collinear[i][0][idx] for i in range(n_events)]
     plot_relative_uncertainty(truth_p, reco_p, component, 'Neutrino', '+')
-    
-    # Plot residual comparison
-    residuals_original = [t - r for t,r in zip(truth_p, reco_p)]
-    residuals_coll = [t - r for t,r in zip(truth_p, reco_coll_p)]
-    plot_residual_comparison(residuals_original, residuals_coll,
-                           xlabel=f'{component} Relative Residual',
-                           title=f'Neutrino+ {component} Relative Residual Comparison',
-                           truth_values=truth_p,
-                           xlim=(-1, 1))
-    
-    # Plot MET/2 assumption comparison for transverse components
-    if component in ['px', 'py']:
-        met_values = [MET[i].px if component == 'px' else MET[i].py for i in range(n_events)]
-        reco_p = [reco_neutrino_momenta[i][0][idx] for i in range(n_events)]
-        plot_met_assumption_comparison(truth_p, met_values, component, 'Neutrino', '+', reco_values=reco_p)
-    
-    # Print chi2 values for all events
-    # print(f"\nNeutrino+ {component} Chi2 values:")
-    # print(f"{'Event':<6} {'Original':<10} {'Collinear':<10}")
-    # for i in range(n_events):
-    #     # Original method
-    #     p_nu_p = reco_neutrino_momenta[i][0][1:]  # px,py,pz of nu+
-    #     p_nu_m = reco_neutrino_momenta[i][1][1:]  # px,py,pz of nu-
-    #     params = np.concatenate([p_nu_p, p_nu_m])
-    #     chi2_orig = chi_squared_nu(params, reco_data[i][0], reco_data[i][1], MET[i].px, MET[i].py)
-    #     
-    #     # Collinear method
-    #     p_nu_p, p_nu_m = reco_neutrino_collinear[i]
-    #     alpha = np.linalg.norm(p_nu_p[1:])/np.linalg.norm(reco_data[i][0][1:])
-    #     beta = np.linalg.norm(p_nu_m[1:])/np.linalg.norm(reco_data[i][1][1:])
-    #     chi2_coll = chi_squared_collinear([alpha, beta], reco_data[i][0], reco_data[i][1], MET[i].px, MET[i].py)
-    #     
-    #     print(f"{i:<6} {chi2_orig:<10.2f} {chi2_coll:<10.2f}")
 
     # Neutrino-
     truth_m = [truth_data[i][5][idx] for i in range(n_events)]
     reco_m = [reco_neutrino_momenta[i][1][idx] for i in range(n_events)]
-    reco_coll_m = [reco_neutrino_collinear[i][1][idx] for i in range(n_events)]
     plot_relative_uncertainty(truth_m, reco_m, component, 'Neutrino', '-')
-    
-    # Plot residual comparison
-    residuals_original = [t - r for t,r in zip(truth_m, reco_m)]
-    residuals_coll = [t - r for t,r in zip(truth_m, reco_coll_m)]
-    plot_residual_comparison(residuals_original, residuals_coll,
-                           xlabel=f'{component} Relative Residual',
-                           title=f'Neutrino- {component} Relative Residual Comparison',
-                           truth_values=truth_m,
-                           xlim=(-1, 1))
-    
-    # Plot MET/2 assumption comparison for transverse components
-    if component in ['px', 'py']:
-        met_values = [MET[i].px if component == 'px' else MET[i].py for i in range(n_events)]
-        reco_m = [reco_neutrino_momenta[i][1][idx] for i in range(n_events)]
-        plot_met_assumption_comparison(truth_m, met_values, component, 'Neutrino', '-', reco_values=reco_m)
-    
-    # Print chi2 values for all events
-    # print(f"\nNeutrino- {component} Chi2 values:")
-    # print(f"{'Event':<6} {'Original':<10} {'Collinear':<10}")
-    # for i in range(n_events):
-    #     # Original method
-    #     p_nu_p = reco_neutrino_momenta[i][0][1:]  # px,py,pz of nu+
-    #     p_nu_m = reco_neutrino_momenta[i][1][1:]  # px,py,pz of nu-
-    #     params = np.concatenate([p_nu_p, p_nu_m])
-    #     chi2_orig = chi_squared_nu(params, reco_data[i][0], reco_data[i][1], MET[i].px, MET[i].py)
-    #     
-    #     # Collinear method
-    #     p_nu_p, p_nu_m = reco_neutrino_collinear[i]
-    #     alpha = np.linalg.norm(p_nu_p[1:])/np.linalg.norm(reco_data[i][0][1:])
-    #     beta = np.linalg.norm(p_nu_m[1:])/np.linalg.norm(reco_data[i][1][1:])
-    #     chi2_coll = chi_squared_collinear([alpha, beta], reco_data[i][0], reco_data[i][1], MET[i].px, MET[i].py)
-    #     
-    #     print(f"{i:<6} {chi2_orig:<10.2f} {chi2_coll:<10.2f}")
 
 
