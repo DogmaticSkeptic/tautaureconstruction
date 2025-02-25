@@ -191,6 +191,24 @@ def reconstruct_event(args):
 with Pool(processes=NUM_CPUS) as pool:
     reco_neutrino_momenta = list(tqdm(pool.imap(reconstruct_event, reco_args), total=n_events))
 
+# Calculate average chi-square value
+chi2_values = []
+for i in range(n_events):
+    p_nu_p, p_nu_m = reco_neutrino_momenta[i]
+    p_pi_p = reco_data[i][0]
+    p_pi_m = reco_data[i][1]
+    MET_x = MET[i].px
+    MET_y = MET[i].py
+    chi2 = chi_squared_nu(
+        [p_nu_p[1], p_nu_p[2], p_nu_p[3], p_nu_m[1], p_nu_m[2], p_nu_m[3]],
+        p_pi_p, p_pi_m, MET_x, MET_y
+    )
+    chi2_values.append(chi2)
+
+print(f"\nAverage chi-square value: {np.mean(chi2_values):.2f}")
+print(f"Minimum chi-square value: {np.min(chi2_values):.2f}")
+print(f"Maximum chi-square value: {np.max(chi2_values):.2f}")
+
 # Check for NaN values in reconstructed momenta
 nan_count = sum(1 for momenta in reco_neutrino_momenta 
                 if any(np.isnan(p).any() for p in momenta))
