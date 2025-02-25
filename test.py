@@ -246,36 +246,75 @@ def plot_neg_one_uncertainty_events(truth_values, reco_values, reco_neutrino_mom
     met_x = [MET[i].px for i in neg_one_indices]
     met_y = [MET[i].py for i in neg_one_indices]
     
-    # Create figure with 4 subplots
-    fig, axes = plt.subplots(4, 1, figsize=(10, 20))
+    # Create figure with 6 subplots
+    fig = plt.figure(figsize=(15, 25))
+    gs = fig.add_gridspec(6, 2)
     
-    # Plot px
-    axes[0].hist(px, bins=50, alpha=0.7)
-    axes[0].set_xlabel('px (GeV)')
-    axes[0].set_ylabel('Count')
-    axes[0].set_title(f'px Distribution for {particle_type}{charge} Events with {component} Rel. Unc. ~ -1')
-    axes[0].grid(True)
+    # Plot momentum components
+    ax1 = fig.add_subplot(gs[0, 0])
+    ax1.hist(px, bins=50, alpha=0.7)
+    ax1.set_xlabel('px (GeV)')
+    ax1.set_ylabel('Count')
+    ax1.set_title(f'px Distribution for {particle_type}{charge} Events with {component} Rel. Unc. ~ -1')
+    ax1.grid(True)
     
-    # Plot py
-    axes[1].hist(py, bins=50, alpha=0.7)
-    axes[1].set_xlabel('py (GeV)')
-    axes[1].set_ylabel('Count')
-    axes[1].set_title(f'py Distribution for {particle_type}{charge} Events with {component} Rel. Unc. ~ -1')
-    axes[1].grid(True)
+    ax2 = fig.add_subplot(gs[1, 0])
+    ax2.hist(py, bins=50, alpha=0.7)
+    ax2.set_xlabel('py (GeV)')
+    ax2.set_ylabel('Count')
+    ax2.set_title(f'py Distribution for {particle_type}{charge} Events with {component} Rel. Unc. ~ -1')
+    ax2.grid(True)
     
-    # Plot pz
-    axes[2].hist(pz, bins=50, alpha=0.7)
-    axes[2].set_xlabel('pz (GeV)')
-    axes[2].set_ylabel('Count')
-    axes[2].set_title(f'pz Distribution for {particle_type}{charge} Events with {component} Rel. Unc. ~ -1')
-    axes[2].grid(True)
+    ax3 = fig.add_subplot(gs[2, 0])
+    ax3.hist(pz, bins=50, alpha=0.7)
+    ax3.set_xlabel('pz (GeV)')
+    ax3.set_ylabel('Count')
+    ax3.set_title(f'pz Distribution for {particle_type}{charge} Events with {component} Rel. Unc. ~ -1')
+    ax3.grid(True)
     
     # Plot MET
-    axes[3].hist(np.sqrt(np.array(met_x)**2 + np.array(met_y)**2), bins=50, alpha=0.7)
-    axes[3].set_xlabel('MET (GeV)')
-    axes[3].set_ylabel('Count')
-    axes[3].set_title(f'MET Distribution for {particle_type}{charge} Events with {component} Rel. Unc. ~ -1')
-    axes[3].grid(True)
+    ax4 = fig.add_subplot(gs[3, 0])
+    ax4.hist(np.sqrt(np.array(met_x)**2 + np.array(met_y)**2), bins=50, alpha=0.7)
+    ax4.set_xlabel('MET (GeV)')
+    ax4.set_ylabel('Count')
+    ax4.set_title(f'MET Distribution for {particle_type}{charge} Events with {component} Rel. Unc. ~ -1')
+    ax4.grid(True)
+    
+    # Plot truth vs reco correlation
+    ax5 = fig.add_subplot(gs[0:2, 1])
+    truth_vals = [truth_values[i] for i in neg_one_indices]
+    reco_vals = [reco_values[i] for i in neg_one_indices]
+    ax5.scatter(truth_vals, reco_vals, alpha=0.5)
+    ax5.plot([min(truth_vals), max(truth_vals)], [min(truth_vals), max(truth_vals)], 
+             'r--', label='y = x')
+    ax5.set_xlabel(f'Truth {component} (GeV)')
+    ax5.set_ylabel(f'Reconstructed {component} (GeV)')
+    ax5.set_title(f'Truth vs Reconstructed {component} Correlation')
+    ax5.legend()
+    ax5.grid(True)
+    
+    # Plot ratio of truth/reco
+    ax6 = fig.add_subplot(gs[2:4, 1])
+    ratios = [t/r if r != 0 else 0 for t, r in zip(truth_vals, reco_vals)]
+    ax6.hist(ratios, bins=50, alpha=0.7)
+    ax6.set_xlabel(f'Truth {component} / Reconstructed {component}')
+    ax6.set_ylabel('Count')
+    ax6.set_title(f'Ratio of Truth/Reconstructed {component}')
+    ax6.grid(True)
+    
+    # Add statistics text
+    stats_text = f"""
+    Statistics for {particle_type}{charge} {component} (Rel. Unc. ~ -1):
+    Number of events: {len(neg_one_indices)}
+    Mean px: {np.mean(px):.2f} GeV
+    Mean py: {np.mean(py):.2f} GeV
+    Mean pz: {np.mean(pz):.2f} GeV
+    Mean MET: {np.mean(np.sqrt(np.array(met_x)**2 + np.array(met_y)**2)):.2f} GeV
+    Mean truth/reco ratio: {np.mean(ratios):.2f}
+    """
+    ax7 = fig.add_subplot(gs[4:, :])
+    ax7.text(0.1, 0.5, stats_text, fontsize=12, va='center')
+    ax7.axis('off')
     
     plt.tight_layout()
     filename = f'neg_one_unc_{particle_type}_{charge}_{component}.png'
