@@ -147,6 +147,11 @@ def reconstruct_event(args):
 with Pool(processes=NUM_CPUS) as pool:
     reco_neutrino_momenta = list(tqdm(pool.imap(reconstruct_event, reco_args), total=n_events))
 
+# Check for NaN values in reconstructed momenta
+nan_count = sum(1 for momenta in reco_neutrino_momenta 
+                if any(np.isnan(p).any() for p in momenta))
+print(f"Found {nan_count} events with NaN values in reconstructed neutrino momenta")
+
 
 for component, idx in [('px', 1), ('py', 2), ('pz', 3)]:
     # Neutrino+
