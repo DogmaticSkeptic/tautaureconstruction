@@ -175,6 +175,21 @@ def plot_comparison_with_ratio(truth_values, reco_values, xlabel, title, bins=50
     plt.savefig(f'plots/{filename}')
     plt.close()
 
+def plot_2d_cos_theta_correlation(cos_theta_tau, cos_theta_pion, component, bins=50, range=(-1, 1)):
+    """Plot 2D correlation between cos theta of tau and its child pion"""
+    plt.figure(figsize=(8, 8))
+    plt.hist2d(cos_theta_tau, cos_theta_pion, bins=bins, range=[range, range], cmap='viridis', cmin=1)
+    plt.colorbar(label='Counts')
+    plt.plot(range, range, 'r--', linewidth=1, label='y = x')
+    plt.xlabel(f'cosθ_{component} (Tau)')
+    plt.ylabel(f'cosθ_{component} (Pion)')
+    plt.title(f'Correlation between Tau and Pion cosθ_{component}')
+    plt.legend()
+    plt.grid(True)
+    plt.tight_layout()
+    plt.savefig(f'plots/cos_theta_{component}_correlation.png')
+    plt.close()
+
 def plot_relative_uncertainty(truth_values, reco_values, component, particle_type, charge, bins=50, xlim=(-3, 3)):
     """Plot relative uncertainties between truth and reconstructed values and save to file"""
     
