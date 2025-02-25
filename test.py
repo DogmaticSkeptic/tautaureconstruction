@@ -284,6 +284,51 @@ def plot_high_chi2_momenta(chi2_values, reco_neutrino_momenta, threshold=1e6):
     plt.tight_layout()
     plt.savefig('plots/high_chi2_momenta.png')
     plt.close()
+    """Plot momentum components for events with chi-square above threshold"""
+    high_chi2_indices = [i for i, chi2 in enumerate(chi2_values) if chi2 > threshold]
+    
+    if not high_chi2_indices:
+        print(f"No events found with chi-square > {threshold}")
+        return
+        
+    # Get momentum components for high chi2 events
+    px_p = [reco_neutrino_momenta[i][0][1] for i in high_chi2_indices]
+    py_p = [reco_neutrino_momenta[i][0][2] for i in high_chi2_indices]
+    pz_p = [reco_neutrino_momenta[i][0][3] for i in high_chi2_indices]
+    px_m = [reco_neutrino_momenta[i][1][1] for i in high_chi2_indices]
+    py_m = [reco_neutrino_momenta[i][1][2] for i in high_chi2_indices]
+    pz_m = [reco_neutrino_momenta[i][1][3] for i in high_chi2_indices]
+
+    # Create figure with 3 subplots
+    fig, axes = plt.subplots(3, 1, figsize=(10, 15))
+    
+    # Plot px
+    axes[0].hist([px_p, px_m], bins=50, label=['Neutrino+', 'Neutrino-'], alpha=0.7)
+    axes[0].set_xlabel('px (GeV)')
+    axes[0].set_ylabel('Count')
+    axes[0].set_title(f'px Distribution for Events with Chi-square > {threshold:.0e}')
+    axes[0].legend()
+    axes[0].grid(True)
+    
+    # Plot py
+    axes[1].hist([py_p, py_m], bins=50, label=['Neutrino+', 'Neutrino-'], alpha=0.7)
+    axes[1].set_xlabel('py (GeV)')
+    axes[1].set_ylabel('Count')
+    axes[1].set_title(f'py Distribution for Events with Chi-square > {threshold:.0e}')
+    axes[1].legend()
+    axes[1].grid(True)
+    
+    # Plot pz
+    axes[2].hist([pz_p, pz_m], bins=50, label=['Neutrino+', 'Neutrino-'], alpha=0.7)
+    axes[2].set_xlabel('pz (GeV)')
+    axes[2].set_ylabel('Count')
+    axes[2].set_title(f'pz Distribution for Events with Chi-square > {threshold:.0e}')
+    axes[2].legend()
+    axes[2].grid(True)
+    
+    plt.tight_layout()
+    plt.savefig('plots/high_chi2_momenta.png')
+    plt.close()
 
 print(f"\nAverage chi-square value: {np.mean(chi2_values):.2f}")
 print(f"Minimum chi-square value: {np.min(chi2_values):.2f}")
@@ -307,9 +352,11 @@ for component, idx in [('px', 1), ('py', 2), ('pz', 3)]:
     reco_p = [reco_neutrino_momenta[i][0][idx] for i in range(n_events)]
     plot_relative_uncertainty(truth_p, reco_p, component, 'Neutrino', '+')
     plot_momentum_comparison(truth_p, reco_p, component, 'Neutrino', '+')
+    plot_neg_one_uncertainty_events(truth_p, reco_p, reco_neutrino_momenta, MET, component, 'Neutrino', '+')
 
     # Neutrino-
     truth_m = [truth_data[i][5][idx] for i in range(n_events)]
     reco_m = [reco_neutrino_momenta[i][1][idx] for i in range(n_events)]
     plot_relative_uncertainty(truth_m, reco_m, component, 'Neutrino', '-')
     plot_momentum_comparison(truth_m, reco_m, component, 'Neutrino', '-')
+    plot_neg_one_uncertainty_events(truth_m, reco_m, reco_neutrino_momenta, MET, component, 'Neutrino', '-')
