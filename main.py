@@ -337,16 +337,44 @@ print("   " + "   ".join(labels))
 for i in range(3):
     print(f"{labels[i]} {C_reco[i]}")
 
-# Plot correlation matrices
-def plot_correlation_matrix(C, labels, title):
-    fig, ax = plt.subplots()
+def calculate_cos_theta_correlations(truth_values, reco_values, labels):
+    """Calculate correlation matrix between truth and reconstructed cos theta values"""
+    # Initialize correlation matrix
+    C = np.zeros((len(labels), len(labels)))
+    
+    # Calculate correlations for each pair of axes
+    for i in range(len(labels)):
+        for j in range(len(labels)):
+            # Calculate Pearson correlation coefficient
+            C[i,j] = np.corrcoef(truth_values[i], reco_values[j])[0,1]
+            
+    return C
+
+# Prepare data for correlation matrix
+truth_cos_theta = {
+    'tau+': [cos_theta_r_p_truth, cos_theta_n_p_truth, cos_theta_k_p_truth],
+    'tau-': [cos_theta_r_m_truth, cos_theta_n_m_truth, cos_theta_k_m_truth]
+}
+
+reco_cos_theta = {
+    'tau+': [cos_theta_r_p_reco, cos_theta_n_p_reco, cos_theta_k_p_reco],
+    'tau-': [cos_theta_r_m_reco, cos_theta_n_m_reco, cos_theta_k_m_reco]
+}
+
+labels = ['r', 'n', 'k']
+
+# Plot correlation matrices for tau+ and tau-
+for tau_type in ['tau+', 'tau-']:
+    C = calculate_cos_theta_correlations(truth_cos_theta[tau_type], reco_cos_theta[tau_type], labels)
+    
+    fig, ax = plt.subplots(figsize=(8, 6))
     im = ax.imshow(C, cmap='coolwarm', vmin=-1, vmax=1)
     
     # Add labels
     ax.set_xticks(np.arange(len(labels)))
     ax.set_yticks(np.arange(len(labels)))
-    ax.set_xticklabels(labels)
-    ax.set_yticklabels(labels)
+    ax.set_xticklabels([f'Truth {l}' for l in labels])
+    ax.set_yticklabels([f'Reco {l}' for l in labels])
     
     # Add values to each cell
     for i in range(len(labels)):
@@ -354,12 +382,9 @@ def plot_correlation_matrix(C, labels, title):
             text = ax.text(j, i, f"{C[i,j]:.2f}",
                          ha="center", va="center", color="w")
     
-    ax.set_title(title)
-    fig.colorbar(im)
+    ax.set_title(f'Cos Theta Correlation Matrix ({tau_type})')
+    fig.colorbar(im, label='Correlation Coefficient')
     plt.tight_layout()
-    plt.savefig(f'plots/{title.lower().replace(" ", "_")}.png')
+    plt.savefig(f'plots/cos_theta_correlation_matrix_{tau_type}.png')
     plt.close()
-
-plot_correlation_matrix(C_truth, labels, "Truth Spin Correlation Matrix")
-plot_correlation_matrix(C_reco, labels, "Reconstructed Spin Correlation Matrix")
 
