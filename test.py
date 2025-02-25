@@ -133,35 +133,44 @@ def chi_squared_nu(neutrino_params, p_pi_p, p_pi_m, MET_x, MET_y,
 # Analysis functions
 def reconstruct_neutrino_momenta(p_pi_p_reco, p_pi_m_reco, MET_x, MET_y,
                                 sigma_tau=0.001, sigma_z=0.002, sigma_met=0.01):
-    """Reconstruct neutrino momenta using chi-squared minimization"""
-    # Get pion directions
-    pi_p_dir = p_pi_p_reco[1:3] / np.linalg.norm(p_pi_p_reco[1:3])
-    pi_m_dir = p_pi_m_reco[1:3] / np.linalg.norm(p_pi_m_reco[1:3])
+    """Reconstruct neutrino momenta using differential evolution"""
+    # Define bounds for all 6 parameters (px,py,pz for both neutrinos)
+    bounds = [(-200, 200), (-200, 200), (-200, 200), 
+              (-200, 200), (-200, 200), (-200, 200)]
     
-    # Initial guess: half of MET in opposite direction of corresponding pion
-    nu_p_xy = 0.5 * MET_x * pi_p_dir[0], 0.5 * MET_y * pi_p_dir[1]
-    nu_m_xy = 0.5 * MET_x * pi_m_dir[0], 0.5 * MET_y * pi_m_dir[1]
+    # Define the objective function to minimize
+    def objective(x):
+        p_nu_p = np.array([np.linalg.norm(x[:3]), *x[:3]])
+        p_nu_m = np.array([np.linalg.norm(x[3:]), *x[3:]])
+        
+        p_tau_p = p_pi_p_reco + p_nu_p
+        p_tau_m = p_pi_m_reco + p_nu_m
+        
+        # Calculate chi-squared terms
+        chi2_tau_p = ((M_TAU**2 - (p_tau_p[0]**2 - np.sum(p_tau_p[1:]**2)))**2) / sigma_tau**2
+        chi2_tau_m = ((M_TAU**2 - (p_tau_m[0]**2 - np.sum(p_tau_m[1:]**2)))**2) / sigma_tau**2
+        chi2_MET_x = ((p_nu_p[1] + p_nu_m[1] - MET_x)**2) / sigma_met**2
+        chi2_MET_y = ((p_nu_p[2] + p_nu_m[2] - MET_y)**2) / sigma_met**2
+        chi2_Z_mass = ((M_Z**2 - ((p_tau_p + p_tau_m)[0]**2 - np.sum((p_tau_p + p_tau_m)[1:]**2)))**2) / sigma_z**2
+        
+        return chi2_tau_p + chi2_tau_m + chi2_MET_x + chi2_MET_y + chi2_Z_mass
     
-    initial_guess = [*nu_p_xy, 5.0, *nu_m_xy, -5.0]
-
-    # Use least_squares with bounds between -200 and 200 GeV
-    bounds = ([-200, -200, -200, -200, -200, -200], [200, 200, 200, 200, 200, 200])
-    result = opt.least_squares(
-        lambda x: [
-            (M_TAU**2 - ((p_pi_p_reco + [np.linalg.norm(x[:3]), *x[:3]])[0]**2 - np.sum((p_pi_p_reco + [np.linalg.norm(x[:3]), *x[:3]])[1:]**2))) / sigma_tau,
-            (M_TAU**2 - ((p_pi_m_reco + [np.linalg.norm(x[3:]), *x[3:]])[0]**2 - np.sum((p_pi_m_reco + [np.linalg.norm(x[3:]), *x[3:]])[1:]**2))) / sigma_tau,
-            (x[0] + x[3] - MET_x) / sigma_met,
-            (x[1] + x[4] - MET_y) / sigma_met,
-            (M_Z**2 - ((p_pi_p_reco + [np.linalg.norm(x[:3]), *x[:3]] + p_pi_m_reco + [np.linalg.norm(x[3:]), *x[3:]])[0]**2 - 
-              np.sum((p_pi_p_reco + [np.linalg.norm(x[:3]), *x[:3]] + p_pi_m_reco + [np.linalg.norm(x[3:]), *x[3:]])[1:]**2))) / sigma_z
-        ],
-        initial_guess,
-        bounds=bounds
+    # Run differential evolution
+    result = opt.differential_evolution(
+        objective,
+        bounds,
+        strategy='best1bin',
+        maxiter=100,
+        popsize=15,
+        tol=0.01,
+        mutation=(0.5, 1),
+        recombination=0.7,
+        seed=42
     )
-
+    
     p_nu_p_opt = np.array([np.linalg.norm(result.x[:3]), *result.x[:3]])
     p_nu_m_opt = np.array([np.linalg.norm(result.x[3:]), *result.x[3:]])
-
+    
     return p_nu_p_opt, p_nu_m_opt
 
 
