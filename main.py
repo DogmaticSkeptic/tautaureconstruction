@@ -22,7 +22,7 @@ tau_p_pion = particle_data_dict['tau_p_child1']
 tau_m_pion = particle_data_dict['tau_m_child1']
 MET = particle_data_dict['MET']
     
-n_events = 10000
+n_events = 1000
 
 truth_data = []
 reco_data = []
@@ -256,41 +256,39 @@ plot_comparison_with_ratio(cos_theta_n_m_truth, cos_theta_n_m_reco, xlabel=r'$\c
 plot_comparison_with_ratio(cos_theta_k_m_truth, cos_theta_k_m_reco, xlabel=r'$\cos\theta_k$',
                           title=r'$\cos\theta_k$ Distribution for Tau-', bins=50, xlim=(-1, 1))
 
-# Calculate cos theta of taus and their child pions
-cos_theta_tau_p = []
-cos_theta_pion_p = []
-cos_theta_tau_m = []
-cos_theta_pion_m = []
+# Plot 2D correlation plots for cos theta observables
+def plot_2d_correlation(truth_values, reco_values, xlabel, ylabel, title, bins=50, range=(-1, 1)):
+    """Plot 2D correlation heatmap with y=x line"""
+    plt.figure(figsize=(8, 8))
+    plt.hist2d(truth_values, reco_values, bins=bins, range=[range, range], cmap='viridis', cmin=1)
+    plt.colorbar(label='Counts')
+    plt.plot(range, range, 'r--', linewidth=1, label='y = x')
+    plt.xlabel(xlabel)
+    plt.ylabel(ylabel)
+    plt.title(title)
+    plt.legend()
+    plt.grid(True)
+    # Create a safe filename from the title
+    filename = title.lower().replace(' ', '_').replace('$', '').replace('/', '_') + '_2d.png'
+    plt.savefig(f'plots/{filename}')
+    plt.close()
 
-for i in range(n_events):
-    # Tau+ and its pion+
-    p_tau_p = reco_tau_momenta[i][0]
-    p_pion_p = reco_data[i][0]
-    r_hat_p, n_hat_p, k_hat_p = define_coordinate_system(p_tau_p)
-    p_pion_p_rest = boost_to_rest_frame(p_pion_p, p_tau_p)
-    cos_r_p, cos_n_p, cos_k_p = compute_cos_theta(p_pion_p_rest, r_hat_p, n_hat_p, k_hat_p)
-    
-    # Tau- and its pion-
-    p_tau_m = reco_tau_momenta[i][1]
-    p_pion_m = reco_data[i][1]
-    r_hat_m, n_hat_m, k_hat_m = define_coordinate_system(p_tau_m)
-    p_pion_m_rest = boost_to_rest_frame(p_pion_m, p_tau_m)
-    cos_r_m, cos_n_m, cos_k_m = compute_cos_theta(p_pion_m_rest, r_hat_m, n_hat_m, k_hat_m)
-    
-    # Store values
-    cos_theta_tau_p.append((cos_r_p, cos_n_p, cos_k_p))
-    cos_theta_pion_p.append((cos_r_p, cos_n_p, cos_k_p))
-    cos_theta_tau_m.append((cos_r_m, cos_n_m, cos_k_m))
-    cos_theta_pion_m.append((cos_r_m, cos_n_m, cos_k_m))
-
-# Plot 2D correlations for each cos theta component
-for i, component in enumerate(['r', 'n', 'k']):
-    # Combine tau+ and tau- data
-    cos_theta_tau = [x[i] for x in cos_theta_tau_p] + [x[i] for x in cos_theta_tau_m]
-    cos_theta_pion = [x[i] for x in cos_theta_pion_p] + [x[i] for x in cos_theta_pion_m]
-    
-    # Plot correlation
-    plot_2d_cos_theta_correlation(cos_theta_tau, cos_theta_pion, component)
+# Plot correlations for each cos theta component
+for component, label in [('r', r'$\cos\theta_r$'), ('n', r'$\cos\theta_n$'), ('k', r'$\cos\theta_k$')]:
+    # Tau+
+    plot_2d_correlation(
+        cos_theta_r_p_truth, cos_theta_r_p_reco,
+        xlabel=f'Truth {label}',
+        ylabel=f'Reconstructed {label}',
+        title=f'Truth vs Reconstructed {label} for Tau+'
+    )
+    # Tau-
+    plot_2d_correlation(
+        cos_theta_r_m_truth, cos_theta_r_m_reco,
+        xlabel=f'Truth {label}',
+        ylabel=f'Reconstructed {label}',
+        title=f'Truth vs Reconstructed {label} for Tau-'
+    )
 
 # Calculate spin correlation matrix C_ij
 def calculate_spin_correlation(cos_theta_r_p, cos_theta_n_p, cos_theta_k_p,
@@ -339,19 +337,6 @@ print("   " + "   ".join(labels))
 for i in range(3):
     print(f"{labels[i]} {C_reco[i]}")
 
-def calculate_cos_theta_correlations(truth_values, reco_values, labels):
-    """Calculate correlation matrix between truth and reconstructed cos theta values"""
-    # Initialize correlation matrix
-    C = np.zeros((len(labels), len(labels)))
-    
-    # Calculate correlations for each pair of axes
-    for i in range(len(labels)):
-        for j in range(len(labels)):
-            # Calculate Pearson correlation coefficient
-            C[i,j] = np.corrcoef(truth_values[i], reco_values[j])[0,1]
-            
-    return C
-
 # Prepare data for correlation matrix
 truth_cos_theta = {
     'tau+': [cos_theta_r_p_truth, cos_theta_n_p_truth, cos_theta_k_p_truth],
@@ -362,31 +347,4 @@ reco_cos_theta = {
     'tau+': [cos_theta_r_p_reco, cos_theta_n_p_reco, cos_theta_k_p_reco],
     'tau-': [cos_theta_r_m_reco, cos_theta_n_m_reco, cos_theta_k_m_reco]
 }
-
-labels = ['r', 'n', 'k']
-
-# Plot correlation matrices for tau+ and tau-
-for tau_type in ['tau+', 'tau-']:
-    C = calculate_cos_theta_correlations(truth_cos_theta[tau_type], reco_cos_theta[tau_type], labels)
-    
-    fig, ax = plt.subplots(figsize=(8, 6))
-    im = ax.imshow(C, cmap='coolwarm', vmin=-1, vmax=1)
-    
-    # Add labels
-    ax.set_xticks(np.arange(len(labels)))
-    ax.set_yticks(np.arange(len(labels)))
-    ax.set_xticklabels([f'Truth {l}' for l in labels])
-    ax.set_yticklabels([f'Reco {l}' for l in labels])
-    
-    # Add values to each cell
-    for i in range(len(labels)):
-        for j in range(len(labels)):
-            text = ax.text(j, i, f"{C[i,j]:.2f}",
-                         ha="center", va="center", color="w")
-    
-    ax.set_title(f'Cos Theta Correlation Matrix ({tau_type})')
-    fig.colorbar(im, label='Correlation Coefficient')
-    plt.tight_layout()
-    plt.savefig(f'plots/cos_theta_correlation_matrix_{tau_type}.png')
-    plt.close()
 
