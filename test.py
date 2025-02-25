@@ -144,12 +144,19 @@ def reconstruct_neutrino_momenta(p_pi_p_reco, p_pi_m_reco, MET_x, MET_y,
     
     initial_guess = [*nu_p_xy, 5.0, *nu_m_xy, -5.0]
 
-    # Use L-BFGS-B with bounds to prevent unphysical solutions
-    bounds = [(0, None)] * 6  # All momentum components must be >= 0
-    result = opt.minimize(
-        chi_squared_nu, initial_guess,
-        args=(p_pi_p_reco, p_pi_m_reco, MET_x, MET_y, sigma_tau, sigma_z, sigma_met),
-        method="BFGS"
+    # Use least_squares with bounds to prevent unphysical solutions
+    bounds = ([0, 0, 0, 0, 0, 0], [np.inf, np.inf, np.inf, np.inf, np.inf, np.inf])
+    result = opt.least_squares(
+        lambda x: [
+            (M_TAU**2 - ((p_pi_p_reco + [np.linalg.norm(x[:3]), *x[:3]])[0]**2 - np.sum((p_pi_p_reco + [np.linalg.norm(x[:3]), *x[:3]])[1:]**2))) / sigma_tau,
+            (M_TAU**2 - ((p_pi_m_reco + [np.linalg.norm(x[3:]), *x[3:]])[0]**2 - np.sum((p_pi_m_reco + [np.linalg.norm(x[3:]), *x[3:]])[1:]**2))) / sigma_tau,
+            (x[0] + x[3] - MET_x) / sigma_met,
+            (x[1] + x[4] - MET_y) / sigma_met,
+            (M_Z**2 - ((p_pi_p_reco + [np.linalg.norm(x[:3]), *x[:3]] + p_pi_m_reco + [np.linalg.norm(x[3:]), *x[3:]])[0]**2 - 
+              np.sum((p_pi_p_reco + [np.linalg.norm(x[:3]), *x[:3]] + p_pi_m_reco + [np.linalg.norm(x[3:]), *x[3:]])[1:]**2))) / sigma_z
+        ],
+        initial_guess,
+        bounds=bounds
     )
 
     p_nu_p_opt = np.array([np.linalg.norm(result.x[:3]), *result.x[:3]])
