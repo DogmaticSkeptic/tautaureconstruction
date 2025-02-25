@@ -113,8 +113,8 @@ def reconstruct_neutrino_momenta(p_pi_p_reco, p_pi_m_reco, MET_x, MET_y,
     pi_m_dir = p_pi_m_reco[1:3] / np.linalg.norm(p_pi_m_reco[1:3])
     
     # Initial guess: half of MET in opposite direction of corresponding pion
-    nu_p_xy = -0.5 * MET_x * pi_p_dir[0], -0.5 * MET_y * pi_p_dir[1]
-    nu_m_xy = -0.5 * MET_x * pi_m_dir[0], -0.5 * MET_y * pi_m_dir[1]
+    nu_p_xy = 0.5 * MET_x * pi_p_dir[0], 0.5 * MET_y * pi_p_dir[1]
+    nu_m_xy = 0.5 * MET_x * pi_m_dir[0], 0.5 * MET_y * pi_m_dir[1]
     
     initial_guess = [*nu_p_xy, 5.0, *nu_m_xy, -5.0]
 
