@@ -282,6 +282,55 @@ def plot_neg_one_uncertainty_events(truth_values, reco_values, reco_neutrino_mom
     plt.savefig(f'plots/{filename}')
     plt.close()
 
+def plot_truth_reco_comparison(truth_values, reco_values, component, particle_type, charge):
+    """Plot comparison of truth vs reconstructed momentum components"""
+    plt.figure(figsize=(10, 6))
+    
+    # Create bins based on data range
+    all_values = truth_values + reco_values
+    xlim = (min(all_values), max(all_values))
+    bins = 50
+    bin_edges = np.linspace(xlim[0], xlim[1], bins + 1)
+    
+    plt.hist(truth_values, bins=bin_edges, alpha=0.7, label='Truth')
+    plt.hist(reco_values, bins=bin_edges, alpha=0.7, label='Reconstructed')
+    
+    plt.xlabel(f'{component} (GeV)')
+    plt.ylabel('Count')
+    plt.title(f'Truth vs Reconstructed {component} for {particle_type}{charge}')
+    plt.legend()
+    plt.grid(True)
+    filename = f'truth_reco_comp_{particle_type}_{charge}_{component}.png'
+    plt.savefig(f'plots/{filename}')
+    plt.close()
+
+def plot_met_components(MET, particle_type, charge):
+    """Plot MET x and y components"""
+    met_x = [m.px for m in MET]
+    met_y = [m.py for m in MET]
+    
+    # Create figure with 2 subplots
+    fig, axes = plt.subplots(2, 1, figsize=(10, 10))
+    
+    # Plot MET x
+    axes[0].hist(met_x, bins=50, alpha=0.7)
+    axes[0].set_xlabel('MET_x (GeV)')
+    axes[0].set_ylabel('Count')
+    axes[0].set_title(f'MET_x Distribution for {particle_type}{charge}')
+    axes[0].grid(True)
+    
+    # Plot MET y
+    axes[1].hist(met_y, bins=50, alpha=0.7)
+    axes[1].set_xlabel('MET_y (GeV)')
+    axes[1].set_ylabel('Count')
+    axes[1].set_title(f'MET_y Distribution for {particle_type}{charge}')
+    axes[1].grid(True)
+    
+    plt.tight_layout()
+    filename = f'met_components_{particle_type}_{charge}.png'
+    plt.savefig(f'plots/{filename}')
+    plt.close()
+
 def plot_high_chi2_momenta(chi2_values, reco_neutrino_momenta, threshold=1e6):
     """Plot momentum components for events with chi-square above threshold"""
     high_chi2_indices = [i for i, chi2 in enumerate(chi2_values) if chi2 > threshold]
@@ -396,6 +445,7 @@ for component, idx in [('px', 1), ('py', 2), ('pz', 3)]:
     reco_p = [reco_neutrino_momenta[i][0][idx] for i in range(n_events)]
     plot_relative_uncertainty(truth_p, reco_p, component, 'Neutrino', '+')
     plot_momentum_comparison(truth_p, reco_p, component, 'Neutrino', '+')
+    plot_truth_reco_comparison(truth_p, reco_p, component, 'Neutrino', '+')
     plot_neg_one_uncertainty_events(truth_p, reco_p, reco_neutrino_momenta, MET, component, 'Neutrino', '+')
 
     # Neutrino-
@@ -403,4 +453,9 @@ for component, idx in [('px', 1), ('py', 2), ('pz', 3)]:
     reco_m = [reco_neutrino_momenta[i][1][idx] for i in range(n_events)]
     plot_relative_uncertainty(truth_m, reco_m, component, 'Neutrino', '-')
     plot_momentum_comparison(truth_m, reco_m, component, 'Neutrino', '-')
+    plot_truth_reco_comparison(truth_m, reco_m, component, 'Neutrino', '-')
     plot_neg_one_uncertainty_events(truth_m, reco_m, reco_neutrino_momenta, MET, component, 'Neutrino', '-')
+
+# Plot MET components
+plot_met_components(MET, 'Neutrino', '+')
+plot_met_components(MET, 'Neutrino', '-')
