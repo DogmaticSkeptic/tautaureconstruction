@@ -47,6 +47,29 @@ def plot_relative_uncertainty(truth_values, reco_values, component, particle_typ
     plt.savefig(f'plots/{filename}')
     plt.close()
 
+def plot_momentum_comparison(truth_values, reco_values, component, particle_type, charge, bins=50, xlim=None):
+    """Plot comparison of truth vs reconstructed momentum distributions"""
+    plt.figure(figsize=(10, 6))
+    
+    # Create bins based on data range if xlim not specified
+    if xlim is None:
+        all_values = truth_values + reco_values
+        xlim = (min(all_values), max(all_values))
+    
+    bin_edges = np.linspace(xlim[0], xlim[1], bins + 1)
+    
+    plt.hist(truth_values, bins=bin_edges, alpha=0.7, label='Truth', density=True)
+    plt.hist(reco_values, bins=bin_edges, alpha=0.7, label='Reconstructed', density=True)
+    
+    plt.xlabel(f'{component} (GeV)')
+    plt.ylabel('Normalized Count')
+    plt.title(rf'{component} Distribution for {particle_type}{charge}')
+    plt.legend()
+    plt.grid(True)
+    filename = f'momentum_comp_{particle_type}_{charge}_{component}.png'
+    plt.savefig(f'plots/{filename}')
+    plt.close()
+
 def chi_squared_nu(neutrino_params, p_pi_p, p_pi_m, MET_x, MET_y, 
                    sigma_tau=0.001, sigma_z=0.002, sigma_met=0.01):
     """Chi-squared function for neutrino momentum reconstruction"""
@@ -130,8 +153,10 @@ for component, idx in [('px', 1), ('py', 2), ('pz', 3)]:
     truth_p = [truth_data[i][4][idx] for i in range(n_events)]
     reco_p = [reco_neutrino_momenta[i][0][idx] for i in range(n_events)]
     plot_relative_uncertainty(truth_p, reco_p, component, 'Neutrino', '+')
+    plot_momentum_comparison(truth_p, reco_p, component, 'Neutrino', '+')
 
     # Neutrino-
     truth_m = [truth_data[i][5][idx] for i in range(n_events)]
     reco_m = [reco_neutrino_momenta[i][1][idx] for i in range(n_events)]
     plot_relative_uncertainty(truth_m, reco_m, component, 'Neutrino', '-')
+    plot_momentum_comparison(truth_m, reco_m, component, 'Neutrino', '-')
