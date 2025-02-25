@@ -2,6 +2,37 @@ import matplotlib.pyplot as plt
 import numpy as np
 import scipy.optimize as opt
 
+
+def define_coordinate_system(p_tau):
+    """Define the {r^, n^, k^} coordinate system in the tau tau rest frame"""
+    # k^ is the flight direction of tau- in the tau tau rest frame
+    k_hat = p_tau[1:] / np.linalg.norm(p_tau[1:])
+    
+    # p^ is the direction of one of the e± beams (assume z-axis)
+    p_hat = np.array([0, 0, 1])
+    
+    # r^ = (p^ - k^ * cosΘ) / sinΘ
+    cos_theta = np.dot(k_hat, p_hat)
+    sin_theta = np.sqrt(1 - cos_theta**2)
+    r_hat = (p_hat - k_hat * cos_theta) / sin_theta
+    
+    # n^ = k^ × r^
+    n_hat = np.cross(k_hat, r_hat)
+    
+    return r_hat, n_hat, k_hat
+
+def compute_cos_theta(p_pion, r_hat, n_hat, k_hat):
+    """Calculate cos theta for each axis in the rest frame"""
+    # Normalize the pion momentum vector
+    p_pion_norm = p_pion[1:] / np.linalg.norm(p_pion[1:])
+    
+    # Calculate cos theta for each axis
+    cos_theta_r = np.dot(p_pion_norm, r_hat)
+    cos_theta_n = np.dot(p_pion_norm, n_hat)
+    cos_theta_k = np.dot(p_pion_norm, k_hat)
+    
+    return cos_theta_r, cos_theta_n, cos_theta_k
+
 def compute_four_momentum(vec):
     """Compute four-momentum from particle vector"""
     px, py, pz, m = vec.px, vec.py, vec.pz, vec.mass
@@ -13,9 +44,9 @@ def compute_four_momentum(vec):
 # Constants
 M_TAU = 1.776  # Tau mass in GeV
 M_Z = 91.1876  # Z-boson mass in GeV
-SIGMA_TAU = 0.001  # Tau mass uncertainty (GeV)
-SIGMA_MET = 0.01  # MET uncertainty (GeV)
-SIGMA_Z = 0.002  # Z mass uncertainty (GeV)
+SIGMA_TAU = 0.05  # Tau mass uncertainty (GeV)
+SIGMA_MET = 0.02822  # MET uncertainty (GeV)
+SIGMA_Z = 0.0045  # Z mass uncertainty (GeV)
 
 
 # Physics functions
@@ -100,17 +131,8 @@ def reconstruct_neutrino_momenta(p_pi_p_reco, p_pi_m_reco, MET_x, MET_y,
 
     return p_nu_p_opt, p_nu_m_opt
 
-
-import os
-
-def ensure_plots_dir():
-    """Ensure the plots directory exists"""
-    if not os.path.exists('plots'):
-        os.makedirs('plots')
-
 def plot_comparison_with_ratio(truth_values, reco_values, xlabel, title, bins=50, xlim=None):
     """Plot histograms with ratio plot below and save to file"""
-    ensure_plots_dir()
     truth_values = np.array(truth_values)
     reco_values = np.array(reco_values)
     valid_mask = ~np.isnan(truth_values) & ~np.isnan(reco_values)
@@ -152,136 +174,16 @@ def plot_comparison_with_ratio(truth_values, reco_values, xlabel, title, bins=50
     plt.savefig(f'plots/{filename}')
     plt.close()
 
-def chi_squared_collinear(params, p_pi_p, p_pi_m, MET_x, MET_y):
-    """Chi-squared function for collinear neutrino momentum reconstruction"""
-    alpha, beta = params
-    
-    # Reconstructed neutrino momenta (collinear with pions)
-    p_nu_p = np.array([alpha*np.linalg.norm(p_pi_p[1:]), alpha*p_pi_p[1], alpha*p_pi_p[2], alpha*p_pi_p[3]])
-    p_nu_m = np.array([beta*np.linalg.norm(p_pi_m[1:]), beta*p_pi_m[1], beta*p_pi_m[2], beta*p_pi_m[3]])
-
-    # Tau+ calculations
-    p_tau_p = p_pi_p + p_nu_p
-    chi2_tau_p = ((M_TAU**2 - (p_tau_p[0]**2 - np.sum(p_tau_p[1:]**2)))**2) / SIGMA_TAU**2
-    
-    # Tau- calculations
-    p_tau_m = p_pi_m + p_nu_m
-    chi2_tau_m = ((M_TAU**2 - (p_tau_m[0]**2 - np.sum(p_tau_m[1:]**2)))**2) / SIGMA_TAU**2
-
-    # MET constraints
-    chi2_MET_x = ((p_nu_p[1] + p_nu_m[1] - MET_x)**2) / SIGMA_MET**2
-    chi2_MET_y = ((p_nu_p[2] + p_nu_m[2] - MET_y)**2) / SIGMA_MET**2
-
-    # Combined Z system
-    p_Z = p_tau_p + p_tau_m
-    chi2_Z_mass = ((M_Z**2 - (p_Z[0]**2 - np.sum(p_Z[1:]**2)))**2) / SIGMA_Z**2
-
-    # Print individual terms (commented out)
-    # print(f"\nChi2 terms for alpha={alpha:.3f}, beta={beta:.3f}:")
-    # print(f"Tau+: {chi2_tau_p:.2f}")
-    # print(f"Tau-: {chi2_tau_m:.2f}") 
-    # print(f"Z: {chi2_Z_mass:.2f}")
-    # print(f"MET: {chi2_MET_x + chi2_MET_y:.2f}")
-
-    return chi2_tau_p + chi2_tau_m + chi2_MET_x + chi2_MET_y + chi2_Z_mass
-
-def reconstruct_neutrino_collinear(p_pi_p_reco, p_pi_m_reco, MET_x, MET_y):
-    """Collinear approximation reconstruction"""
-    # Calculate initial guesses for alpha and beta based on MET
-    p_pi_p_px, p_pi_p_py = p_pi_p_reco[1], p_pi_p_reco[2]
-    p_pi_m_px, p_pi_m_py = p_pi_m_reco[1], p_pi_m_reco[2]
-    
-    # Solve for alpha and beta that would match MET exactly
-    # alpha*p_pi_p_px + beta*p_pi_m_px = MET_x
-    # alpha*p_pi_p_py + beta*p_pi_m_py = MET_y
-    A = np.array([[p_pi_p_px, p_pi_m_px],
-                 [p_pi_p_py, p_pi_m_py]])
-    b = np.array([MET_x, MET_y])
-    
-    try:
-        alpha_init, beta_init = np.linalg.solve(A, b)
-        # Ensure positive values and reasonable range
-        alpha_init = max(0.1, min(1.0, alpha_init))
-        beta_init = max(0.1, min(1.0, beta_init))
-        #print(alpha_init, beta_init)
-    except np.linalg.LinAlgError:
-        # Fallback if matrix is singular
-        alpha_init, beta_init = 0.5, 0.5
-    
-    # Use L-BFGS-B with bounds for collinear method
-    bounds = [(0.1, 10.0), (0.1, 10.0)]  # Reasonable bounds for alpha and beta
-    result = opt.minimize(chi_squared_collinear, [alpha_init, beta_init],
-                        args=(p_pi_p_reco, p_pi_m_reco, MET_x, MET_y),
-                        method='L-BFGS-B',
-                        bounds=bounds,
-                        options={'maxiter': 1000, 'ftol': 1e-8})
-    
-    alpha, beta = result.x
-    p_nu_p = np.array([alpha*np.linalg.norm(p_pi_p_reco[1:]), 
-                      alpha*p_pi_p_reco[1], 
-                      alpha*p_pi_p_reco[2], 
-                      alpha*p_pi_p_reco[3]])
-    p_nu_m = np.array([beta*np.linalg.norm(p_pi_m_reco[1:]),
-                      beta*p_pi_m_reco[1],
-                      beta*p_pi_m_reco[2],
-                      beta*p_pi_m_reco[3]])
-    return p_nu_p, p_nu_m
-
-def plot_residual_comparison(residuals1, residuals2, xlabel, title, truth_values, bins=50, xlim=(-3, 3)):
-    """Plot relative uncertainty histograms comparing two methods"""
-    ensure_plots_dir()
-    epsilon = 1e-6  # Small value to avoid division by zero/vanishingly small values
-    
-    # Calculate relative uncertainties with protection against small truth values
-    rel_residuals1 = []
-    rel_residuals2 = []
-    for r1, r2, truth in zip(residuals1, residuals2, truth_values):
-        denominator = max(abs(truth), epsilon) * (1 if truth >= 0 else -1)
-        rel_residuals1.append(r1 / denominator)
-        rel_residuals2.append(r2 / denominator)
-    
-    plt.figure(figsize=(10,6))
-    plt.hist(rel_residuals1, bins=bins, range=xlim, 
-            alpha=0.5, label='Original Method')
-    plt.hist(rel_residuals2, bins=bins, range=xlim,
-            alpha=0.5, label='Collinear Method')
-    plt.xlabel(f'Relative {xlabel}')
-    plt.ylabel('Count')
-    plt.title(f'Relative {title}')
-    plt.legend()
-    filename = 'relative_uncertainty_' + title.lower().replace(' ', '_').replace('$', '') + '.png'
-    plt.savefig(f'plots/{filename}')
-    plt.close()
-
-def plot_collinearity_test(truth_pion_momenta, truth_neutrino_momenta, particle_type, charge):
-    """Plot the collinearity test between truth pions and neutrinos"""
-    ensure_plots_dir()
-    
-    # Calculate dot products of normalized 3-momenta
-    collinearity = []
-    for pion, nu in zip(truth_pion_momenta, truth_neutrino_momenta):
-        pion_3vec = pion[1:] / np.linalg.norm(pion[1:])
-        nu_3vec = nu[1:] / np.linalg.norm(nu[1:])
-        collinearity.append(np.dot(pion_3vec, nu_3vec))
-    
-    plt.figure(figsize=(10,6))
-    plt.hist(collinearity, bins=50, range=(-1,1), alpha=0.7)
-    plt.xlabel('Collinearity (cosθ)')
-    plt.ylabel('Count')
-    plt.title(f'Collinearity Test for {particle_type}{charge}')
-    plt.grid(True)
-    filename = f'collinearity_test_{particle_type}_{charge}.png'
-    plt.savefig(f'plots/{filename}')
-    plt.close()
-
 def plot_relative_uncertainty(truth_values, reco_values, component, particle_type, charge, bins=50, xlim=(-3, 3)):
     """Plot relative uncertainties between truth and reconstructed values and save to file"""
-    ensure_plots_dir()
-    epsilon = 1e-6  # Small value to avoid division by zero/vanishingly small values
-    rel_unc = []
-    for truth, reco in zip(truth_values, reco_values):
-        denominator = max(abs(truth), epsilon) * (1 if truth >= 0 else -1)
-        rel_unc.append((reco - truth) / denominator)
+    
+    # Filter out cases where truth value is 0
+    valid_data = [(t, r) for t, r in zip(truth_values, reco_values) if t != 0]
+    if not valid_data:
+        print(f"Warning: No valid data to plot for {particle_type}{charge} {component} (all truth values are 0)")
+        return
+        
+    rel_unc = [(r - t) / t for t, r in valid_data]
 
     # Create bins that span exactly the xlim range
     bin_edges = np.linspace(xlim[0], xlim[1], bins + 1)
@@ -297,31 +199,3 @@ def plot_relative_uncertainty(truth_values, reco_values, component, particle_typ
     plt.savefig(f'plots/{filename}')
     plt.close()
 
-def plot_met_assumption_comparison(truth_values, met_values, component, particle_type, charge, reco_values=None, bins=50, xlim=(-3, 3)):
-    """Plot comparison of MET/2 assumption vs truth values and original reconstruction"""
-    ensure_plots_dir()
-    
-    # Calculate residuals assuming MET/2 for each neutrino
-    met_assumption = [met/2 for met in met_values]
-    met_residuals = [t - m for t, m in zip(truth_values, met_assumption)]
-    
-    # Calculate relative uncertainties
-    met_rel_unc = [(m - t)/t if t != 0 else 0 for t, m in zip(truth_values, met_assumption)]
-    
-    # Calculate original reconstruction relative uncertainties if provided
-    if reco_values is not None:
-        reco_rel_unc = [(r - t)/t if t != 0 else 0 for t, r in zip(truth_values, reco_values)]
-
-    plt.figure(figsize=(10, 6))
-    plt.hist(met_rel_unc, bins=bins, range=xlim, alpha=0.5, label='MET/2 Assumption')
-    if reco_values is not None:
-        plt.hist(reco_rel_unc, bins=bins, range=xlim, alpha=0.5, label='Original Reconstruction')
-    plt.xlabel(f'Relative Uncertainty in {component}')
-    plt.ylabel('Count')
-    plt.title(rf'Reconstruction Methods Comparison for {particle_type}{charge} {component}')
-    plt.legend()
-    plt.xlim(xlim)
-    plt.grid(True)
-    filename = f'met_assumption_comparison_{particle_type}_{charge}_{component}.png'
-    plt.savefig(f'plots/{filename}')
-    plt.close()
