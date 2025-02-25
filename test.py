@@ -144,8 +144,7 @@ def reconstruct_neutrino_momenta(p_pi_p_reco, p_pi_m_reco, MET_x, MET_y,
     
     initial_guess = [*nu_p_xy, 5.0, *nu_m_xy, -5.0]
 
-    # Use least_squares with bounds to prevent unphysical solutions
-    bounds = ([0, 0, 0, 0, 0, 0], [np.inf, np.inf, np.inf, np.inf, np.inf, np.inf])
+    # Use least_squares without bounds
     result = opt.least_squares(
         lambda x: [
             (M_TAU**2 - ((p_pi_p_reco + [np.linalg.norm(x[:3]), *x[:3]])[0]**2 - np.sum((p_pi_p_reco + [np.linalg.norm(x[:3]), *x[:3]])[1:]**2))) / sigma_tau,
@@ -155,8 +154,7 @@ def reconstruct_neutrino_momenta(p_pi_p_reco, p_pi_m_reco, MET_x, MET_y,
             (M_Z**2 - ((p_pi_p_reco + [np.linalg.norm(x[:3]), *x[:3]] + p_pi_m_reco + [np.linalg.norm(x[3:]), *x[3:]])[0]**2 - 
               np.sum((p_pi_p_reco + [np.linalg.norm(x[:3]), *x[:3]] + p_pi_m_reco + [np.linalg.norm(x[3:]), *x[3:]])[1:]**2))) / sigma_z
         ],
-        initial_guess,
-        bounds=bounds
+        initial_guess
     )
 
     p_nu_p_opt = np.array([np.linalg.norm(result.x[:3]), *result.x[:3]])
