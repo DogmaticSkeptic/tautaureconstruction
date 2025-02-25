@@ -25,10 +25,25 @@ def compute_four_momentum(vec):
 def plot_relative_uncertainty(truth_values, reco_values, component, particle_type, charge, bins=50, xlim=(-3, 3)):
     """Plot relative uncertainties between truth and reconstructed values and save to file"""
     
-    # Filter out cases where truth value is 0
-    valid_data = [(t, r) for t, r in zip(truth_values, reco_values) if t != 0]
+    # Filter out cases where truth value is 0 and chi2 > 200
+    valid_data = []
+    for i, (t, r) in enumerate(zip(truth_values, reco_values)):
+        if t != 0:
+            # Get chi2 for this event
+            p_nu_p, p_nu_m = reco_neutrino_momenta[i]
+            p_pi_p = reco_data[i][0]
+            p_pi_m = reco_data[i][1]
+            MET_x = MET[i].px
+            MET_y = MET[i].py
+            chi2 = chi_squared_nu(
+                [p_nu_p[1], p_nu_p[2], p_nu_p[3], p_nu_m[1], p_nu_m[2], p_nu_m[3]],
+                p_pi_p, p_pi_m, MET_x, MET_y
+            )
+            if chi2 <= 200:
+                valid_data.append((t, r))
+                
     if not valid_data:
-        print(f"Warning: No valid data to plot for {particle_type}{charge} {component} (all truth values are 0)")
+        print(f"Warning: No valid data to plot for {particle_type}{charge} {component} (all truth values are 0 or chi2 > 200)")
         return
         
     rel_unc = [(r - t) / t for t, r in valid_data]
