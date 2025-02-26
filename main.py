@@ -243,19 +243,19 @@ for i in range(n_events):
     cos_theta_k_m_reco.append(cos_k_m_reco)
 
 # Plot cos theta distributions for tau+
-plot_comparison_with_ratio(cos_theta_r_p_truth, cos_theta_r_p_reco, xlabel=r'$\cos\theta_r$',
+plot_comparison_with_ratio(cos_theta_r_p_truth, cos_theta_r_p_reco, chi2_values, xlabel=r'$\cos\theta_r$',
                           title=r'$\cos\theta_r$ Distribution for Tau+', bins=50, xlim=(-1, 1))
-plot_comparison_with_ratio(cos_theta_n_p_truth, cos_theta_n_p_reco, xlabel=r'$\cos\theta_n$',
+plot_comparison_with_ratio(cos_theta_n_p_truth, cos_theta_n_p_reco, chi2_values, xlabel=r'$\cos\theta_n$',
                           title=r'$\cos\theta_n$ Distribution for Tau+', bins=50, xlim=(-1, 1))
-plot_comparison_with_ratio(cos_theta_k_p_truth, cos_theta_k_p_reco, xlabel=r'$\cos\theta_k$',
+plot_comparison_with_ratio(cos_theta_k_p_truth, cos_theta_k_p_reco, chi2_values, xlabel=r'$\cos\theta_k$',
                           title=r'$\cos\theta_k$ Distribution for Tau+', bins=50, xlim=(-1, 1))
 
 # Plot cos theta distributions for tau-
-plot_comparison_with_ratio(cos_theta_r_m_truth, cos_theta_r_m_reco, xlabel=r'$\cos\theta_r$',
+plot_comparison_with_ratio(cos_theta_r_m_truth, cos_theta_r_m_reco, chi2_values, xlabel=r'$\cos\theta_r$',
                           title=r'$\cos\theta_r$ Distribution for Tau-', bins=50, xlim=(-1, 1))
-plot_comparison_with_ratio(cos_theta_n_m_truth, cos_theta_n_m_reco, xlabel=r'$\cos\theta_n$',
+plot_comparison_with_ratio(cos_theta_n_m_truth, cos_theta_n_m_reco, chi2_values, xlabel=r'$\cos\theta_n$',
                           title=r'$\cos\theta_n$ Distribution for Tau-', bins=50, xlim=(-1, 1))
-plot_comparison_with_ratio(cos_theta_k_m_truth, cos_theta_k_m_reco, xlabel=r'$\cos\theta_k$',
+plot_comparison_with_ratio(cos_theta_k_m_truth, cos_theta_k_m_reco, chi2_values, xlabel=r'$\cos\theta_k$',
                           title=r'$\cos\theta_k$ Distribution for Tau-', bins=50, xlim=(-1, 1))
 
 # Plot 2D correlation plots for cos theta observables
