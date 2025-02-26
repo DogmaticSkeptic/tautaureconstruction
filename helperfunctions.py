@@ -48,6 +48,7 @@ M_Z = 91.1876  # Z-boson mass in GeV
 SIGMA_TAU = 0.05  # Tau mass uncertainty (GeV)
 SIGMA_MET = 0.02822  # MET uncertainty (GeV)
 SIGMA_Z = 0.0045  # Z mass uncertainty (GeV)
+CHI2_THRESHOLD = 100000  # Maximum allowed chi-square value for reconstruction
 
 
 # Physics functions
@@ -138,10 +139,10 @@ def plot_comparison_with_ratio(truth_values, reco_values, chi2_values, xlabel, t
     reco_values = np.array(reco_values)
     chi2_values = np.array(chi2_values)
     
-    # Filter out points with chi2 > 1e6
+    # Filter out points with chi2 above threshold
     valid_mask = (~np.isnan(truth_values) & 
                   ~np.isnan(reco_values) & 
-                  (chi2_values <= 1e6))
+                  (chi2_values <= CHI2_THRESHOLD))
     
     truth_values = truth_values[valid_mask]
     reco_values = reco_values[valid_mask]
@@ -199,9 +200,9 @@ def plot_2d_cos_theta_correlation(cos_theta_tau, cos_theta_pion, component, bins
 def plot_relative_uncertainty(truth_values, reco_values, chi2_values, component, particle_type, charge, bins=50, xlim=(-3, 3)):
     """Plot relative uncertainties between truth and reconstructed values and save to file"""
     
-    # Filter out cases where truth value is 0 and chi2 > 1e6
+    # Filter out cases where truth value is 0 and chi2 above threshold
     valid_data = [(t, r) for t, r, chi2 in zip(truth_values, reco_values, chi2_values) 
-                 if t != 0 and chi2 <= 1e6]
+                 if t != 0 and chi2 <= CHI2_THRESHOLD]
     if not valid_data:
         print(f"Warning: No valid data to plot for {particle_type}{charge} {component} (all truth values are 0)")
         return

@@ -305,11 +305,11 @@ def fit_spin_correlation_component(cos_theta_A, cos_theta_B, chi2_values):
     """Fit a single C_ij component using the spin correlation model"""
     from scipy.optimize import curve_fit
     
-    # Filter out points with chi2 > 1e6
+    # Filter out points with chi2 above threshold
     filtered_A = []
     filtered_B = []
     for a, b, chi2 in zip(cos_theta_A, cos_theta_B, chi2_values):
-        if chi2 <= 1e6:
+        if chi2 <= CHI2_THRESHOLD:
             filtered_A.append(a)
             filtered_B.append(b)
     
