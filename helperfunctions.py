@@ -196,11 +196,12 @@ def plot_2d_cos_theta_correlation(cos_theta_tau, cos_theta_pion, component, bins
     plt.savefig(f'plots/cos_theta_{component}_correlation.png')
     plt.close()
 
-def plot_relative_uncertainty(truth_values, reco_values, component, particle_type, charge, bins=50, xlim=(-3, 3)):
+def plot_relative_uncertainty(truth_values, reco_values, chi2_values, component, particle_type, charge, bins=50, xlim=(-3, 3)):
     """Plot relative uncertainties between truth and reconstructed values and save to file"""
     
-    # Filter out cases where truth value is 0
-    valid_data = [(t, r) for t, r in zip(truth_values, reco_values) if t != 0]
+    # Filter out cases where truth value is 0 and chi2 > 1e6
+    valid_data = [(t, r) for t, r, chi2 in zip(truth_values, reco_values, chi2_values) 
+                 if t != 0 and chi2 <= 1e6]
     if not valid_data:
         print(f"Warning: No valid data to plot for {particle_type}{charge} {component} (all truth values are 0)")
         return

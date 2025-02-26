@@ -148,12 +148,12 @@ for component, idx in [('px', 1), ('py', 2), ('pz', 3)]:
     # Tau+
     truth_p = [truth_data[i][0][idx] for i in range(n_events)]
     reco_p = [reco_tau_momenta[i][0][idx] for i in range(n_events)]
-    plot_relative_uncertainty(truth_p, reco_p, component, 'Tau', '+')
+    plot_relative_uncertainty(truth_p, reco_p, chi2_values, component, 'Tau', '+')
 
     # Tau-
     truth_m = [truth_data[i][1][idx] for i in range(n_events)]
     reco_m = [reco_tau_momenta[i][1][idx] for i in range(n_events)]
-    plot_relative_uncertainty(truth_m, reco_m, component, 'Tau', '-')
+    plot_relative_uncertainty(truth_m, reco_m, chi2_values, component, 'Tau', '-')
 
 
 # Test collinearity assumption with truth data
@@ -167,12 +167,12 @@ for component, idx in [('px', 1), ('py', 2), ('pz', 3)]:
     # Neutrino+
     truth_p = [truth_data[i][4][idx] for i in range(n_events)]
     reco_p = [reco_neutrino_momenta[i][0][idx] for i in range(n_events)]
-    plot_relative_uncertainty(truth_p, reco_p, component, 'Neutrino', '+')
+    plot_relative_uncertainty(truth_p, reco_p, chi2_values, component, 'Neutrino', '+')
 
     # Neutrino-
     truth_m = [truth_data[i][5][idx] for i in range(n_events)]
     reco_m = [reco_neutrino_momenta[i][1][idx] for i in range(n_events)]
-    plot_relative_uncertainty(truth_m, reco_m, component, 'Neutrino', '-')
+    plot_relative_uncertainty(truth_m, reco_m, chi2_values, component, 'Neutrino', '-')
 
 # Calculate cos theta distributions for tau+ and tau-
 cos_theta_r_p_truth = []
@@ -301,12 +301,20 @@ def spin_correlation_model(x, C_ij):
     """Model for spin correlation fit"""
     return -0.5 * (1 + C_ij * x) * np.log(np.abs(x) + 1e-10)
 
-def fit_spin_correlation_component(cos_theta_A, cos_theta_B):
+def fit_spin_correlation_component(cos_theta_A, cos_theta_B, chi2_values):
     """Fit a single C_ij component using the spin correlation model"""
     from scipy.optimize import curve_fit
     
+    # Filter out points with chi2 > 1e6
+    filtered_A = []
+    filtered_B = []
+    for a, b, chi2 in zip(cos_theta_A, cos_theta_B, chi2_values):
+        if chi2 <= 1e6:
+            filtered_A.append(a)
+            filtered_B.append(b)
+    
     # Calculate x = cos_theta_A * cos_theta_B
-    x = np.array([a*b for a,b in zip(cos_theta_A, cos_theta_B)])
+    x = np.array([a*b for a,b in zip(filtered_A, filtered_B)])
     
     # Create histogram of x values
     hist, bin_edges = np.histogram(x, bins=50, range=(-1,1))
@@ -331,7 +339,7 @@ def fit_spin_correlation_component(cos_theta_A, cos_theta_B):
         return 0.0  # Return 0 if fit fails
 
 def calculate_spin_correlation(cos_theta_r_p, cos_theta_n_p, cos_theta_k_p,
-                              cos_theta_r_m, cos_theta_n_m, cos_theta_k_m):
+                              cos_theta_r_m, cos_theta_n_m, cos_theta_k_m, chi2_values):
     """Calculate spin correlation matrix using fitting method"""
     # Initialize correlation matrix
     C = np.zeros((3, 3))
@@ -347,7 +355,7 @@ def calculate_spin_correlation(cos_theta_r_p, cos_theta_n_p, cos_theta_k_p,
     for i in range(3):
         for j in range(3):
             print(f"\nFitting C_{axis_labels[i]}{axis_labels[j]} component...")
-            C[i,j] = fit_spin_correlation_component(axes_p[i], axes_m[j])
+            C[i,j] = fit_spin_correlation_component(axes_p[i], axes_m[j], chi2_values)
             print(f"  Fitted value: {C[i,j]:.4f}")
             
     print("\nSpin correlation matrix calculation complete!")
@@ -355,14 +363,14 @@ def calculate_spin_correlation(cos_theta_r_p, cos_theta_n_p, cos_theta_k_p,
 
 # Calculate and print correlation matrix for truth and reconstructed values
 C_truth, labels = calculate_spin_correlation(cos_theta_r_p_truth, cos_theta_n_p_truth, cos_theta_k_p_truth,
-                                            cos_theta_r_m_truth, cos_theta_n_m_truth, cos_theta_k_m_truth)
+                                            cos_theta_r_m_truth, cos_theta_n_m_truth, cos_theta_k_m_truth, chi2_values)
 print("Truth Spin Correlation Matrix:")
 print("   " + "   ".join(labels))
 for i in range(3):
     print(f"{labels[i]} {C_truth[i]}")
 
 C_reco, labels = calculate_spin_correlation(cos_theta_r_p_reco, cos_theta_n_p_reco, cos_theta_k_p_reco,
-                                           cos_theta_r_m_reco, cos_theta_n_m_reco, cos_theta_k_m_reco)
+                                           cos_theta_r_m_reco, cos_theta_n_m_reco, cos_theta_k_m_reco, chi2_values)
 print("\nReconstructed Spin Correlation Matrix:")
 print("   " + "   ".join(labels))
 for i in range(3):
