@@ -8,13 +8,13 @@ import helperfunctions as hf
 
 NUM_CPUS = 12
 GRID_POINTS = 10
-N_EVENTS = 1000  # Use first 1000 events
+N_EVENTS = 1000 # Use first 1000 events
 
 def generate_grid():
     """Generate 3D grid of sigma values"""
     return list(itertools.product(
         np.linspace(0.001, 0.05, GRID_POINTS),  # SIGMA_TAU
-        np.linspace(0.001, 0.05, GRID_POINTS),  # SIGMA_Z
+        np.linspace(0.0001, 0.01, GRID_POINTS),  # SIGMA_Z
         np.linspace(0.001, 0.05, GRID_POINTS)   # SIGMA_MET
     ))
 
