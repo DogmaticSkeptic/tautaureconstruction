@@ -127,6 +127,10 @@ def reconstruct_neutrino_momenta(p_pi_p_reco, p_pi_m_reco, MET_x, MET_y,
         method="BFGS"
     )
 
+    # Check if chi-square is too large
+    if result.fun > 1e6:
+        return np.array([np.nan, np.nan, np.nan, np.nan]), np.array([np.nan, np.nan, np.nan, np.nan])
+
     p_nu_p_opt = np.array([np.linalg.norm(result.x[:3]), *result.x[:3]])
     p_nu_m_opt = np.array([np.linalg.norm(result.x[3:]), *result.x[3:]])
 
