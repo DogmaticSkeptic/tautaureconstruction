@@ -102,21 +102,21 @@ for i in range(n_events):
 plot_comparison_with_ratio(truth_eta_p, reco_eta_p, chi2_values, xlabel=r'Pseudorapidity $\eta$',
                           title=r'Truth vs. Reconstructed Neutrino+ Pseudorapidity $\eta$',
                           xlim=(-3.5, 3.5))
-plot_comparison_with_ratio(truth_eta_m, reco_eta_m, xlabel=r'Pseudorapidity $\eta$',
+plot_comparison_with_ratio(truth_eta_m, reco_eta_m, chi2_values, xlabel=r'Pseudorapidity $\eta$',
                           title=r'Truth vs. Reconstructed Neutrino- Pseudorapidity $\eta$',
                           xlim=(-3.5, 3.5))
 
 # Plot phi for positive and negative neutrinos
-plot_comparison_with_ratio(truth_phi_p, reco_phi_p, xlabel=r'Azimuthal Angle $\phi$ (radians)',
+plot_comparison_with_ratio(truth_phi_p, reco_phi_p, chi2_values, xlabel=r'Azimuthal Angle $\phi$ (radians)',
                           title=r'Truth vs. Reconstructed Neutrino+ $\phi$ (radians)')
-plot_comparison_with_ratio(truth_phi_m, reco_phi_m, xlabel=r'Azimuthal Angle $\phi$ (radians)',
+plot_comparison_with_ratio(truth_phi_m, reco_phi_m, chi2_values, xlabel=r'Azimuthal Angle $\phi$ (radians)',
                           title=r'Truth vs. Reconstructed Neutrino- $\phi$ (radians)')
 
 # Plot transverse momentum (pT) for positive and negative neutrinos
-plot_comparison_with_ratio(truth_pT_p, reco_pT_p, xlabel=r'Transverse Momentum $p_T$ (GeV)',
+plot_comparison_with_ratio(truth_pT_p, reco_pT_p, chi2_values, xlabel=r'Transverse Momentum $p_T$ (GeV)',
                           title=r'Truth vs. Reconstructed Neutrino+ Transverse Momentum',
                           bins=50, xlim=(0, 100))
-plot_comparison_with_ratio(truth_pT_m, reco_pT_m, xlabel=r'Transverse Momentum $p_T$ (GeV)',
+plot_comparison_with_ratio(truth_pT_m, reco_pT_m, chi2_values, xlabel=r'Transverse Momentum $p_T$ (GeV)',
                           title=r'Truth vs. Reconstructed Neutrino- Transverse Momentum',
                           bins=50, xlim=(0, 100))
 
