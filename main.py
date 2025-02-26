@@ -60,7 +60,9 @@ def reconstruct_event(args):
 
 # Use multiprocessing with NUM_CPUS CPUs for both methods
 with Pool(processes=NUM_CPUS) as pool:
-    reco_neutrino_momenta = list(tqdm(pool.imap(reconstruct_event, reco_args), total=n_events))
+    reco_results = list(tqdm(pool.imap(reconstruct_event, reco_args), total=n_events))
+    reco_neutrino_momenta = [r[:2] for r in reco_results]  # Extract momenta
+    chi2_values = [r[2] for r in reco_results]  # Extract chi2 values
 
 # Collect truth and reconstructed values separated by charge
 truth_eta_p = []
@@ -97,7 +99,7 @@ for i in range(n_events):
     reco_pT_m.append(compute_pT(reco_neutrino_momenta[i][1]))
 
 # Plot pseudorapidity (eta) for positive and negative neutrinos
-plot_comparison_with_ratio(truth_eta_p, reco_eta_p, xlabel=r'Pseudorapidity $\eta$',
+plot_comparison_with_ratio(truth_eta_p, reco_eta_p, chi2_values, xlabel=r'Pseudorapidity $\eta$',
                           title=r'Truth vs. Reconstructed Neutrino+ Pseudorapidity $\eta$',
                           xlim=(-3.5, 3.5))
 plot_comparison_with_ratio(truth_eta_m, reco_eta_m, xlabel=r'Pseudorapidity $\eta$',

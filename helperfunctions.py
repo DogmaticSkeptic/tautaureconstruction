@@ -127,20 +127,22 @@ def reconstruct_neutrino_momenta(p_pi_p_reco, p_pi_m_reco, MET_x, MET_y,
         method="BFGS"
     )
 
-    # Check if chi-square is too large
-    if result.fun > 1e6:
-        return np.array([np.nan, np.nan, np.nan, np.nan]), np.array([np.nan, np.nan, np.nan, np.nan])
-
     p_nu_p_opt = np.array([np.linalg.norm(result.x[:3]), *result.x[:3]])
     p_nu_m_opt = np.array([np.linalg.norm(result.x[3:]), *result.x[3:]])
 
-    return p_nu_p_opt, p_nu_m_opt
+    return p_nu_p_opt, p_nu_m_opt, result.fun
 
-def plot_comparison_with_ratio(truth_values, reco_values, xlabel, title, bins=50, xlim=None):
+def plot_comparison_with_ratio(truth_values, reco_values, chi2_values, xlabel, title, bins=50, xlim=None):
     """Plot histograms with ratio plot below and save to file"""
     truth_values = np.array(truth_values)
     reco_values = np.array(reco_values)
-    valid_mask = ~np.isnan(truth_values) & ~np.isnan(reco_values)
+    chi2_values = np.array(chi2_values)
+    
+    # Filter out points with chi2 > 1e6
+    valid_mask = (~np.isnan(truth_values) & 
+                  ~np.isnan(reco_values) & 
+                  (chi2_values <= 1e6))
+    
     truth_values = truth_values[valid_mask]
     reco_values = reco_values[valid_mask]
 
