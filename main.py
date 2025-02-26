@@ -295,8 +295,39 @@ for component, label, truth_p, reco_p, truth_m, reco_m in [
     )
 
 # Calculate spin correlation matrix C_ij
+def spin_correlation_model(x, C_ij):
+    """Model for spin correlation fit"""
+    return -0.5 * (1 + C_ij * x) * np.log(np.abs(x) + 1e-10)
+
+def fit_spin_correlation_component(cos_theta_A, cos_theta_B):
+    """Fit a single C_ij component using the spin correlation model"""
+    from scipy.optimize import curve_fit
+    
+    # Calculate x = cos_theta_A * cos_theta_B
+    x = np.array([a*b for a,b in zip(cos_theta_A, cos_theta_B)])
+    
+    # Create histogram of x values
+    hist, bin_edges = np.histogram(x, bins=50, range=(-1,1))
+    bin_centers = (bin_edges[:-1] + bin_edges[1:]) / 2
+    
+    # Normalize histogram to get dσ/dx
+    norm = np.sum(hist) * (bin_edges[1] - bin_edges[0])
+    dsigma_dx = hist / norm
+    
+    # Fit the model
+    try:
+        popt, _ = curve_fit(spin_correlation_model, 
+                           bin_centers, 
+                           dsigma_dx,
+                           p0=[0.0],  # Initial guess for C_ij
+                           bounds=(-1.0, 1.0))  # Physical bounds
+        return popt[0]
+    except:
+        return 0.0  # Return 0 if fit fails
+
 def calculate_spin_correlation(cos_theta_r_p, cos_theta_n_p, cos_theta_k_p,
                               cos_theta_r_m, cos_theta_n_m, cos_theta_k_m):
+    """Calculate spin correlation matrix using fitting method"""
     # Initialize correlation matrix
     C = np.zeros((3, 3))
     
@@ -305,24 +336,10 @@ def calculate_spin_correlation(cos_theta_r_p, cos_theta_n_p, cos_theta_k_p,
     axes_m = [cos_theta_r_m, cos_theta_n_m, cos_theta_k_m]
     axis_labels = ['r', 'n', 'k']
     
-    # Calculate C_ij for each pair of axes
+    # Calculate C_ij for each pair of axes using fitting
     for i in range(3):
         for j in range(3):
-            # Calculate x = cos_theta_i * cos_theta_j for each event
-            x = [axes_p[i][k] * axes_m[j][k] for k in range(len(axes_p[i]))]
-            
-            # Count positive and negative x values
-            N_plus = sum(1 for val in x if val > 0)
-            N_minus = sum(1 for val in x if val < 0)
-            
-            # Calculate asymmetry A
-            if (N_plus + N_minus) > 0:
-                A = (N_plus - N_minus) / (N_plus + N_minus)
-            else:
-                A = 0
-                
-            # Calculate correlation matrix element
-            C[i,j] = 4 * A
+            C[i,j] = fit_spin_correlation_component(axes_p[i], axes_m[j])
             
     return C, axis_labels
 
