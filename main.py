@@ -316,13 +316,16 @@ def fit_spin_correlation_component(cos_theta_A, cos_theta_B):
     
     # Fit the model
     try:
-        popt, _ = curve_fit(spin_correlation_model, 
-                           bin_centers, 
-                           dsigma_dx,
-                           p0=[0.0],  # Initial guess for C_ij
-                           bounds=(-1.0, 1.0))  # Physical bounds
+        print("  Fitting model to data...")
+        popt, pcov = curve_fit(spin_correlation_model, 
+                             bin_centers, 
+                             dsigma_dx,
+                             p0=[0.0],  # Initial guess for C_ij
+                             bounds=(-1.0, 1.0))  # Physical bounds
+        print(f"  Fit successful! C_ij = {popt[0]:.4f} ± {np.sqrt(pcov[0][0]):.4f}")
         return popt[0]
-    except:
+    except Exception as e:
+        print(f"  Fit failed! Error: {str(e)}")
         return 0.0  # Return 0 if fit fails
 
 def calculate_spin_correlation(cos_theta_r_p, cos_theta_n_p, cos_theta_k_p,
@@ -336,11 +339,16 @@ def calculate_spin_correlation(cos_theta_r_p, cos_theta_n_p, cos_theta_k_p,
     axes_m = [cos_theta_r_m, cos_theta_n_m, cos_theta_k_m]
     axis_labels = ['r', 'n', 'k']
     
+    print("\nStarting spin correlation matrix calculation...")
+    
     # Calculate C_ij for each pair of axes using fitting
     for i in range(3):
         for j in range(3):
+            print(f"\nFitting C_{axis_labels[i]}{axis_labels[j]} component...")
             C[i,j] = fit_spin_correlation_component(axes_p[i], axes_m[j])
+            print(f"  Fitted value: {C[i,j]:.4f}")
             
+    print("\nSpin correlation matrix calculation complete!")
     return C, axis_labels
 
 # Calculate and print correlation matrix for truth and reconstructed values
